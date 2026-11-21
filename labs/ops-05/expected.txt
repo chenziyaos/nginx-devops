@@ -1,0 +1,105 @@
+
+## sendfile is off by default
+sf-default: sendfile lines 0, writev lines 7
+sf-on: sendfile lines 1, writev lines 0
+sendfile: @0 200258 h:258
+writev sizes without sendfile: 33026 32768 32768 32768 32768 32768 3392 
+ok - without sendfile on the file is read and written with writev; with it, sendfile() sends it
+
+## Last-Modified and ETag
+HTTP/1.1 200 OK
+Content-Length: 5
+Last-Modified: Fri, 02 Jan 2026 03:04:05 GMT
+ETag: "695735a5-5"
+ETag computed from the file: "695735a5-5"
+ok - the ETag is the mtime and the size in hex
+
+## conditional requests
+If-None-Match = ETag:                         304
+If-Modified-Since = Last-Modified:            304
+If-Modified-Since one hour later (exact):     200
+If-Modified-Since one hour later (before):    304
+matching ETag + If-Modified-Since one hour earlier: 200
+If-None-Match = W/ETag:                       304
+ok - both validators must agree; exact needs the same second; INM compares weakly
+
+## what a 304 keeps
+HTTP/1.1 304 Not Modified
+Last-Modified: Fri, 02 Jan 2026 03:04:05 GMT
+ETag: "695735a5-5"
+ok - a 304 has no Content-Length and no Accept-Ranges
+
+## Range
+bytes=0-4      206 bytes 0-4/26 [abcde]
+bytes=-3       206 bytes 23-25/26 [xyz]
+bytes=24-100   206 bytes 24-25/26 [yz]
+bytes=0-1,4-5  206 multipart/byteranges; boundary=...
+max_ranges 1   200 (two ranges)
+bytes=30-40    416 bytes */26
+stale If-Range 200
+ok - 206 per range, 200 above max_ranges or with a stale If-Range, 416 past the end
+
+## gzip with the default settings
+index.html (text/html, 307 bytes)  1
+style.css (text/css)               0
+tiny.html (11 bytes)               0
+index.html with Via: 1.1 cdn       0
+index.html over HTTP/1.0           0
+ok - only text/html of at least 20 bytes, over HTTP/1.1, without a Via header (1 = gzipped)
+
+## what gzip changes in the response
+HTTP/1.1 200 OK
+Transfer-Encoding: chunked
+Vary: Accept-Encoding
+ETag: W/"695735a5-133"
+Content-Encoding: gzip
+with Range: bytes=0-9 -> 200
+ok - the gzipped response is chunked, has a weak ETag and ignores Range
+
+## gzip_static
+HTTP/1.1 200 OK
+Content-Length: 52
+Content-Encoding: gzip
+HTTP/1.1 200 OK
+Content-Length: 307
+app.js 307 bytes, app.js.gz 52 bytes
+ok - a client that accepts gzip gets app.js.gz as is, others get app.js
+
+## expires
+HTTP/1.1 200 OK
+Last-Modified: Wed, 01 Jan 2020 00:00:00 GMT
+Cache-Control: max-age=3600
+HTTP/1.1 200 OK
+Last-Modified: Wed, 01 Jan 2020 00:00:00 GMT
+Cache-Control: no-cache
+HTTP/1.1 404 Not Found
+ok - 1h from now is max-age=3600; 1h after a 2020 mtime is in the past; a 404 gets nothing
+
+## open_file_cache keeps the old file
+before: ofc=v1 noofc=v1
+after mv: ofc=v1 noofc=v2
+ok - within open_file_cache_valid the cached descriptor still points to the old file
+
+## keepalive_requests and the Keep-Alive header
+num_connects per request: 1 0 0 1 
+access.log $connection_requests: 1 2 3 1 
+Connection: keep-alive
+Keep-Alive: timeout=60
+Connection: keep-alive
+Keep-Alive: timeout=60
+Connection: close
+ok - the third request on a connection gets Connection: close, the fourth opens a new one
+
+## client_max_body_size
+500 bytes:           200 got 500
+2000 bytes:          413
+2000 bytes, chunked: 413
+[error] client intended to send too large body: 2000 bytes
+[error] client intended to send too large chunked body: 0+2000 bytes
+ok - Content-Length is checked when the location is chosen, a chunked body while it is read
+
+## client_body_buffer_size
+page size 16384, default client_body_buffer_size = 2 pages = 32768
+100000 bytes to a location with client_body_buffer_size 8k: got 100000
+[warn] a client request body is buffered to a temporary file $LAB/client_body_temp/NNNNNNNNNN
+ok - a body larger than the buffer is written to client_body_temp

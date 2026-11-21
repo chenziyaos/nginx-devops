@@ -1,0 +1,58 @@
+
+## default protocols
+tls1_3   New, TLSv1.3 
+tls1_2   New, TLSv1.2 
+tls1_1   New, (NONE) (handshake failed)
+[info] SSL_do_handshake() failed (SSL: unsupported protocol) while SSL handshaking
+ok - TLSv1.2 and TLSv1.3 are accepted; TLSv1.1 is refused by the server
+
+## RSA and ECDSA certificates on one server
+client accepts RSA-PSS only: Server public key is 2048 bit / Peer signature type: rsa_pss_rsae_sha256
+client accepts ECDSA only:   Server public key is 256 bit / Peer signature type: ecdsa_secp256r1_sha256
+ok - OpenSSL picks the certificate that matches the client's signature algorithms
+
+## SNI and the default server
+18160 SNI a.test     -> subject=CN=a.test, Verify return code: 0 (ok)
+18160 SNI b.test     -> subject=CN=b.test, Verify return code: 0 (ok)
+18160 SNI other.test -> subject=CN=a.test, Verify return code: 0 (ok)
+18161 SNI a.test     -> subject=CN=a.test
+18161 SNI other.test -> tlsv1 unrecognized name, SSL alert number 112
+ok - an unknown name gets the default server's certificate, or nothing with ssl_reject_handshake
+[info] handshake rejected while SSL handshaking
+
+## plain HTTP to an HTTPS port
+The plain HTTP request was sent to HTTPS port
+status: 400
+ok - nginx answers 400 with its own message (497 inside, for error_page)
+with error_page 497 =301: 301 https://a.test:18163/x?y=1
+ok - error_page 497 turns the same request into a redirect to https
+
+## certificates loaded per handshake
+18167 a.test, first:            subject=CN=a.test
+18168 a.test, first:            subject=CN=a.test
+18167 a.test, file replaced:    subject=CN=b.test
+18168 a.test, file replaced:    subject=CN=a.test
+18167 no SNI:                   no peer certificate available
+[error] cannot load certificate "$LAB/conf/../out/run/dyn/.crt": BIO_new_file() failed
+ok - without a cache every handshake reads the file; ssl_certificate_cache keeps the old one for valid=60s
+
+## session tickets and reload
+before reload: no cache: Reused, shared cache: Reused
+after reload:  no cache: New, shared cache: Reused
+ok - ticket keys of a shared session cache survive a reload, the SSL_CTX ones do not
+
+## HTTP/2
+TLS, http2 on:       HTTP/2.0 TLSv1.3
+TLS, no http2:       HTTP/1.1
+plain, http2 on:     HTTP/2.0
+plain, no http2:     000
+preface to 18165:    HTTP/1.1 400 Bad Request
+preface to 18164:    SETTINGS 3=128 4=65536 5=16777215 9=1 | WINDOW_UPDATE 2147418112
+ok - the SETTINGS frame carries the defaults from the source, and RFC 7540 priorities are switched off
+[warn] the "listen ... http2" directive is deprecated, use the "http2" directive instead in $LAB/conf/listen-http2.conf:6
+ok - ALPN gives HTTP/2 only where http2 is on; listen ... http2 is deprecated
+
+## HTTP/3
+QUIC handshake: New, TLSv1.3, ALPN protocol: h3
+alt-svc: h3=":18160"; ma=86400
+ok - the QUIC listener negotiates h3; Alt-Svc comes from add_header

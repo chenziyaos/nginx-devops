@@ -1,0 +1,55 @@
+
+## default escaping, escape=json, escape=none
+default: a\x22b\x5Cc\x01d\xC3\xA9
+json:    {"ua":"a\"b\\c\u0001dé"}
+none:    61 22 62 5c 63 01 64 c3 a9 0a (hex bytes)
+ok - default writes \xHH for " \ control bytes and bytes >= 0x80; json uses \" \\ \u0001 and keeps UTF-8
+
+## bytes_sent and body_bytes_sent
+log: status=200 bytes_sent=247 body_bytes_sent=11; curl saw a header of 236 bytes
+ok - bytes_sent is the header plus the body
+
+## request_time and upstream times
+/slowbody uct < 0.9, uht < 0.9, urt >= 0.9, rt >= 0.9, rt >= urt - 0.002: yes
+/slowhead uct < 0.9, uht < 0.9, urt < 0.9, rt < 0.9, rt >= urt - 0.002: yes
+/slowhead uct < 0.9, uht >= 0.9, urt >= 0.9, rt >= 0.9, rt >= urt - 0.002: yes
+ok - a slow body shows in urt and rt only; a delayed header shows in uht as well
+
+## one value per upstream attempt
+addr=[127.0.0.1:18229, 127.0.0.1:18221] status=[502, 200] urt=[T, T]
+ok - the dead server and the live one are both listed, separated by ", "
+
+## conditional logging
+404 /cond/missing
+ok - only the 4xx line is written
+
+## buffered log with flush=3s
+0.2 s after the request: 0 lines
+3.5 s after the request: 1 lines
+ok - the line waits in memory until the flush timer fires
+
+## log_not_found
+[error] open() "$LAB/html/nf/x" failed (2: No such file or directory)
+ok - only the location without log_not_found off logs the missing file
+
+## stub_status
+Active connections: 2 
+server accepts handled requests
+ 17 17 17 
+Reading: 0 Writing: 1 Waiting: 1 
+17 17 17
+17 17 18
+18 18 19
+ok - a keepalive request adds a request but no connection; a new connection adds both
+
+## reopening logs with USR1
+after mv:   access.log.1 has 2 lines, access.log exists: no
+after USR1: access.log.1 has 2 lines, access.log has 1
+[notice] signal 30 (SIGUSR1) received from <pid>, reopening logs
+ok - the renamed file keeps receiving lines until USR1 reopens the path
+
+## json_set
+tenant=t-42 first_item=a1
+tenant=- first_item=-
+tenant=- first_item=-
+ok - a path picks one value; broken or missing JSON gives "-"

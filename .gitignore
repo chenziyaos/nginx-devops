@@ -1,0 +1,9 @@
+.nginx/
+.nginx-src/
+labs/*/logs/
+labs/*/*_temp/
+labs/*/out/
+.DS_Store
+__pycache__/
+labs/*/conf/.active.conf
+labs/*/modules

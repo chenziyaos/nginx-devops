@@ -1,0 +1,76 @@
+
+## what configure makes of the config file
+ngx_addon_name=ngx_http_hello_module
+
+ngx_module_type=HTTP_FILTER
+ngx_module_name=ngx_http_hello_module
+ngx_module_srcs="$ngx_addon_dir/ngx_http_hello_module.c"
+
+. auto/module
+--- auto/module, lines 23-31 (the order of a dynamic module)
+    if [ -z "$ngx_module_order" -a \
+         \( "$ngx_module_type" = "HTTP_FILTER" \
+         -o "$ngx_module_type" = "HTTP_AUX_FILTER" \) ]
+    then
+        eval ${ngx_module}_ORDER=\"$ngx_module_name \
+                                   ngx_http_copy_filter_module\"
+    else
+        eval ${ngx_module}_ORDER=\"$ngx_module_order\"
+    fi
+--- objs/ngx_http_hello_module_modules.c
+#include <ngx_config.h>
+#include <ngx_core.h>
+extern ngx_module_t  ngx_http_hello_module;
+ngx_module_t *ngx_modules[] = {
+    &ngx_http_hello_module,
+    NULL
+};
+char *ngx_module_names[] = {
+    "ngx_http_hello_module",
+    NULL
+};
+char *ngx_module_order[] = {
+    "ngx_http_hello_module",
+    "ngx_http_copy_filter_module",
+    NULL
+};
+signature in the .so:   8,4,8,1011001111010111011101111111111111
+signature in the nginx: 8,4,8,1011001111010111011101111111111111
+ok - an HTTP_FILTER module is ordered before copy_filter; the signatures match
+
+## the content handler
+hi from the module
+
+HTTP/1.1 200 OK
+Content-Length: 19
+POST: 405
+ok - GET 19 bytes, HEAD the same length without a body, POST 405
+
+## the location configuration is merged from the server
+/files/a.txt: X-Hello: srv 
+/off/a.txt: 
+/var/a.txt: X-Hello: uri=/var/a.txt 
+ok - inherited, switched off by an empty value, evaluated per request
+
+## the header filter runs before add_header's
+HTTP/1.1 200 OK
+X-Hello: srv
+X-Add: 1
+ok - X-Hello is pushed before X-Add
+
+## the variable is read again by the access log
+/count 200 before=4 now=5
+/count 200 before=5 now=6
+ok - set reads the count before the handler, the log after it
+
+## what ngx_add_module refuses
+[emerg] module "$LAB/out/run/oldver.so" version 1030007 instead of 1031009 in $LAB/conf/oldver.conf:2
+[emerg] module "$LAB/out/run/badsig.so" is not binary compatible in $LAB/conf/badsig.conf:2
+[emerg] "load_module" directive is specified too late in $LAB/conf/late.conf:3
+[emerg] module "ngx_http_hello_module" is already loaded in $LAB/conf/twice.conf:3
+ok - wrong version, wrong signature, too late, twice
+
+## each worker has its own counter, a reload starts from zero
+before reload: 6
+after reload and one request: 1
+ok - the new worker counts from 1

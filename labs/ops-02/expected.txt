@@ -1,0 +1,106 @@
+
+## Bad context: worker_processes in server block
+ok - is not allowed here
+
+## Bad arguments: listen with junk parameter
+ok - invalid parameter
+
+## Include with glob pattern
+ok - main server responds
+ok - included server 1 responds
+ok - included server 2 responds
+
+## Array override: add_header in location vs inherited
+ok - location override: X-Child present
+ok - location override: X-Parent absent
+ok - inherited location: X-Parent present
+
+## Array with add_header_inherit merge
+HTTP/1.1 200 OK
+X-Child: from-location
+X-Parent: from-server
+HTTP/1.1 200 OK
+X-Child: from-location
+HTTP/1.1 200 OK
+X-Child: from-location
+HTTP/1.1 200 OK
+ok - merge mode: X-Parent present
+ok - merge mode: X-Child present
+ok - on mode: X-Child present
+ok - on mode: X-Parent absent
+ok - off mode: X-Child present
+ok - off mode: X-Parent absent
+ok - off-no-header mode: X-Parent absent
+ok - off-no-header mode: X-Child absent
+
+## Variables: map directive
+ok - map unknown case
+ok - map mobile case
+ok - map tablet case
+
+## if statement with add_header (may not work)
+With test=yes (if condition true):
+HTTP/1.1 200 OK
+X-IfTest: if-value
+With test=no (if condition false):
+HTTP/1.1 200 OK
+X-Parent: parent-value
+ok - if-true: X-IfTest present
+ok - if-false: X-Parent present
+ok - if-false: X-IfTest absent
+
+## add_header with safe vs unsafe status codes
+Status 200 headers:
+HTTP/1.1 200 OK
+X-Regular: regular
+X-Always: always
+Status 404 headers:
+HTTP/1.1 404 Not Found
+X-Always: always
+ok - 200: X-Regular present
+ok - 200: X-Always present
+ok - 404: X-Regular absent
+ok - 404: X-Always present
+
+## nginx -T: show merged configuration
+nginx: the configuration file $LAB/conf/for-T-output.conf syntax is ok
+nginx: configuration file $LAB/conf/for-T-output.conf test is successful
+# configuration file $LAB/conf/for-T-output.conf:
+events {
+    worker_connections 1024;
+}
+
+http {
+    include conf.d/*.conf;
+
+    server {
+        listen 127.0.0.1:18050;
+        server_name _;
+
+        location / {
+            return 200 "main\n";
+        }
+    }
+}
+
+# configuration file $LAB/conf/conf.d/server1.conf:
+server {
+    listen 127.0.0.1:18041;
+    server_name srv1;
+
+    location / {
+        return 200 "server1\n";
+    }
+}
+
+# configuration file $LAB/conf/conf.d/server2.conf:
+server {
+    listen 127.0.0.1:18042;
+    server_name srv2;
+
+    location / {
+        return 200 "server2\n";
+    }
+}
+
+ok - -T prints every included file after a "# configuration file" line

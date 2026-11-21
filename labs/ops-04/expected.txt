@@ -1,0 +1,102 @@
+
+## server_name: exact, wildcards, regex, default
+first.test         /                                -> first.test
+example.com        /                                -> example.com
+EXAMPLE.com.       /                                -> example.com
+a.example.com      /                                -> *.example.com
+x.y.example.com    /                                -> *.example.com
+a.api.example.com  /                                -> *.api.example.com
+www.foo.org        /                                -> www.*
+www.foo.net        /                                -> www.*
+42.num.test        /                                -> regex num, n=42
+dot.test           /                                -> .dot.test
+a.dot.test         /                                -> .dot.test
+unknown.test       /                                -> first.test
+a.test             /                                -> a.test
+unknown.test       /                                -> b.test (default_server)
+ok - exact beats wildcards, *.x beats x.*, wildcards beat regex, then the default
+
+## requests without a usable Host
+HTTP/1.0 without Host -> first.test
+Host: a b -> 400
+Host: a..b -> 400
+client sent invalid host header while reading client request headers
+client sent invalid host header while reading client request headers
+ok - no Host goes to the default server
+ok - spaces and empty labels in Host are rejected with 400
+
+## location: prefix, exact, ^~ and regex
+l.test             /                                -> = /
+l.test             /index.html                      -> /
+l.test             /docs/a.txt                      -> /docs/
+l.test             /docs/a.png                      -> ~ \.(png|jpg)
+l.test             /static/a.png                    -> ^~ /static/
+l.test             /static/img/a.png                -> ~ \.(png|jpg)
+l.test             /exact                           -> = /exact
+l.test             /exact/more                      -> /exact
+l.test             /api                             -> ~ ^/api
+l.test             /api/v2/users                    -> ~ ^/api/v[0-9]+/
+l.test             /report.PDF                      -> ~* \.pdf
+ok - = stops, ^~ on the longest prefix skips regex, otherwise the first matching regex wins
+
+## location: case on macOS
+Darwin
+l.test             /DOCS/a.txt                      -> /docs/
+ok - prefix match ignores case only where nginx treats the file system as caseless
+
+## predicate locations
+p.test             /                                -> /
+p.test             /                  X-Beta: 1     -> 1 (predicate)
+p.test             /                  X-Beta: 0     -> /
+p.test             /                  X-Beta: 00    -> 00 (predicate)
+p.test             /                  X-Beta: no    -> no (predicate)
+p.test             /a.json            X-Beta: 1     -> ~ \.json
+p.test             /stable/x          X-Beta: 1     -> ^~ /stable/
+p.test             /admin/x                         -> /admin/
+p.test             /admin/x           X-Admin: yes  -> /admin/ > yes (nested predicate)
+p.test             /admin/x           X-Beta: 1     -> 1 (predicate)
+ok - true = not empty and not "0"; regex first; ^~ skips predicates; a predicate beats a plain prefix
+lines with predicate_locations in ngx_http_core_module.c: 1.30.7 0, 1.31.9 2
+ok - 1.30.7 has no predicate locations
+
+## try_files
+t.test             /app.js                          -> app
+t.test             /no/such/page                    -> index
+t.test             /api/x                           -> named location, uri=/api/x
+HTTP/1.1 301 Moved Permanently
+Location: http://127.0.0.1:18084/docs/
+/strict/none status: 404
+ok - files are tried in order, the last argument is where to go
+ok - $uri/ only tests the directory; static then redirects /docs to /docs/
+ok - =404 is returned as is
+
+## try_files: what is tested for /no/such/page
+trying to use file: "/no/such/page"
+trying to use dir: "/no/such/page"
+trying to use file: "/index.html"
+trying to use file: "/index.html"
+ok - two checks for the URI, then the fallback, then the fallback's own check after the redirect
+
+## try_files: a fallback that matches the same location loops
+/loop/x -> 500
+rewrite or internal redirection cycle while internally redirecting to "/loop/again"
+ok - 10 internal redirects end with 500
+
+## root and alias
+r.test             /root-demo/x.txt                 -> root x
+r.test             /files/a.txt                     -> alias a
+r.test             /img/a.txt                       -> alias a
+r.test             /img../secret.txt                -> secret
+r.test             /cap/a.txt                       -> alias a
+/files/../secret.txt status: 404
+ok - root appends the URI, alias replaces the location prefix
+ok - a real ../ segment is normalized away before matching
+
+## return and rewrite run before access control
+ph.test            /deny-return/                    -> return ran, deny did not
+ph.test            /rewrite-last/abc                -> location /target/, uri=/target/abc
+/deny-static/x status: 403
+/rewrite-break/abc status: 404
+open() "$LAB/html/target/abc" failed (2: No such file or directory)
+ok - return answers before deny is checked; last re-runs location matching
+ok - deny works for static content; break keeps the request in its location

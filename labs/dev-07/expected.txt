@@ -1,0 +1,173 @@
+
+## the code arrays built at configuration time
+server: 136 bytes of codes, stack 10
+     0  regex_start "^/old/(.*)$" next=+128 uri add_args
+    72  copy "/new/"
+    96  copy_capture $1
+   112  regex_end
+   128  stop
+/chain/: 384 bytes of codes, stack 10
+     0  regex_start "^/chain/(.*)$" next=+128 uri add_args
+    72  copy "/step1/"
+    96  copy_capture $1
+   112  regex_end
+   128  regex_start "^/step1/(.*)$" next=+136 uri add_args
+   200  copy "/step2/"
+   224  copy_capture $1
+   240  regex_end
+   256  stop
+   264  regex_start "^" next=+112 uri add_args
+   336  copy "/never"
+   360  regex_end
+   376  stop
+/brk/: 208 bytes of codes, stack 10
+     0  regex_start "^/brk/(.*)$" next=+136 uri break add_args
+    72  copy "/files/"
+    96  copy_capture $1
+   112  regex_end
+   128  stop
+   136  return 403 ""
+   200  stop
+/args/: 168 bytes of codes, stack 10
+     0  regex_start "^/args/(.*)$" next=+160 uri add_args
+    72  copy "/new/"
+    96  copy_capture $1
+   112  start_args
+   120  copy "x=1"
+   144  regex_end
+   160  stop
+/noargs/: 168 bytes of codes, stack 10
+     0  regex_start "^/noargs/(.*)$" next=+160 uri
+    72  copy "/new/"
+    96  copy_capture $1
+   112  start_args
+   120  copy "x=1"
+   144  regex_end
+   160  stop
+/set/: 528 bytes of codes, stack 10
+     0  push_value "x"
+    32  set_var $a
+    48  complex_value
+    64  copy_var $a
+    80  copy "-"
+   104  copy_var $uri
+   120  complex_value_end
+   128  set_var $b
+   144  push_var $arg_mode
+   160  push_value "deny"
+   192  equal
+   200  if next=+88 (switches to the if{} location)
+   224  return 403 ""
+   288  push_var $http_x_name
+   304  regex_start "^(\w+)$" next=+72 test
+   376  if next=+80 (switches to the if{} location)
+   400  complex_value
+   416  copy_capture $1
+   432  complex_value_end
+   440  set_var $c
+   456  return 200 "a=$a b=$b c=$c\n" (with variables)
+   520  stop
+ok - last and break end in a stop, the third rewrite of /chain/ is after it
+
+## rewrite flags: none, last, break, redirect
+/old/a -> 200 new uri=/new/a args=
+/chain/a -> 200 step2 uri=/step2/a
+/brk/a.txt -> 200 file a
+/redir/a -> 301 <html>
+"^/old/(.*)$" matches "/old/a"
+rewritten data: "/new/a", args: ""
+"^/old/(.*)$" does not match "/chain/a"
+"^/chain/(.*)$" matches "/chain/a"
+rewritten data: "/step1/a", args: ""
+"^/step1/(.*)$" matches "/step1/a"
+rewritten data: "/step2/a", args: ""
+"^/old/(.*)$" does not match "/brk/a.txt"
+"^/brk/(.*)$" matches "/brk/a.txt"
+rewritten data: "/files/a.txt", args: ""
+"^/old/(.*)$" does not match "/redir/a"
+"^/redir/(.*)$" matches "/redir/a"
+rewritten redirect: "http://example.test/a"
+ok - /old/ -> /new/, /chain/ -> /step2/ (two rewrites, the third skipped), /brk/ keeps the location, 301
+
+## arguments: appended unless the replacement ends with ?
+/args/a?q=1 -> 200 new uri=/new/a args=x=1&q=1
+/noargs/a?q=1 -> 200 new uri=/new/a args=x=1
+ok - x=1&q=1, then x=1 only
+
+## set and if run on a value stack
+/set/z?mode=ok -> 200 a=x b=x-/set/z c=Bob
+http script regex: "^/old/(.*)$"
+"^/old/(.*)$" does not match "/set/z"
+http script value: "x"
+http script set $a
+http script complex value
+http script var: "x"
+http script copy: "-"
+http script var: "/set/z"
+http script complex value end
+http script set $b
+http script var
+http script var: "ok"
+http script value: "deny"
+http script equal
+http script equal: no
+http script if
+http script if: false
+http script var
+http script var: "Bob"
+http script regex: "^(\w+)$"
+"^(\w+)$" matches "Bob"
+http script if
+http script complex value
+http script capture: "Bob"
+http script complex value end
+http script set $c
+http script copy: "a="
+http script var: "x"
+http script copy: " b="
+http script var: "x-/set/z"
+http script copy: " c="
+http script var: "Bob"
+ok - the first if is false, the regex if captures Bob
+
+## an unset variable is empty and logged
+/set/z?mode=ok -> 200 a=x b=x-/set/z c=
+[warn] using uninitialized "c" variable
+/set/z?mode=deny -> 403 <html>
+
+## nocacheable variables are read again, cacheable ones are not
+/flush/ -> 200 u1=/flush/ u2=/flushed
+/cache/ -> 200 early=[]
+/nocache/ -> 200 ok
+"GET /flush/ HTTP/1.1" 200 uri=/flushed args=- ct=text/plain
+"GET /cache/ HTTP/1.1" 200 uri=/cache/ args=- ct=-
+"GET /nocache/ HTTP/1.1" 200 uri=/nocache/ args=- ct=text/plain
+ok - u2 sees the new URI; the log of /cache/ has no content type
+
+## variables are indexed at configuration time
+20 indexed variables, 9 prefix variables
+   0 $uid_reset                changeable
+   1 $request                 
+   2 $uri                      nocacheable
+   3 $args                     changeable nocacheable
+   4 $sent_http_content_type  
+   5 $a                        changeable
+   6 $b                        changeable
+   7 $arg_mode                 nocacheable prefix
+   8 $http_x_name              prefix
+   9 $c                        changeable
+  10 $u1                       changeable
+  11 $u2                       changeable
+  12 $early                    changeable
+  13 $proxy_internal_body_length nocacheable
+  14 $proxy_internal_chunked   nocacheable
+  15 $host                    
+  16 $is_request_port         
+  17 $request_port            
+  18 $content_length          
+  19 $grpc_internal_trailers   nocacheable
+ok - set adds changeable variables; $uri is nocacheable, $sent_http_content_type is not
+
+## set cannot overwrite a built-in variable
+[emerg] the duplicate "uri" variable in $LAB/conf/bad-set.conf:8
+configuration file $LAB/conf/bad-set.conf test failed

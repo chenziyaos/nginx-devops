@@ -1,0 +1,71 @@
+
+## smooth weighted round robin
+weights A=5 B=1 C=1, 14 requests: A A B A C A A A A B A C A A
+ok - the sequence of the smooth weighted algorithm in ngx_http_upstream_get_peer
+
+## max_fails and fail_timeout
+4 requests right away:  A A A A
+connect() failed lines: 1
+[warn] upstream server temporarily disabled while connecting to upstream
+after fail_timeout=2s, 4 more requests: A A A A, connect() failed lines: 2
+ok - every request is answered by A; the dead server is tried once, then once more after fail_timeout
+
+## a single server is never marked failed
+3 requests: 502 502 502
+connect() failed lines: 3, no live upstreams: 0
+ok - with one server every request connects again
+
+## all servers failed, backup, down
+alldead, 2 requests: 502 502
+[error] kevent() reported that connect() failed while connecting to upstream, upstream: http://127.0.0.1:18158/
+[error] kevent() reported that connect() failed while connecting to upstream, upstream: http://127.0.0.1:18159/
+[error] no live upstreams while connecting to upstream, upstream: http://alldead/
+withbak:  D D D
+withdown: A A A
+ok - the second request finds no live peer; backup answers when the group is dead; down is skipped
+
+## what proxy_next_upstream counts
+default (error timeout), 4 GETs:   200 500 200 500
+error timeout http_500, 4 GETs:    200 200 200 200
+error timeout http_500, 2 POSTs:   200 500
+/flaky2/ 200 A 200
+/flaky2/ 200 B, A 500, 200
+/flaky2/ 200 A 200
+/flaky2/ 200 A 200
+/flaky3/ 200 A 200
+/flaky3/ 500 B 500
+[warn] upstream server temporarily disabled while reading response header from upstream
+ok - 500 is passed on by default; with http_500 GETs move on, a POST that was sent does not
+
+## hash and hash consistent when a server is removed
+keys not on C that moved, consistent: 0 of 42
+keys not on C that moved, plain hash: 21 of 42
+ok - consistent hashing moves only the removed server's keys; plain hash moves others too
+
+## ip_hash
+hash for 127.0.0.x: 4040, peer index 4040 % 3 = 2
+5 requests from 127.0.0.1: C C C C C
+ok - every request goes to the peer the formula picks
+
+## least_conn
+rr2: slow download on A, 4 quick requests: E A E A
+lc: slow download on A, 4 quick requests: E E E E
+ok - least_conn sends every quick request to the server without the slow one
+
+## least_time last_byte
+rr3: 10 requests for a 100 KB file, E (50 KB/s) answered 5
+lt: 10 requests for a 100 KB file, E (50 KB/s) answered 1
+ok - after E took about 1 s once, least_time keeps sending to A
+
+## sticky cookie
+first response: Set-Cookie: srv=0e57371d9e83b31f08308d72755712b1
+  md5("127.0.0.1:18141") = 0e57371d9e83b31f08308d72755712b1
+  md5("127.0.0.1:18142") = f1315a3b08240fdf68ff135b324b8393
+  md5("127.0.0.1:18143") = 291939ce34f3802e2bda36686ce54a02
+5 requests with that cookie: A A A A A 
+route=: srv=a, srv=b
+ok - the cookie is the MD5 of the server address, and requests carrying it stay there
+
+## resolve needs a zone
+[emerg] resolving names at run time requires upstream "app" in $LAB/conf/resolve-nozone.conf:7 to be in shared memory
+ok - server ... resolve is rejected unless the upstream has a zone

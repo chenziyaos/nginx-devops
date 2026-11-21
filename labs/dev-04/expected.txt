@@ -1,0 +1,56 @@
+
+## every module's directives in one table
+92 static modules, 675 directives
+"server" is defined by 4 modules: ngx_http_core_module ngx_http_upstream_module ngx_stream_core_module ngx_stream_upstream_module
+"listen" is defined by 2 modules: ngx_http_core_module ngx_stream_core_module
+89 names are defined by more than one module
+ok - server belongs to the http, upstream, stream and stream upstream modules
+
+## the tokenizer
+/hash     a#b
+/escape    1 \n 2 \t 3 (od -c)
+/variable 127.0.0.1-x
+/brace    no space before {
+ok - "#" inside a word is kept; \n and \t are expanded; "{" after "$" stays in the word; "{" ends a word
+
+## what the parser and the dispatcher reject
+args       [emerg] invalid number of arguments in "sendfile" directive in $LAB/conf/bad/args.conf:4
+brace      [emerg] unexpected "}" in $LAB/conf/bad/brace.conf:4
+context    [emerg] "worker_processes" directive is not allowed here in $LAB/conf/bad/context.conf:4
+duplicate  [emerg] "sendfile" directive is duplicate in $LAB/conf/bad/duplicate.conf:4
+eof        [emerg] unexpected end of file, expecting "}" in $LAB/conf/bad/eof.conf:5
+quote      [emerg] unexpected "b" in $LAB/conf/bad/quote.conf:4
+semicolon  [emerg] directive "sendfile" is not terminated by ";" in $LAB/conf/bad/semicolon.conf:4
+unknown    [emerg] unknown directive "colour" in $LAB/conf/bad/unknown.conf:4
+variable   [emerg] unknown "no_such_variable" variable
+ok - every error carries file:line except the unknown variable
+
+## -g is parsed before the configuration file
+-g twice:       [emerg] "worker_processes" directive is duplicate in command line
+-g with block:  [emerg] block directives are not supported in -g option in command line
+-g without ;:   [emerg] unexpected end of parameter, expecting ";" in command line
+-g and file:    [emerg] "worker_processes" directive is duplicate in $LAB/conf/nginx.conf:2
+ok - a directive in -g and in the file: the file's line is the duplicate
+
+## the http{} tree after ngx_init_cycle
+ngx_http_max_module=59, servers=2
+http{}    client_max_body_size=2048k (http-level loc_conf)
+server a: main_conf shared with http{}: yes, own srv_conf: yes, client_max_body_size=2048k
+  a         location /a           client_max_body_size=5120k parent=server
+  a         location /a/b         client_max_body_size=5120k parent=/a
+  a         location /c           client_max_body_size=2048k parent=server
+  a         location = /exact     client_max_body_size=2048k parent=server
+  a         location ~ \.php$     client_max_body_size=2048k parent=server
+server b: main_conf shared with http{}: yes, own srv_conf: yes, client_max_body_size=1024k
+  b         location /            client_max_body_size=1024k parent=server
+loc_conf arrays: 1 http + 2 server + 6 location = 9, each with 59 slots
+ok - inherited from http{}, from the server, from the enclosing location
+
+## reload keeps a listening socket whose address is unchanged
+before:
+127.0.0.1:19082 fd 5
+127.0.0.1:19083 fd 6
+after:
+127.0.0.1:19082 fd 5
+127.0.0.1:19084 fd 9
+ok - 19082 keeps its fd, 19083 is closed, 19084 is new

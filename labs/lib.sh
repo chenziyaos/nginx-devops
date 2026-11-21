@@ -102,3 +102,67 @@ t() {
     ngx -t -c "$conf" 2>&1 | sed -e "s#$LAB/#\$LAB/#g" -E -e 's/^nginx: //' \
         -e 's/^[0-9\/]+ [0-9:]+ (\[[a-z]+\]) [0-9]+#[0-9]+: /\1 /' || true
 }
+
+# fire N URL [curl args...]: send N requests at the same moment (N curl processes) and
+# print how many got each status, e.g. "6x 200" / "2x 503". Sorted, so the output does
+# not depend on arrival order. The slowest response time is kept for slowest_at_least.
+fire() {
+    local n=$1 u=$2 i
+    shift 2
+    for i in $(seq "$n"); do
+        curl -s -o /dev/null -w '%{http_code} %{time_total}\n' "$@" "$u" &
+    done > out/run/fire.txt
+    wait
+    sort out/run/fire.txt | awk '{ print $1 }' | uniq -c | awk '{ print $1 "x " $2 }'
+}
+
+# slowest_at_least S: after fire, print whether the slowest response took at least S seconds.
+# Use it for "the queue made someone wait": exact times jitter, a lower bound does not.
+slowest_at_least() {
+    sort -k2,2n out/run/fire.txt | tail -1 \
+        | awk -v s="$1" '{ print "slowest response >= " s " s: " ($2 + 0 >= s ? "yes" : "no") }'
+}
+
+# all_below S: after fire, print whether every response took less than S seconds.
+all_below() {
+    sort -k2,2n out/run/fire.txt | tail -1 \
+        | awk -v s="$1" '{ print "every response < " s " s: " ($2 + 0 < s ? "yes" : "no") }'
+}
+
+# seq_codes N URL [curl args...]: send N requests one after another, print the status codes
+# on one line, e.g. "200 503 503".
+seq_codes() {
+    local n=$1 u=$2 i out=()
+    shift 2
+    for i in $(seq "$n"); do
+        out+=("$(curl -s -o /dev/null -w '%{http_code}' "$@" "$u")")
+    done
+    echo "${out[*]}"
+}
+
+# expect "claim" ACTUAL WANTED: state what the chapter claims, then check it.
+# Prints "ok - claim" or "NOT OK - claim: got <actual>, want <wanted>";
+# tools/verify_labs.sh fails a lab whose output contains "NOT OK".
+# Write the WANTED value from the source code before running the lab.
+expect() {
+    if [[ "$2" == "$3" ]]; then
+        echo "ok - $1"
+    else
+        echo "NOT OK - $1: got [$2], want [$3]"
+    fi
+}
+
+# expect_match "claim" ACTUAL REGEX: like expect, but WANTED is an extended regex.
+expect_match() {
+    if [[ "$2" =~ $3 ]]; then
+        echo "ok - $1"
+    else
+        echo "NOT OK - $1: got [$2], want /$3/"
+    fi
+}
+
+# count_status STATUS: after fire, how many responses had that status.
+count_status() { awk -v s="$1" '$1 == s' out/run/fire.txt | wc -l | tr -d ' '; }
+
+# count_log REGEX: how many access.log lines match.
+count_log() { grep -cE "$1" logs/access.log || true; }

@@ -37,6 +37,12 @@ for id in ${labs[@]+"${labs[@]}"}; do
         fail=$((fail + 1))
         continue
     fi
+    if grep -q '^NOT OK' "$d/out/actual.txt"; then
+        echo "FAIL $id: a claim does not hold"
+        grep '^NOT OK' "$d/out/actual.txt" | head -10 | sed 's/^/    /'
+        fail=$((fail + 1))
+        continue
+    fi
     if [[ -n "${UPDATE:-}" ]]; then
         cp "$d/out/actual.txt" "$d/expected.txt"
         echo "UPDATED $id"

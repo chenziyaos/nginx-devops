@@ -8,7 +8,7 @@ Usage:
 Rules (each fenced block must declare where it comes from on its first line):
 
   ```c      // src/core/ngx_palloc.c:19-44      nginx source, lines 19..44 of release-1.31.9.
-                                                 Body lines must appear in that range, in order;
+                                                 Body lines must appear in that range, in order, with the same indentation;
                                                  "/* ... */" lines mark elisions.
             // modules/<dir>/<file>.c:10-30      the repo's own module source, same rule.
             // 示意                              pseudo code, not checked.
@@ -25,7 +25,8 @@ point at an existing line, and when the link text is a `code` identifier, that i
 must occur within lines n..max(m, n+2). Relative links must point at existing files.
 Chapters under ops/ and dev/ must also follow the skeleton in spec: 一句话结论, 导读,
 5-9 numbered sections each with a **小结** line, 已知局限与待核实, 修订记录, at least one
-mermaid figure, a minimum length, and lab configs kept as files. Every x.y.z version in
+3 mermaid figures, 4 quoted lab outputs, at most 2 示意 blocks, a minimum length,
+lab configs kept as files, and expect checks in run.sh for at least half of its steps. Every x.y.z version in
 the prose must exist in changes.xml; --versions lists each mention with its sentence so a
 reviewer can check it against tools/since.py.
 Exit code 1 on any error.
@@ -96,8 +97,9 @@ def check_excerpt(body, hdr, elide):
     a, b = int(a), int(b)
     if not (1 <= a <= b <= len(src)):
         return f'{path}:{a}-{b}: out of range (file has {len(src)} lines)'
-    want = [norm(x) for x in body if x.strip() and not elide(x)]
-    have = [norm(x) for x in src[a - 1:b]]
+    # exact lines (trailing spaces aside): excerpts keep nginx's own indentation
+    want = [x.rstrip() for x in body if x.strip() and not elide(x)]
+    have = [x.rstrip() for x in src[a - 1:b]]
     bad = subsequence(want, have)
     if bad is not None:
         return f'{path}:{a}-{b}: line not found in range: {want[bad]!r}'
@@ -261,8 +263,12 @@ def check_structure(md, text, prose, stats):
         title = s.split('\n', 1)[0].strip()
         if '**小结**' not in s:
             out.append(f'section "{title}" has no **小结** line')
-    if stats['mermaid'] < 1:
-        out.append('no mermaid figure (expected 1-3)')
+    if stats['mermaid'] < 3:
+        out.append(f'{stats["mermaid"]} mermaid figures, expected at least 3')
+    if stats['out'] < 4:
+        out.append(f'{stats["out"]} quoted lab outputs, expected at least 4')
+    if stats['sketch'] > 2:
+        out.append(f'{stats["sketch"]} 示意 blocks, at most 2')
     chars = len(re.sub(r'\s', '', text))
     stats['chars'] = chars
     if chars < MIN_CHARS[part]:
@@ -270,8 +276,14 @@ def check_structure(md, text, prose, stats):
     lab = re.search(r'labs/((?:ops|dev)-\d\d)', text)
     if lab:
         run = os.path.join(ROOT, 'labs', lab.group(1), 'run.sh')
-        if os.path.isfile(run) and re.search(r'cat\s*>+\s*conf/', open(run, encoding='utf-8').read()):
+        script = open(run, encoding='utf-8').read() if os.path.isfile(run) else ''
+        if re.search(r'cat\s*>+\s*conf/', script):
             out.append(f'labs/{lab.group(1)}/run.sh writes conf/ at run time; keep configs as files')
+        steps = len(re.findall(r'^\s*step\s', script, re.M))
+        expects = len(re.findall(r'^\s*expect(?:_match)?\s', script, re.M))
+        if script and expects < max(3, (steps + 1) // 2):
+            out.append(f'labs/{lab.group(1)}/run.sh has {expects} expect checks for {steps} steps; '
+                       f'need at least max(3, steps/2)')
     return out
 
 

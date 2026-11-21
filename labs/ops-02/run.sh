@@ -87,9 +87,7 @@ expect "404: X-Always present" "$(echo "$hdr_404_full" | grep -c 'X-Always')" "1
 stop
 
 step "nginx -T: show merged configuration"
-# Test the -T output with include expansion
-T_output="$(ngx -t -c conf/for-T-output.conf 2>&1 || true)"
-echo "Configuration test output:"
-echo "$T_output"
-# This is informational; just ensure -t works
-expect "nginx -t success" "$(echo "$T_output" | grep -c 'successful')" "1"
+ngx -T -c conf/for-T-output.conf 2>&1 | sed "s#$LAB/#\$LAB/#g" | tee out/run/T.txt
+expect "-T prints every included file after a \"# configuration file\" line" \
+    "$(grep '^# configuration file' out/run/T.txt | tr '\n' '|')" \
+    '# configuration file $LAB/conf/for-T-output.conf:|# configuration file $LAB/conf/conf.d/server1.conf:|# configuration file $LAB/conf/conf.d/server2.conf:|'

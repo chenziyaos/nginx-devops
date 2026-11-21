@@ -350,12 +350,17 @@ ok - included server 2 responds
 
 ```text
 # labs/ops-02 ## nginx -T: show merged configuration
-nginx: the configuration file /Users/bytedance/aiops/work/nginx-series/repo/labs/ops-02/conf/for-T-output.conf syntax is ok
-nginx: configuration file /Users/bytedance/aiops/work/nginx-series/repo/labs/ops-02/conf/for-T-output.conf test is successful
-ok - nginx -t success
+nginx: configuration file $LAB/conf/for-T-output.conf test is successful
+# configuration file $LAB/conf/for-T-output.conf:
+http {
+    include conf.d/*.conf;
+# configuration file $LAB/conf/conf.d/server1.conf:
+server {
+    listen 127.0.0.1:18041;
+# configuration file $LAB/conf/conf.d/server2.conf:
 ```
 
-用 `nginx -T` 时会在第一行打印 `# configuration file <path> ...` 标记每个被包含的文件，这样可以快速定位某个指令来自哪个文件。对包含多个 conf.d/*.conf 的大型配置特别有用。
+`-T` 在每个文件的内容前打印一行 `# configuration file <路径>:`，主文件在前，`include` 进来的文件按展开顺序跟在后面（上面只摘了每个文件的开头几行），据此可以定位某个指令来自哪个文件。对包含多个 conf.d/*.conf 的大型配置特别有用。
 
 **小结**：include 支持 glob 模式让 nginx 灵活地组织配置；-t 快速检查错误，-T 看完整的合并配置和每个文件的位置标记；大型配置复杂时容易搞不清某个指令的出处或覆盖关系，-T 的输出可以澄清这一切。
 

@@ -63,7 +63,44 @@ ok - 404: X-Regular absent
 ok - 404: X-Always present
 
 ## nginx -T: show merged configuration
-Configuration test output:
-nginx: the configuration file /Users/bytedance/aiops/work/nginx-series/repo/labs/ops-02/conf/for-T-output.conf syntax is ok
-nginx: configuration file /Users/bytedance/aiops/work/nginx-series/repo/labs/ops-02/conf/for-T-output.conf test is successful
-ok - nginx -t success
+nginx: the configuration file $LAB/conf/for-T-output.conf syntax is ok
+nginx: configuration file $LAB/conf/for-T-output.conf test is successful
+# configuration file $LAB/conf/for-T-output.conf:
+events {
+    worker_connections 1024;
+}
+
+http {
+    include conf.d/*.conf;
+
+    server {
+        listen 127.0.0.1:18050;
+        server_name _;
+
+        location / {
+            return 200 "main\n";
+        }
+    }
+}
+
+# configuration file $LAB/conf/conf.d/server1.conf:
+server {
+    listen 127.0.0.1:18041;
+    server_name srv1;
+
+    location / {
+        return 200 "server1\n";
+    }
+}
+
+# configuration file $LAB/conf/conf.d/server2.conf:
+server {
+    listen 127.0.0.1:18042;
+    server_name srv2;
+
+    location / {
+        return 200 "server2\n";
+    }
+}
+
+ok - -T prints every included file after a "# configuration file" line

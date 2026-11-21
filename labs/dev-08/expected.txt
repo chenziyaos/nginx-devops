@@ -1,0 +1,85 @@
+
+## each passed request adds 1000, a rejected one adds nothing
+200 200 200 200 200 200 503 503
+limit_req[0]: 0 ~0
+limit_req[0]: 0 ~1
+limit_req[0]: 0 ~2
+limit_req[0]: 0 ~3
+limit_req[0]: 0 ~4
+limit_req[0]: 0 ~5
+limit_req[0]: -3 ~6
+limit_req[0]: -3 ~6
+ok - burst=5 nodelay: the first 6 pass, then 503
+ok - rc per request: NGX_OK (0) six times, then NGX_BUSY (-3)
+ok - excess seen by each request: a new key starts at 0, rejected ones do not raise it
+
+## 1r/m drains 16 thousandths per second
+503
+within 0.002 of rate 16: yes; within 0.002 of rate 16.667: no
+ok - still rejected after 6 s
+ok - drained = 16 * ms / 1000: 1r/m is stored as 16, not 16.667
+
+## an internal redirect does not count twice
+fallback
+200 PASSED -
+ok - error_page sends /missing to /fallback
+ok - only one limit_req lookup for the whole request
+
+## two zones: only the last one is charged, a rejection rolls the others back
+200 503 503 503
+limit_req[0]: -2 ~0
+limit_req[1]: 0 ~0
+limit_req[0]: -2 ~1
+limit_req[1]: -3 ~1
+limit_req[0]: -2 ~1
+limit_req[1]: -3 ~1
+limit_req[0]: -2 ~1
+limit_req[1]: -3 ~1
+ok - narrow (burst 0) rejects from the second request
+ok - wide answers NGX_AGAIN (-2), narrow answers OK then BUSY
+ok - wide sees ~1 every time: the three rejected requests were never added
+/wide: 200
+limit_req[0]: 0 ~1
+ok - wide's stored excess is one request, not four
+
+## delay=1: excess above 1 becomes a timer of (excess - 1) / rate
+5x 200
+3x 200 DELAYED
+2x 200 PASSED
+slowest response >= 2.5 s: yes
+delaying request, excess: 2 3 4
+delay timers (s): 1 2 3
+ok - 2 pass at once (excess 0 and 1), 3 are delayed, none rejected
+ok - delayed requests had excess ~2, ~3, ~4
+ok - timers are (excess - delay) * 1000 / rate ms: ~1, ~2, ~3 s
+
+## a full zone evicts the least recently used key
+victim: 200 503
+3000 new keys: 3000x 200
+"could not allocate node" lines: 0
+k=3000 again: 503
+victim again: 200
+limit_req[0]: 0 ~0
+ok - victim is limited before the flood
+ok - every new key passes: allocation never fails, the oldest node is deleted instead
+ok - the most recent key is still in the zone
+ok - victim was evicted and starts again from excess 0
+
+## how many keys a 128k zone holds
+keys left besides victim: 760
+ok - 128k on 16 KB pages: 761 nodes of 128 bytes, victim included
+
+## reload keeps a zone with the same name, size and key
+before reload: 200 503
+after reload: 503
+ok - state survives a reload
+
+## a different key with the same size is refused
+[emerg] limit_req "keep" uses the "$remote_addr" key while previously it used the "$binary_remote_addr" key
+after refused reload: 503
+ok - the master rejects the new config
+ok - old workers keep serving with the old state
+
+## a different size gets a new, empty zone
+after resize: 200
+ok - resizing drops the old state, no key check

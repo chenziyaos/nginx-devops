@@ -25,11 +25,14 @@ step() { printf '\n## %s\n' "$*"; }
 master_pid() { cat logs/nginx.pid 2>/dev/null || true; }
 
 # start [conf]: start nginx with the given config (default conf/nginx.conf), wait for the pid file.
+# nginx is started through a symlink <dir>/.active.conf -> <conf>, because on HUP the master
+# re-reads the file it was started with; reload <other.conf> re-points the symlink.
 start() {
     local conf=${1:-$CONF}
     : > logs/error.log
     : > logs/access.log
-    ngx -c "$conf"
+    ln -sfn "$(basename "$conf")" "$(dirname "$conf")/.active.conf"
+    ngx -c "$(dirname "$conf")/.active.conf"
     local i
     for i in $(seq 50); do
         [[ -s logs/nginx.pid ]] && kill -0 "$(master_pid)" 2>/dev/null && return 0
@@ -55,12 +58,13 @@ stop() {
 }
 trap stop EXIT
 
-# reload [conf]: send HUP and wait until the old workers are gone.
+# reload [conf]: switch the running master to conf (default: keep the current one), send HUP
+# and wait until the old workers are gone. A config that fails to load leaves the old workers
+# running, so this times out; to show a rejected reload use reload_nowait and check error.log.
 reload() {
-    local conf=${1:-$CONF} pid old
-    pid=$(master_pid)
+    local old
     old=$(worker_pids)
-    ngx -c "$conf" -s reload
+    reload_nowait "$@"
     local i w
     for i in $(seq 100); do
         sleep 0.1
@@ -69,6 +73,17 @@ reload() {
     done
     echo "old workers still running after reload" >&2
     return 1
+}
+
+# reload_nowait [conf]: re-point the active config (same directory as the started one) and send HUP.
+reload_nowait() {
+    local active
+    active=$(readlink -n "$(dirname "${1:-$CONF}")/.active.conf" 2>/dev/null || true)
+    [[ -n "$active" ]] || { echo "reload: no active config in $(dirname "${1:-$CONF}")/" >&2; return 1; }
+    if [[ -n "${1:-}" ]]; then
+        ln -sfn "$(basename "$1")" "$(dirname "$1")/.active.conf"
+    fi
+    ngx -c "$(dirname "${1:-$CONF}")/.active.conf" -s reload
 }
 
 # worker_pids: pids of the current worker processes (children of the master).
@@ -90,7 +105,7 @@ hdrs() {
 
 # errlog REGEX: matching error.log lines without the timestamp and pid#tid prefix.
 errlog() {
-    grep -E "$1" logs/error.log | sed -E 's/^[0-9\/]+ [0-9:]+ (\[[a-z]+\]) [0-9]+#[0-9]+: /\1 /' || true
+    grep -aE "$1" logs/error.log | sed -E 's/^[0-9\/]+ [0-9:]+ (\[[a-z]+\]) [0-9]+#[0-9]+: /\1 /' || true
 }
 
 # accesslog: access.log content as is (labs choose a log_format without timestamps).

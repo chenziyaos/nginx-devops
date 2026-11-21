@@ -243,7 +243,7 @@ def check(md):
 
 
 SPECIAL = re.compile(r'^(导读|已知局限与待核实|修订记录)$')
-MIN_CHARS = {'ops': 6000, 'dev': 8000}
+MIN_CHARS = {'ops': 9000, 'dev': 11000}
 
 
 def check_structure(md, text, prose, stats):
@@ -267,6 +267,9 @@ def check_structure(md, text, prose, stats):
         out.append(f'{stats["mermaid"]} mermaid figures, expected at least 3')
     if stats['out'] < 4:
         out.append(f'{stats["out"]} quoted lab outputs, expected at least 4')
+    need_c = {'ops': 3, 'dev': 8}[part]
+    if stats['c'] < need_c:
+        out.append(f'{stats["c"]} nginx source excerpts, expected at least {need_c}')
     if stats['sketch'] > 2:
         out.append(f'{stats["sketch"]} 示意 blocks, at most 2')
     chars = len(re.sub(r'\s', '', text))
@@ -284,7 +287,32 @@ def check_structure(md, text, prose, stats):
         if script and expects < max(3, (steps + 1) // 2):
             out.append(f'labs/{lab.group(1)}/run.sh has {expects} expect checks for {steps} steps; '
                        f'need at least max(3, steps/2)')
+        # "ok -" lines must come from expect/expect_match, never be printed directly
+        for n, line in enumerate(script.split('\n'), 1):
+            if re.search(r'''\b(echo|printf)\s+["']?(NOT )?OK\b''', line, re.I):
+                out.append(f'labs/{lab.group(1)}/run.sh:{n}: prints an ok/NOT OK line itself; use expect')
+        out.extend(check_ports(lab.group(1), script))
     return out
+
+
+def check_ports(lab, script):
+    """Every port a lab listens on or requests must be in its own range of 20."""
+    part, num = lab.split('-')
+    base = (18000 if part == 'ops' else 19000) + int(num) * 20
+    texts = [script]
+    conf_dir = os.path.join(ROOT, 'labs', lab, 'conf')
+    for dirpath, _, files in os.walk(conf_dir):
+        for f in files:
+            if not f.startswith('.'):
+                texts.append(open(os.path.join(dirpath, f), encoding='utf-8', errors='replace').read())
+    bad = set()
+    for t in texts:
+        for p in re.findall(r'(?:127\.0\.0\.1|localhost|\[::1\]):(\d{4,5})\b', t):
+            if not base <= int(p) < base + 20:
+                bad.add(int(p))
+    if bad:
+        return [f'labs/{lab} uses ports {sorted(bad)} outside its range {base}-{base + 19}']
+    return []
 
 
 _known = None
@@ -293,8 +321,12 @@ _known = None
 def known_versions():
     global _known
     if _known is None:
-        xml = os.path.join(SRC, 'docs', 'xml', 'nginx', 'changes.xml')
-        _known = set(re.findall(r'<changes ver="([\d.]+)"', open(xml, encoding='utf-8').read()))
+        # mainline changes.xml plus the stable branch's, which lists 1.30.1..1.30.7
+        _known = set()
+        for tree in (SRC, SRC.replace('release-1.31.9', 'release-1.30.7')):
+            xml = os.path.join(tree, 'docs', 'xml', 'nginx', 'changes.xml')
+            if os.path.isfile(xml):
+                _known |= set(re.findall(r'<changes ver="([\d.]+)"', open(xml, encoding='utf-8').read()))
     return _known
 
 

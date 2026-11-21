@@ -11,6 +11,7 @@ Rules (each fenced block must declare where it comes from on its first line):
                                                  Body lines must appear in that range, in order, with the same indentation;
                                                  "/* ... */" lines mark elisions.
             // modules/<dir>/<file>.c:10-30      the repo's own module source, same rule.
+            // labs/<id>/<file>.c:10-30          a lab's own C program, same rule.
             // 示意                              pseudo code, not checked.
   ```nginx  # lab: labs/ops-05/conf/nginx.conf   lines must appear in that file, in order;
                                                  "# ..." lines mark elisions.
@@ -46,7 +47,7 @@ GH = 'https://github.com/nginx/nginx/blob/'
 
 FENCE = re.compile(r'^```(\w*)[^\n]*\n(.*?)^```\s*$', re.M | re.S)
 LINK = re.compile(r'\[([^\]]*)\]\(([^)\s]+)\)')
-SRC_HDR = re.compile(r'^//\s*((?:src|modules)/[\w./-]+):(\d+)-(\d+)\s*$')
+SRC_HDR = re.compile(r'^//\s*((?:src|modules|labs)/[\w./-]+):(\d+)-(\d+)\s*$')
 CONF_LAB = re.compile(r'^#\s*lab:\s*(labs/[\w./-]+)\s*$')
 CONF_CTX = re.compile(r'^#\s*context:\s*(main|http|server|location|stream|upstream)\s*$')
 TEXT_LAB = re.compile(r'^#\s*(labs/[\w-]+)\s+##\s*(.+?)\s*$')

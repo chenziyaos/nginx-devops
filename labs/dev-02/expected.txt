@@ -1,0 +1,83 @@
+
+## ngx_str_t
+sizeof(ngx_str_t)=16, ngx_string("Example.COM:8080").len=16
+name=[Example.COM] port=[8080] port as int=8080
+ngx_strlow: example.com; the byte after name in the original: ':'
+ok - 16 bytes (a length and a pointer); slices share the bytes, nothing is NUL-terminated
+
+## ngx_array_t grows in place, then doubles
+push 0: nelts=1 nalloc=2 moved=no
+push 1: nelts=2 nalloc=2 moved=no
+push 2: nelts=3 nalloc=3 moved=no
+push 3: nelts=4 nalloc=4 moved=no
+push 4: nelts=5 nalloc=5 moved=no
+push 5: nelts=6 nalloc=10 moved=yes
+push 6: nelts=7 nalloc=10 moved=yes
+ok - 2, 2, 3, 4, 5 in place; after another allocation 5 -> 10 with a copy
+
+## ngx_list_t adds parts and never moves elements
+part 0: nelts=4 first=0
+part 1: nelts=4 first=4
+part 2: nelts=2 first=8
+element 2 is still at the same address: yes
+ok - 10 elements in parts of 4: 4 + 4 + 2
+
+## ngx_queue_t and ngx_queue_sort
+sorted: 1b 1e 2d 3a 3c
+middle: 2d, offsetof(item_t, link)=16
+ok - a stable merge sort: equal keys keep their insertion order
+
+## ngx_hash_t: exact names and wildcards
+exact keys: 4, head wildcards: 2, tail wildcards: 1
+head key stored as "com.example."
+head key stored as "org.example"
+tail key stored as "www.example"
+exact hash: bucket_size=64, size=3
+  example.com          key_hash=86041043537016573 bucket=0 elt_size=24
+  www.example.com      key_hash=13179151057643344166 bucket=2 elt_size=32
+  api.example.com      key_hash=1893068368080376105 bucket=1 elt_size=32
+  static.example.com   key_hash=5729247516191491965 bucket=0 elt_size=32
+find example.com            -> example.com
+find www.example.com        -> www.example.com
+find a.example.com          -> *.example.com
+find a.b.example.com        -> *.example.com
+find example.org            -> .example.org
+find x.example.org          -> .example.org
+find www.example.net        -> www.example.*
+find EXAMPLE.com            -> not found
+ok - the hash size matches the search in ngx_hash_init
+ok - exact first, then *.name (any depth), .name (bare and any depth), name.*; no case folding on lookup
+
+## server_names_hash_bucket_size limits the length of one name
+name111-single: configuration file $LAB/conf/name111-single.conf test is successful
+name110: configuration file $LAB/conf/name110.conf test is successful
+name111: [emerg] could not build server_names_hash, you should increase server_names_hash_bucket_size: 128
+ok - alone, any length passes; next to another server, 110 bytes fit a 128-byte bucket and 111 do not
+
+## ngx_rbtree_t
+in order: 10e 20b 20d 20h 30j 50a 60f 70c 80g 90i
+root is black: yes, red nodes with a red child or unequal black heights: 0, black height: 3
+ok - sorted in order, equal keys in insertion order, the red-black rules hold
+
+## the timer tree survives a wrap-around
+insert_value:       min is b (16)
+insert_timer_value: min is a (2^64-16)
+ok - insert_timer_value compares signed differences
+
+## ngx_radix_tree_t
+insert 10.0.0.0/8 again: NGX_BUSY
+find 10.1.2.3      -> 2
+find 10.2.0.1      -> 1
+find 11.0.0.1      -> no value
+find 10.1.255.255  -> 2
+ok - longest prefix wins; an existing prefix is not replaced
+
+## where each structure is used
+ngx_array_push            88 files
+ngx_list_push             31 files
+ngx_queue_insert_tail     13 files
+ngx_hash_find             17 files
+ngx_rbtree_insert         19 files
+ngx_radix32tree_find       4 files
+radix tree users: http/modules/ngx_http_geo_module.c stream/ngx_stream_geo_module.c 
+ok - the radix tree is used only by the geo modules

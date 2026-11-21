@@ -1,0 +1,109 @@
+
+## worker startup
+malloc 126976
+malloc 53248
+malloc 53248
+kevent set event: 5: ft:-1 fl:0005
+kevent set event: 6: ft:-1 fl:0005
+kevent set event: 7: ft:-1 fl:0005
+worker cycle
+sizeof(ngx_connection_t)=248, sizeof(ngx_event_t)=104
+x 512 connections: 126976 and 53248 bytes
+ok - connections and events are allocated up front: 512 x sizeof
+
+## one request through the event loop
+kevent events: 1
+kevent: 5: ft:-1 fl:0005 d:1
+accept on 127.0.0.1:19100, ready: 1
+accept: 127.0.0.1 fd:3
+event timer add: 3: 60000
+kevent set event: 3: ft:-1 fl:0025
+timer delta
+worker cycle
+kevent timer: 60000, changes: 1
+kevent events: 1
+kevent: 3: ft:-1 fl:0025 d:71
+http wait request handler
+event timer del: 3
+set http keepalive handler
+event timer add: 3: 75000
+timer delta
+worker cycle
+kevent timer: 75000, changes: 0
+kevent events: 1
+kevent: 3: ft:-1 fl:8025 d:0
+http keepalive handler
+close http connection: 3
+event timer del: 3
+timer delta
+worker cycle
+kevent timer: -1, changes: 0
+ok - kevent waits for the nearest timer: 60000 ms after accept, 75000 ms in keepalive, forever after close
+
+## a timer fires
+closed by the server without a response: True, after >= 1 s: True
+kevent events: 1
+kevent: 6: ft:-1 fl:0005 d:1
+accept on 127.0.0.1:19101, ready: 1
+accept: 127.0.0.1 fd:3
+event timer add: 3: 1000
+kevent set event: 3: ft:-1 fl:0025
+timer delta
+worker cycle
+kevent timer: 1000, changes: 1
+kevent events: 0
+timer delta
+event timer del: 3
+http wait request handler
+client timed out (ETIMEDOUT) while waiting for request, client: 127.0.0.1, server: 127.0.0.1:19101
+close http connection: 3
+worker cycle
+kevent timer: -1, changes: 0
+ok - kevent returns 0 events after 1000 ms, the expired timer runs the read handler
+
+## pipelined requests go through the posted queue
+responses in one connection: 2
+kevent events: 1
+kevent: 5: ft:-1 fl:0005 d:1
+accept on 127.0.0.1:19100, ready: 1
+accept: 127.0.0.1 fd:3
+event timer add: 3: 60000
+kevent set event: 3: ft:-1 fl:0025
+timer delta
+worker cycle
+kevent timer: 60000, changes: 1
+kevent events: 1
+kevent: 3: ft:-1 fl:0025 d:75
+http wait request handler
+event timer del: 3
+set http keepalive handler
+pipelined request
+post event
+timer delta
+posted event
+delete posted event
+event timer add: 3: 5000
+worker cycle
+kevent timer: 5000, changes: 0
+kevent events: 1
+kevent: 3: ft:-1 fl:8025 d:0
+close http connection: 3
+event timer del: 3
+timer delta
+worker cycle
+kevent timer: -1, changes: 0
+ok - the second request is posted and runs at the end of the same loop iteration
+
+## the master talks to workers over the channel
+channel command: 5
+ok - USR1 becomes channel command 5 (NGX_CMD_REOPEN)
+
+## reuseport gives every worker its own listening socket
+127.0.0.1:19102: 4 socket(s) in the master
+127.0.0.1:19103: 1 socket(s) in the master
+ok - four sockets for the reuseport listener, one for the shared one
+
+## accept_mutex: one worker listens, the others retry every 500 ms
+last attempt: lock failed  then kevent timer: 500
+last attempt: locked       then kevent timer: -1
+ok - the holder sleeps until a connection arrives, the other wakes every 500 ms

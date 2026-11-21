@@ -1,0 +1,56 @@
+
+## a TCP proxy and its log line
+bytes=145 first=HTTP/1.1 200 OK
+18240 TCP 200 sent=145 recv=18 up=[127.0.0.1:18250] upsent=18 uprecv=145
+ok - bytes_received = upstream_bytes_sent = the 18-byte request; bytes_sent = upstream_bytes_received = what the client got
+
+## failover and the passive check
+session 1: 127.0.0.1:18259, 127.0.0.1:18250
+session 2: 127.0.0.1:18250
+session 3: 127.0.0.1:18250
+session 4: 127.0.0.1:18250
+session 5: 127.0.0.1:18259, 127.0.0.1:18250
+[error] kevent() reported that connect() failed (61: Connection refused)
+[warn] upstream server temporarily disabled
+[error] kevent() reported that connect() failed (61: Connection refused)
+[warn] upstream server temporarily disabled
+ok - the dead server is skipped for fail_timeout, then the smooth round robin brings it back after two picks of the live one
+ok - two refused connects, each one disables the server
+
+## UDP sessions
+bytes=5 first=pong
+proxy_responses 1: 1 log line right after the reply: 18242 UDP 200 sent=5 recv=4 up=[127.0.0.1:18256] upsent=4 uprecv=5
+bytes=5 first=pong
+no proxy_responses: 0 log lines after 0.5 s, 1 after proxy_timeout 2s: 18243 UDP 200 sent=5 recv=4 up=[127.0.0.1:18256] upsent=4 uprecv=5
+ok - with proxy_responses the session ends on the reply; without it, at proxy_timeout
+
+## SNI routing with ssl_preread
+bytes=49 first=A sni=a.test server_port=18251 remote_port=<port> cert=a.test 
+bytes=49 first=B sni=b.test server_port=18251 remote_port=<port> cert=b.test 
+bytes=145 first=HTTP/1.1 200 OK
+ok - a.test and b.test reach the TLS server with their own certificate; plain HTTP goes to the default
+
+## virtual servers selected by the preread name
+bytes=49 first=A sni=a.test server_port=18251 remote_port=<port> cert=a.test 
+bytes=145 first=HTTP/1.1 200 OK
+ok - a.test is served by its server{}, anything else by the default one
+
+## access rules run before the preread name switches the server
+bytes=49 first=A sni=a.test server_port=18251 remote_port=<port> cert=a.test 
+18246 TCP 200 up=[127.0.0.1:18251]
+ok - deny all in the a.test server{} does not stop a.test: the access phase ran in the default server
+
+## pass keeps the client's connection, proxy_pass opens a new one
+via 18247: backend sees the client's own port: yes
+via 18244: backend sees the client's own port: no
+1x port 18244 TCP 200
+2x port 18251 TCP 200
+ok - pass: same port, no log line for 18247; proxy_pass: nginx's port
+[error] port not found for "127.0.0.1:18258" while passing connection to port
+ok - a pass to an unknown address ends with status 200
+
+## PROXY protocol v1 and v2
+via 18249: pp=127.0.0.1:<client port> remote=127.0.0.1:<port>
+via 18254: pp=127.0.0.1:<client port> remote=127.0.0.1:<port>
+[error] broken header: "GET / HTTP/1.0" while reading PROXY protocol
+ok - both versions carry the client port; a connection without the header gets 400

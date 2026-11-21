@@ -1,0 +1,144 @@
+
+## the phase engine read from memory
+server_rewrite_index=1 location_rewrite_index=3
+ 0 generic      next=1  ngx_http_realip_handler
+ 1 rewrite      next=2  ngx_http_rewrite_handler
+ 2 find_config  next=0  -
+ 3 rewrite      next=4  ngx_http_rewrite_handler
+ 4 post_rewrite next=2  -
+ 5 generic      next=8  ngx_http_realip_handler
+ 6 generic      next=8  ngx_http_limit_req_handler
+ 7 generic      next=8  ngx_http_limit_conn_handler
+ 8 access       next=12 ngx_http_access_handler
+ 9 access       next=12 ngx_http_auth_basic_handler
+10 access       next=12 ngx_http_auth_request_handler
+11 post_access  next=12 -
+12 generic      next=14 ngx_http_try_files_handler
+13 generic      next=14 ngx_http_mirror_handler
+14 content      next=18 ngx_http_index_handler
+15 content      next=18 ngx_http_autoindex_handler
+16 content      next=18 ngx_http_gzip_static_handler
+17 content      next=18 ngx_http_static_handler
+top header filter=ngx_http_not_modified_header_filter
+top body filter=ngx_http_range_body_filter
+ok - 18 entries, post_rewrite goes back to find_config, access handlers jump over post_access
+
+## a request that arrives in three pieces
+HTTP/1.1 200 OK
+http wait request handler
+http process request line
+http process request line
+http request line: "GET /a.txt HTTP/1.1"
+http process request header line
+http header: "Host: x"
+http process request header line
+http header: "Connection: close"
+http header done
+ok - the request line handler runs twice, the header handler twice
+
+## header buffers: 1k first, then one 4k large buffer per line
+long-2k: HTTP/1.1 200 OK
+long-5k: HTTP/1.1 400 Bad Request
+http alloc large header buffer
+http large header alloc: 4096
+http large header copy: 994
+http alloc large header buffer
+http large header alloc: 4096
+http large header copy: 994
+http alloc large header buffer
+client sent too long header line: "X-Long: aaaaaaaa..."
+ok - the 2000-byte line moves to a 4k buffer, the 5000-byte line is 400
+
+## checks while reading headers and after the last one
+many: HTTP/1.1 400 Bad Request
+nocolon: HTTP/1.1 400 Bad Request
+nohost: HTTP/1.1 400 Bad Request
+cl-te: HTTP/1.1 400 Bad Request
+client sent too many header lines
+client sent invalid header line: "X-No-Colon\x0d..."
+client sent HTTP/1.1 request without "Host" header
+client sent "Content-Length" and "Transfer-Encoding" headers at the same time
+ok - all four are 400
+
+## rewrite ... last goes back to find_config
+200
+generic phase: 0
+rewrite phase: 1
+using configuration "/r/"
+rewrite phase: 3
+rewritten data: "/static/a.txt"
+post rewrite phase: 4
+uri changes: 11
+using configuration "/static/"
+rewrite phase: 3
+post rewrite phase: 4
+generic phase: 5
+generic phase: 6
+generic phase: 7
+access phase: 8
+access phase: 9
+access phase: 10
+post access phase: 11
+generic phase: 12
+generic phase: 13
+content phase: 14
+content phase: 15
+content phase: 16
+content phase: 17
+ok - after the rewrite the phases continue at find_config (2), then rewrite (3) again
+
+## ten URI changes at most
+500
+uri changes: 11 uri changes: 10 uri changes: 9 uri changes: 8 uri changes: 7 uri changes: 6 uri changes: 5 uri changes: 4 uri changes: 3 uri changes: 2 uri changes: 1
+rewrite or internal redirection cycle
+ok - 11 rewrites, the 11th is rejected with 500
+
+## an internal redirect starts again at server rewrite
+404
+internal redirect: "/a.txt?"
+rewrite phase: 1
+http finalize request: 404, "/missing?" a:1, c:1
+http finalize request: 0, "/a.txt?" a:1, c:2
+http request count:2 blk:0
+http finalize request: -4, "/a.txt?" a:1, c:1
+ok - error_page restarts at index 1 and holds one more reference
+
+## deny ends the request in the access phase
+403
+access phase: 8
+access forbidden by rule
+http finalize request: 403, "/deny?" a:1, c:1
+http finalize request: 0, "/deny?" a:1, c:1
+ok - the last phase line is access phase: 8, then 403
+
+## subrequests: SSI include, the postpone filter and the reference count
+A slow B fast C
+http chunk: 2
+http subrequest "/slow?"
+http subrequest "/fast.txt?"
+http finalize request: 0, "/page.shtml?" a:0, c:3
+http posted request: "/slow?"
+http upstream connect: -2
+http finalize request: -4, "/slow?" a:1, c:4
+http posted request: "/fast.txt?"
+http finalize request: 0, "/fast.txt?" a:0, c:3
+writev: 78 of 78
+http chunk: 5
+http chunk: 0
+http finalize request: 0, "/slow?" a:1, c:3
+http wake parent request: "/page.shtml?"
+http posted request: "/page.shtml?"
+http postpone filter output "/page.shtml?"
+http chunk: 2
+http postpone filter wake "/fast.txt?"
+http posted request: "/fast.txt?"
+http postpone filter output "/fast.txt?"
+http chunk: 5
+http finalize request: 0, "/fast.txt?" a:1, c:2
+http wake parent request: "/page.shtml?"
+http posted request: "/page.shtml?"
+http postpone filter output "/page.shtml?"
+http chunk: 2
+writev: 201 of 201
+http finalize request: 0, "/page.shtml?" a:1, c:1
+ok - two subrequests, three references, one writev to the client

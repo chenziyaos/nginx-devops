@@ -1,0 +1,75 @@
+
+## version and configure arguments
+nginx version: nginx/1.31.9
+nginx version: nginx/1.31.9
+built by <compiler>
+built with OpenSSL 3.x
+TLS SNI support enabled
+configure arguments: --prefix=$ROOT/.nginx --with-debug --with-compat --with-threads --with-control-api --with-http_ssl_module --with-http_v2_module --with-http_v3_module --with-http_stub_status_module --with-http_json_module --with-http_realip_module --with-http_auth_request_module --with-http_gunzip_module --with-http_gzip_static_module --with-stream --with-stream_ssl_module --with-stream_ssl_preread_module --add-dynamic-module=$ROOT/modules/ngx_http_hello_module --with-cc-opt='-O0 -g -I/opt/homebrew/opt/openssl@3/include -I/opt/homebrew/opt/pcre2/include' --with-ld-opt=' -L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/opt/pcre2/lib'
+ok - -v prints NGINX_VERSION from src/core/nginx.h
+ok - every --with option of tools/build.sh is in the configure arguments
+
+## what each branch received since it was cut
+1.30.x: feature 0 change 2 bugfix 14 security 27
+1.31.x: feature 15 change 13 bugfix 39 security 29
+ok - the stable branch gets no features
+
+## modules compiled in
+ngx_http_tunnel_module   built-in
+ngx_http_proxy_module    built-in
+ngx_http_realip_module   built-in
+ngx_http_json_module     built-in
+ngx_http_dav_module      no
+ngx_http_hello_module    no
+ok - default-on modules and --with modules are built in; dav (default off) and the dynamic hello are not
+[emerg] unknown directive "dav_methods" in $LAB/conf/dav.conf:8
+configuration file $LAB/conf/dav.conf test failed
+ok - a directive of a module that is not built is an unknown directive
+
+## dynamic modules
+[emerg] unknown directive "hello" in $LAB/conf/hello-noload.conf:9
+[emerg] dlopen() "$LAB/modules/no_such_module.so" failed (...) in $LAB/conf/hello-badpath.conf:2
+the configuration file $LAB/conf/hello.conf syntax is ok
+configuration file $LAB/conf/hello.conf test is successful
+GET / -> hello from a dynamic module
+ok - without load_module the directive is unknown; with it the module answers
+
+## a fresh prefix
+before: conf 
+nginx: [alert] could not open error log file: open() "$LAB/out/run/p/logs/error.log" failed (2: No such file or directory)
+nginx: the configuration file $LAB/out/run/p/conf/nginx.conf syntax is ok
+[emerg] open() "$LAB/out/run/p/logs/nginx.pid" failed (2: No such file or directory)
+nginx: configuration file $LAB/out/run/p/conf/nginx.conf test failed
+nginx: the configuration file $LAB/out/run/p/conf/nginx.conf syntax is ok
+nginx: configuration file $LAB/out/run/p/conf/nginx.conf test is successful
+after -t: client_body_temp conf fastcgi_temp logs proxy_temp scgi_temp uwsgi_temp 
+ok - -t creates the *_temp directories but not logs/
+
+## nginx -t leaves an empty pid file
+pid file size after -t: 0
+nginx: [error] invalid PID number "" in "$LAB/out/run/p/logs/nginx.pid"
+ok - -t creates the pid file without writing a pid, so -s finds an empty one
+
+## -s finds the master through the pid file
+master running: yes
+-s reopen: exit 0
+nginx: invalid option: "-s restart"
+master gone after -s stop: yes, pid file left: no
+ok - stop ends the master and it removes its pid file
+
+## -g is parsed before the config file
+nginx: [emerg] "pid" directive is duplicate in $LAB/conf/with-pid.conf:2
+nginx: configuration file $LAB/conf/with-pid.conf test failed
+ok - a pid in the file collides with the pid given by -g
+
+## -t -q prints errors only
+good config: [rc=0]
+nginx: [emerg] unknown directive "dav_methods" in $LAB/conf/dav.conf:8
+nginx: configuration file $LAB/conf/dav.conf test failed
+ok - -q drops the two success lines and keeps the exit code
+
+## defaults compiled into the binary
+  -p prefix     : set prefix path (default: $ROOT/.nginx/)
+  -e filename   : set error log file (default: logs/error.log)
+  -c filename   : set configuration file (default: conf/nginx.conf)
+ok - the default prefix is --prefix, the config and error log are relative to it

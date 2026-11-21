@@ -1,0 +1,114 @@
+
+## ngx_pool_t: small allocations, a new block, large allocations
+sizeof(ngx_pool_t)=80, sizeof(ngx_pool_data_t)=32, ngx_pagesize=16384
+ngx_create_pool(1024): max=944 (1024 - sizeof(ngx_pool_t))
+ngx_palloc(1) at +80, ngx_palloc(1) at +96, ngx_pnalloc(1) at +97, ngx_pnalloc(1) at +98
+ngx_palloc(900): blocks=1, at +112
+ngx_palloc(944) (= max): blocks=2, at +32 in the new block, from the heap: no
+ngx_palloc(945) (> max): blocks=2, from the heap: yes
+ngx_pfree(945-byte block)=NGX_OK, ngx_pfree(small)=NGX_DECLINED
+ok - palloc aligns to NGX_ALIGNMENT (16 here), pnalloc does not; a new block keeps only ngx_pool_data_t (32 bytes); above max goes to malloc
+
+## pool->current moves past a block that failed more than 4 times
+ngx_palloc(600) #1  blocks=1  current=block 0, block 0 failed=0
+ngx_palloc(600) #2  blocks=2  current=block 0, block 0 failed=0
+ngx_palloc(600) #3  blocks=3  current=block 0, block 0 failed=1
+ngx_palloc(600) #4  blocks=4  current=block 0, block 0 failed=2
+ngx_palloc(600) #5  blocks=5  current=block 0, block 0 failed=3
+ngx_palloc(600) #6  blocks=6  current=block 0, block 0 failed=4
+ngx_palloc(600) #7  blocks=7  current=block 0, block 0 failed=5
+ngx_palloc(600) #8  blocks=8  current=block 1, block 0 failed=6
+ngx_palloc(600) #9  blocks=9  current=block 2, block 0 failed=6
+ngx_palloc(600) #10 blocks=10 current=block 3, block 0 failed=6
+ok - current leaves block 0 at the 8th 600-byte allocation, then moves one block per allocation
+
+## large allocations: ngx_pfree only helps near the head of the list
+6 large allocations: 6 list nodes (the newest first)
+free the oldest (6th on the list), allocate again: 7 nodes
+free the newest (1st on the list), allocate again: 7 nodes
+ok - a freed slot is reused only within the first 5 list nodes (n++ > 3)
+
+## cleanup handlers run in reverse order
+add cleanup a
+add cleanup b
+add cleanup c
+cleanup c
+cleanup b
+cleanup a
+ok - LIFO
+
+## ngx_buf_t and ngx_chain_t
+ngx_free_chain then ngx_alloc_chain_link returns the same link: yes
+temp buf: temporary=1, ngx_buf_size=10, room left=90
+file buf: in_memory=0, ngx_buf_size=4096
+last_buf only: ngx_buf_special=1, ngx_buf_size=0
+after ngx_chain_update_chains free: a
+busy: b c
+d's link went to pool->chain: yes; a's buffer was reset: yes
+ok - update_chains frees foreign links, recycles consumed buffers of its tag, stops at the first unsent one
+
+## ngx_slab_pool_t on a 1 MB zone
+1 MB zone: sizeof(ngx_slab_pool_t)=144, slots=11, pages=63, first page at +16384
+alloc     1 -> small slot 0 (8-byte chunks), 2016 per page, new page: yes
+alloc     8 -> small slot 0 (8-byte chunks), 2016 per page, new page: no
+alloc     9 -> small slot 1 (16-byte chunks), 1016 per page, new page: yes
+alloc   100 -> small slot 4 (128-byte chunks), 127 per page, new page: yes
+alloc   128 -> small slot 4 (128-byte chunks), 127 per page, new page: no
+alloc   129 -> exact slot 5 (256-byte chunks), 64 per page, new page: yes
+alloc   256 -> exact slot 5 (256-byte chunks), 64 per page, new page: no
+alloc   257 -> big   slot 6 (512-byte chunks), 32 per page, new page: yes
+alloc  8192 -> big   slot 10 (8192-byte chunks), 2 per page, new page: yes
+alloc  8193 -> pages 1 page(s)
+alloc 40000 -> pages 3 page(s)
+3 x 2 pages: free pages 53 -> 47, after freeing them: 53
+[crit] ngx_slab_alloc() failed: no memory
+then whole pages until it fails: 53 more; stats for 8-byte chunks: reqs=2 used=2 fails=0
+ok - the page count matches ngx_slab_init
+ok - small below pagesize/64, exact at pagesize/64, big up to pagesize/2, whole pages above
+
+## ngx_shmtx_t: the lock word holds the owner's pid
+spin=2048, ngx_ncpu=>1, posix semaphore: no
+4 processes x 100000 locked increments: 400000
+a child locked it and exited: lock word == child pid: yes, trylock: 0
+ngx_shmtx_force_unlock(other pid): 0, ngx_shmtx_force_unlock(child pid): 1, trylock: 1
+ok - no lost increments; a dead owner's lock is released only by its own pid
+
+## the pools of one request
+posix_memalign: A:512 @16
+accept
+malloc: B:1024
+posix_memalign: C:4096 @16
+posix_memalign: D:4096 @16
+set http keepalive handler
+free: C, unused: 0
+free: D, unused: 2816
+free: B
+close http connection
+free: NULL
+free: A, unused: 64
+ok - a 512-byte connection pool, the 1024-byte header buffer from malloc, a 4096-byte request pool
+with request_pool_size 16k:
+posix_memalign: A:512 @16
+accept
+malloc: B:1024
+posix_memalign: C:16384 @16
+set http keepalive handler
+free: C, unused: 11040
+free: B
+close http connection
+free: NULL
+free: A, unused: 64
+ok - with request_pool_size 16k the request needs one block
+
+## shared zones are matched by name, then by owner and size
+zone-tag: [emerg] the shared memory zone "one" is already declared for a different use in $LAB/conf/zone-tag.conf:6
+zone-size: configuration file $LAB/conf/zone-size.conf test is successful
+zone-size2: [emerg] the size 524288 of shared memory zone "shared" conflicts with already declared size 262144 in $LAB/conf/zone-size2.conf:11
+zone-missing: [emerg] zero size shared memory zone "two"
+ok - a name has one owner and one size; a zone used before its declaration is fine, a zone never declared is not
+
+## where the APIs are used
+files calling ngx_chain_update_chains: 17
+calls of ngx_pool_cleanup_add: 50
+modules adding shared zones: ngx_http_fastcgi_module ngx_http_file_cache ngx_http_limit_conn_module ngx_http_limit_req_module ngx_http_proxy_module ngx_http_scgi_module ngx_http_ssl_module ngx_http_upstream_sticky_module ngx_http_upstream_zone_module ngx_http_uwsgi_module ngx_mail_ssl_module ngx_stream_limit_conn_module ngx_stream_ssl_module ngx_stream_upstream_zone_module 
+ok - limit_req and limit_conn, the caches, the SSL session caches and the upstream zones use shared memory

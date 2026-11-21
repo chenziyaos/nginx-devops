@@ -1,0 +1,87 @@
+
+## one master, worker_processes workers
+parent=1 nginx: master process $NGINX -p $LAB/ -e logs/error.log -g pid logs/nginx.pid; -c conf/.active.conf
+parent=master nginx: worker process
+parent=master nginx: worker process
+ok - two workers, both children of the master
+
+## worker_processes auto and the cache processes
+  1 nginx: cache loader process
+  1 nginx: cache manager process
+  NCPU nginx: worker process
+ok - auto starts one worker per online CPU, proxy_cache_path adds a manager and a loader
+
+## reload: new workers start, old ones finish their requests
+master unchanged: yes
+old workers still alive during the download: 1 of 2
+answers now: v2
+download: 200 complete
+old workers alive after it: 0
+[notice] signal 1 (SIGHUP) received from N, reconfiguring
+[notice] reconfiguring
+[notice] start worker process N
+[notice] start worker process N
+[notice] gracefully shutting down
+[notice] gracefully shutting down
+[notice] exiting
+[notice] exit
+[notice] signal 20 (SIGCHLD) received from N
+[notice] worker process N exited with code 0
+[notice] exiting
+[notice] exit
+[notice] signal 20 (SIGCHLD) received from N
+[notice] worker process N exited with code 0
+ok - same master, new config answers, the in-flight download completes, then old workers exit
+
+## nginx -s reload with a broken config
+nginx: [emerg] unknown directive "no_such_directive" in $LAB/conf/.active.conf:14
+workers unchanged: yes
+ok - the signaller parses the config itself and does not send HUP
+
+## HUP with a broken config
+[notice] signal 1 (SIGHUP) received from N, reconfiguring
+[notice] reconfiguring
+[emerg] unknown directive "no_such_directive" in $LAB/conf/.active.conf:14
+workers unchanged: yes, answers: v1
+ok - the master logs the error and keeps the old workers and config
+
+## worker_shutdown_timeout comes from the old config
+started with timeout 1s, download: 200 cut
+reloaded into timeout 1s, download: 200 complete
+ok - only workers that run a config with the timeout close connections after it
+
+## TERM and QUIT
+TERM during a download: 200 cut
+QUIT: new connections refused: 000, master alive: 1
+QUIT during a download: 200 complete
+ok - TERM closes connections at once, QUIT stops accepting and waits
+
+## USR1 reopens the log files
+after mv: access.log exists: no, lines in access.log.1: 2
+after USR1: lines in access.log: 1, in access.log.1: 2
+ok - workers write to the renamed file until USR1, then to a new access.log
+
+## a killed worker is replaced
+[alert] worker process N exited on signal 9
+[notice] start worker process N
+ok - the master notices SIGCHLD and starts a new worker
+
+## binary upgrade: USR2, WINCH, QUIT
+after USR2: nginx.pid.oldbin holds the old master: yes
+new master is a child of the old one: yes
+masters alive: 2, old workers alive: 2, new workers: 2
+after WINCH: old workers alive: 0, old master alive: 1
+after QUIT: old master alive: 0, oldbin file left: no, answers: v1
+ok - two masters share the sockets until the old one is told to quit
+
+## control API
+GET /1/nginx: {"version":"1.31.9","build":""}
+GET /1/control/processes:
+  worker process exiting=false
+  worker process exiting=false
+PATCH with bad.conf: 422 {"logs":["[emerg] unknown directive \"no_such_directive\" in $LAB/conf/.active.conf:14\n"]}
+PATCH with v2.conf during a download: 200, answers: v2
+GET /1/control/processes:
+  2   worker process exiting=false
+  1   worker process exiting=true
+ok - PATCH reloads synchronously and returns the errors of a failed reload

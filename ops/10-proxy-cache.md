@@ -441,7 +441,7 @@ sequenceDiagram
     return NGX_AGAIN;
 ```
 
-`proxy_cache_lock_timeout` 和 `proxy_cache_lock_age` 默认都是 5 秒（proxy 模块合并函数里的 5000 毫秒）：等超过 `lock_timeout` 的请求不再等，自己回源但不写缓存；持锁超过 `lock_age` 的请求被认为卡住了，下一个请求可以接过锁。实验的后端以 1000 字节/秒发 3000 字节，一次回源约 2 秒，5 个请求同时到达：
+`proxy_cache_lock_timeout` 和 `proxy_cache_lock_age` 默认都是 5 秒（proxy 模块合并函数里的 5000 毫秒）：等超过 `lock_timeout` 的请求不再等，自己回源但不写缓存；持锁超过 `lock_age` 的请求被认为卡住了，下一个请求可以接过锁。实验的后端以 1000 字节/秒发 3000 字节（`limit_rate` 按秒计算配额，响应头也计入已发送的字节），一次回源 2 到 3 秒，5 个请求同时到达：
 
 ```text
 # labs/ops-10 ## proxy_cache_lock
@@ -452,7 +452,7 @@ ok - with the lock one request goes to the backend and the others wait for the f
 
 有锁时后端只收到 1 个请求，另外 4 个等文件写完后读到 HIT；没锁时 5 个请求全是 MISS，后端被打 5 次。
 
-实验里有一个调参时踩到的现象：最初 `/lock/` 沿用了 3 秒的 `proxy_cache_valid`，等待的请求偶尔拿到 EXPIRED 并各自回源。原因是有效期从收到响应头的那一秒算起，响应体还要再传 2 秒，等待者每 500 毫秒才看一次，读到文件时这条缓存已经接近过期。慢响应要配比传输时间长得多的有效期，否则锁等来的是一条马上过期的缓存。
+实验里有一个调参时踩到的现象：最初 `/lock/` 沿用了 3 秒的 `proxy_cache_valid`，等待的请求偶尔拿到 EXPIRED 并各自回源。原因是有效期从收到响应头的那一秒算起，响应体还要再传 2 到 3 秒，等待者每 500 毫秒才看一次，读到文件时这条缓存已经接近过期。慢响应要配比传输时间长得多的有效期，否则锁等来的是一条马上过期的缓存。
 
 ```mermaid
 sequenceDiagram
@@ -462,7 +462,7 @@ sequenceDiagram
     participant U as 后端
     A->>N: 节点不存在，建节点，updating=1
     B->>N: updating=1，等待
-    A->>U: 回源，响应约 2 秒
+    A->>U: 回源，响应 2 到 3 秒
     loop 最多每 500 毫秒
         B->>N: 锁还在吗?
     end

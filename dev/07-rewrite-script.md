@@ -181,7 +181,7 @@ ngx_http_get_flushed_variable(ngx_http_request_t *r, ngx_uint_t index)
 }
 ```
 
-脚本引擎读变量时会先刷新不可缓存的变量：`push_var` 直接用后者，`copy_var` 在没有预先刷新时也用后者（`ngx_http_script.c` 第 985–990 行）；access log 用的是前者（`ngx_http_log_module.c` 第 1022 行等）。`no_cacheable` 来自定义里的 `NGX_HTTP_VAR_NOCACHEABLE`，§1 的输出里 `$uri`、`$args`、`$arg_mode` 有，`$sent_http_content_type` 没有。实验用两个 location 对比：
+脚本引擎读变量时会先刷新不可缓存的变量：`push_var` 直接用后者，`copy_var` 在没有预先刷新时也用后者（`ngx_http_script.c` 第 985–990 行）；access log 用的是前者，但每写一行之前先调用 `ngx_http_script_flush_no_cacheable_variables`，把日志格式里不可缓存的变量作废（[`ngx_http_log_module.c` 第 302 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_log_module.c#L302)），所以日志里只有可缓存的变量会沿用早先算出的值。`no_cacheable` 来自定义里的 `NGX_HTTP_VAR_NOCACHEABLE`，§1 的输出里 `$uri`、`$args`、`$arg_mode` 有，`$sent_http_content_type` 没有。实验用两个 location 对比：
 
 ```text
 # labs/dev-07 ## nocacheable variables are read again, cacheable ones are not

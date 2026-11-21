@@ -1,0 +1,131 @@
+
+## smooth weighted round robin, called directly
+weights 5 1 1, total 7; current_weight A B C after each pick
+ 1: A   -2   1   1
+ 2: A   -4   2   2
+ 3: B    1  -4   3
+ 4: A   -1  -3   4
+ 5: C    4  -2  -2
+ 6: A    2  -1  -1
+ 7: A    0   0   0
+ok - weights 5 1 1 pick A A B A C A A and end at 0 0 0
+
+## a failure lowers effective_weight, every pass adds one back
+weights 5 1 1, max_fails=2; effective_weight A B C, then current_weight A B C
+1: A    5   1   1  | -2   1   1  failed: fails=1 effective=3
+   retry: B    3   1   1  | -2   0   2
+2: C    4   1   1  |  1   1  -2
+3: A    5   1   1  | -1   2  -1
+4: A    5   1   1  | -3   3   0
+5: B    5   1   1  |  2  -3   1
+6: A    5   1   1  |  0  -2   2
+7: A    5   1   1  | -2  -1   3
+8: C    5   1   1  |  3   0  -3
+ok - effective_weight 5 - 5/2 = 3, the retry picks B, then A recovers 4, 5
+
+## one request tries each server once
+start: tries=3 tried=0
+get: A tried=0x1 -> free(NGX_PEER_FAILED): tries=2 fails=1
+get: B tried=0x3 -> free(NGX_PEER_FAILED): tries=1 fails=1
+get: C tried=0x7 -> free(NGX_PEER_FAILED): tries=0 fails=1
+get: NGX_BUSY (rc=-3)
+next request: NGX_BUSY
+ok - tried 0x1 0x3 0x7, tries 2 1 0, then NGX_BUSY for this and the next request
+
+## a sticky hint skips the reweighting after the first time
+weights 1 1 1; hint = SID of A (md5 of its name) for requests 1-3
+1: hint=A A   -2   1   1
+2: hint=A A   -2   1   1
+3: hint=A A   -2   1   1
+4: -      B   -1  -1   2
+5: -      C    0   0   0
+ok - three sticky picks of A leave -2 1 1, then B and C
+
+## one proxied request, step by step
+http init upstream, client timer: 0
+init keepalive peer
+get keepalive peer
+get rr peer, try: 1
+connect to 127.0.0.1:19181
+http upstream connect: -2
+http upstream send request handler
+http upstream send request
+http upstream send request body
+http upstream dummy handler
+http upstream process header
+http proxy status 200 "200 OK"
+http upstream process upstream
+finalize http upstream request: 0
+finalize http proxy request
+free keepalive peer
+free keepalive peer: saving connection
+free rr peer 1 0
+ok - a new connection: connect returns NGX_AGAIN (-2), the request waits for the write event
+
+## the second request takes the cached connection
+http init upstream, client timer: 0
+init keepalive peer
+get keepalive peer
+get rr peer, try: 1
+get keepalive peer: using connection
+http upstream connect: -4
+http upstream send request
+http upstream send request body
+http upstream dummy handler
+http upstream process header
+http proxy status 200 "200 OK"
+http upstream process upstream
+finalize http upstream request: 0
+finalize http proxy request
+free keepalive peer
+free keepalive peer: saving connection
+free rr peer 1 0
+ok - no connect, NGX_DONE (-4), the request is sent at once
+
+## next upstream: free the failed peer, get another one
+get rr peer, try: 2
+connect to 127.0.0.1:19198
+[error] kevent() reported that connect() failed (61: Connection refused)
+http next upstream, 2
+free rr peer 2 4
+[warn] upstream server temporarily disabled
+free rr peer failed: 0
+get rr peer, try: 1
+connect to 127.0.0.1:19181
+free rr peer 1 0
+get rr peer, try: 2
+free rr peer 2 0
+/dead/a 200 ups=127.0.0.1:19198, 127.0.0.1:19181 st=502, 200
+/dead/a 200 ups=127.0.0.1:19181 st=200
+ok - free rr peer 2 4 after the refused connect, the second request goes straight to 19181
+
+## which upstreams have a connection cache
+proxy_pass http://127.0.0.1:19181/: 1 1 1 
+keepalive 0:                     1 1 1 
+keepalive 16:                    1 2 3 
+ok - an implicit upstream and keepalive 0 open a connection per request
+
+## the default cache is local to the location
+default (local), /loc1/ /loc2/ /loc1/ /loc2/:     1 1 2 2 
+keepalive 16, /shared/ /shared2/ /shared/ /shared2/: 4 5 6 7 
+ok - two locations, one upstream: separate connections unless keepalive N is written
+
+## when a connection is not kept
+keepalive_requests 2:      1 2 1 2 1 
+backend Connection: close: 1 1 1 
+ok - keepalive_requests ends a connection after 2; Connection: close is never saved
+
+## sticky must come after the balancing method
+[warn] load balancing method redefined in $LAB/conf/nginx.conf:35
+least_conn; sticky: 1
+sticky; least_conn: 0
+ok - least_conn after sticky replaces it: no cookie
+
+## buffered, unbuffered, and X-Accel-Buffering: no
+/buf/big.bin: 200 body 4194304 bytes
+  temp file warning: 1, non buffered reads: no
+/nobuf/big.bin: 200 body 4194304 bytes
+  temp file warning: 0, non buffered reads: yes
+/xab/xab.bin: 200 body 4194304 bytes
+  temp file warning: 0, non buffered reads: yes
+ok - only the buffered request spills to a temp file; all three get 4194304 bytes

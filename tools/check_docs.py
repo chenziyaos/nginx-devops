@@ -291,6 +291,19 @@ def check_structure(md, text, prose, stats):
         for n, line in enumerate(script.split('\n'), 1):
             if re.search(r'''\b(echo|printf)\s+["']?(NOT )?OK\b''', line, re.I):
                 out.append(f'labs/{lab.group(1)}/run.sh:{n}: prints an ok/NOT OK line itself; use expect')
+            # expect "claim" "same" "same" proves nothing: the actual value must be computed
+            if re.match(r'''\s*expect(?:_match)?\s+"(?:[^"\\]|\\.)*"\s+(?:"[^"$`\\]*"|'[^']*')\s+["']''',
+                        line):
+                out.append(f'labs/{lab.group(1)}/run.sh:{n}: expect with a literal actual value; '
+                           f'compute it from the lab')
+        # absolute paths of the machine the lab ran on must not reach the repository
+        exp = os.path.join(ROOT, 'labs', lab.group(1), 'expected.txt')
+        for name, body in (('chapter', text),
+                           (f'labs/{lab.group(1)}/expected.txt',
+                            open(exp, encoding='utf-8').read() if os.path.isfile(exp) else '')):
+            hit = re.search(r'/(?:Users|home)/[A-Za-z0-9._-]+', body)
+            if hit:
+                out.append(f'{name} contains a local path ({hit.group(0)}); normalize it to $LAB')
         out.extend(check_ports(lab.group(1), script))
     return out
 

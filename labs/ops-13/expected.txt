@@ -1,0 +1,92 @@
+
+## nginx -T prints every file it read
+the configuration file $LAB/conf/nginx.conf syntax is ok
+# configuration file $LAB/conf/nginx.conf:
+# configuration file $LAB/conf/upstreams.conf:
+ok - the main file and the included one are both dumped
+
+## 400: a request nginx cannot accept
+HTTP/1.1 without Host: 400
+400 GET / up=-
+[info] client sent HTTP/1.1 request without "Host" header while reading client request headers, request: "GET / HTTP/1.1"
+a space in a header name: 400
+an underscore in a header name: 200 x_token=[]
+[info] client sent invalid header line: "Bad\x20..." while reading client request headers, request: "GET / HTTP/1.1"
+[info] client sent invalid header line: "X_Token: 1" while reading client request headers, request: "GET /hdr HTTP/1.1"
+[info] client sent invalid header line: "X_Token: 1" while reading client request headers, request: "GET /hdr HTTP/1.1"
+ok - the space is fatal, the underscore header is dropped; the default error log has none of the three
+
+## 414 and 400 for header buffers that are too small
+1100-byte URI: 414
+[info] client sent too long URI while reading client request line, request: "GET /aaaaaaaa..."
+1100-byte header line: 400
+400 GET / up=-
+[info] client sent too long header line: "X-Long: aaaaaaaa..." while reading client request headers, request: "GET / HTTP/1.1"
+ok - a long URI gets 414; a long header line gets 494, sent and logged as 400
+
+## 413: the body is larger than client_max_body_size
+2000-byte body: 413
+413 POST / up=-
+[error] client intended to send too large body: 2000 bytes, request: "POST / HTTP/1.1"
+ok - Content-Length is checked before the body is read; the line is at error level
+
+## 408: the request header did not arrive within client_header_timeout
+closed without a reply
+408 GET / up=-
+[info] client timed out (60: Operation timed out) while reading client request headers, request: "GET / HTTP/1.1"
+ok - nginx closes without a reply and logs 408
+
+## 403, 404 and 500 from the configuration and the file system
+/dir/     403
+/nothing  404
+/loop     500
+[error] directory index of "$LAB/html/dir/" is forbidden, request: "GET /dir/ HTTP/1.1"
+[error] open() "$LAB/html/nothing" failed (2: No such file or directory), request: "GET /nothing HTTP/1.1"
+[error] rewrite or internal redirection cycle while processing "/loop", request: "GET /loop HTTP/1.1"
+ok - a directory without an index, a missing file, a rewrite loop
+
+## 502: five different upstream failures
+502 GET /refused up=502
+502 GET /closed up=502
+502 GET /reset up=502
+502 GET /big up=502
+502 GET /nolive up=502, 502
+502 GET /nolive up=502
+[error] kevent() reported that connect() failed (61: Connection refused) while connecting to upstream
+[error] upstream prematurely closed connection while reading response header from upstream
+[error] kevent() reported about an closed connection (54: Connection reset by peer) while reading response header from upstream
+[error] upstream sent too big header while reading response header from upstream
+[error] kevent() reported that connect() failed (61: Connection refused) while connecting to upstream
+[error] kevent() reported that connect() failed (61: Connection refused) while connecting to upstream
+[error] no live upstreams while connecting to upstream
+ok - six requests, six 502
+
+## 504: the upstream did not answer within proxy_read_timeout
+front: 504
+504 GET /t504 up=504
+[error] upstream timed out (60: Operation timed out) while reading response header from upstream
+ok - the backend holds the request, the proxy gives up after 1 s
+
+## 499: the client gave up first
+499 GET /t499 up=-
+[info] kevent() reported that client prematurely closed connection, so upstream connection is closed too
+ok - the status is 499 and the upstream status is empty
+
+## 503: limit_req rejected the request
+two requests: 200 503
+503 GET /limited up=-
+[error] limiting requests, excess: <n> by zone "lim"
+ok - the second request within a minute is rejected
+
+## reading one request in the debug log
+[debug] http request line: "GET /a?b=1 HTTP/1.1"
+[debug] http uri: "/a"
+[debug] http args: "b=1"
+[debug] generic phase: 0
+[debug] rewrite phase: 1
+[debug] test location: "/"
+[debug] using configuration "/"
+[debug] rewrite phase: 3
+[debug] http finalize request: 0, "/a?b=1" a:1, c:1
+[debug] http close request
+ok - the request line, the phases and the finalize call are all there

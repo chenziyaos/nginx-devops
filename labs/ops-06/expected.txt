@@ -1,0 +1,93 @@
+
+## proxy_pass with and without a URI part
+/a/x?q=1     -> /a/x?q=1
+/a/x%2Fy     -> /a/x%2Fy
+/a//x        -> /a//x
+/b/x?q=1     -> /new/x?q=1
+/b/x%2Fy     -> /new/x/y
+/b/a%20b     -> /new/a%20b
+/b//x        -> /new/x
+/b/../b/x    -> /new/x
+/c0x         -> /newx
+/c0/x        -> /new/x
+/d/x         -> /x
+/re/x        -> /re/x
+/rw/x?q=1    -> /new/x?q=1
+ok - no URI part: the raw request URI; URI part: the location prefix is replaced in the normalized URI
+
+## a URI part in a regex location
+[emerg] "proxy_pass" cannot have URI part in location given by regular expression, or inside predicate location, or inside named location, or inside "if" statement, or inside "limit_except" block in $LAB/conf/bad-regex.conf:8
+configuration file $LAB/conf/bad-regex.conf test failed
+ok - nginx -t rejects it
+
+## request headers the backend receives
+host=[127.0.0.1:18120] connection=[] upgrade=[] te=[] x-a=[from-client] x-b=[from-server] xff=[]
+ok - Host is $proxy_host; Connection, Upgrade and TE are dropped; other headers pass
+/h-up/    host=[be] connection=[] upgrade=[] te=[] x-a=[c] x-b=[from-server] xff=[203.0.113.7]
+/h-loc/   host=[127.0.0.1:18120] connection=[] upgrade=[] te=[] x-a=[from-location] x-b=[] xff=[203.0.113.7]
+/h-host/  host=[front.test] connection=[] upgrade=[] te=[] x-a=[c] x-b=[] xff=[203.0.113.7]
+/h-empty/ host=[127.0.0.1:18120] connection=[] upgrade=[] te=[] x-a=[c] x-b=[] xff=[203.0.113.7]
+/h-xff/   host=[127.0.0.1:18120] connection=[] upgrade=[] te=[] x-a=[c] x-b=[] xff=[203.0.113.7, 127.0.0.1]
+/h-ws/    host=[127.0.0.1:18120] connection=[upgrade] upgrade=[websocket] te=[] x-a=[c] x-b=[] xff=[203.0.113.7]
+ok - upstream name as Host; a location-level proxy_set_header drops the server-level X-B
+ok - proxy_add_x_forwarded_for appends the client address
+/h-ws/ without Upgrade: host=[127.0.0.1:18120] connection=[] upgrade=[] te=[] x-a=[] x-b=[] xff=[]
+ok - Upgrade/Connection set explicitly reach the backend, and only when the client asked
+
+## connections to the backend
+/k-implicit/ HTTP/1.1 req=1 new
+/k-implicit/ HTTP/1.1 req=1 new
+/k-implicit/ HTTP/1.1 req=1 new
+/k-up/       HTTP/1.1 req=1 new
+/k-up/       HTTP/1.1 req=2 reused
+/k-up/       HTTP/1.1 req=3 reused
+/k-up2/      HTTP/1.1 req=1 new
+/k-sh1/      HTTP/1.1 req=1 new
+/k-sh2/      HTTP/1.1 req=2 reused
+/k-10/       HTTP/1.0 req=1 new
+/k-10/       HTTP/1.0 req=1 new
+/k-off/      HTTP/1.1 req=1 new
+/k-off/      HTTP/1.1 req=1 new
+/k-h2/       HTTP/2.0 req=1 new
+/k-h2/       HTTP/2.0 req=2 reused
+/k-h2/       HTTP/2.0 req=3 reused
+ok - keepalive by default only for upstream{} blocks, per location with "local"
+ok - HTTP/1.0 and keepalive 0 never reuse; HTTP/2 reuses one connection
+
+## 502: nothing listens on the backend port
+/dead/ status: 502
+[error] connect() failed (errno) while connecting to upstream
+ok - connection refused is 502
+
+## 504: the backend is slower than proxy_read_timeout
+/slow.txt: 200 then 504
+[error] upstream timed out (errno) while reading response header from upstream
+ok - the second request waits on the backend's limit_req, the proxy gives up after 300ms
+
+## the next server after a failure
+/retry/ 200 [127.0.0.1:18139, 127.0.0.1:18120] [502, 200]
+/retry/ 200 [127.0.0.1:18120] [200]
+ok - a refused connection is retried on the next server, which then is skipped for a while
+
+## buffering: a 32 MB response to a client reading 8 MB/s
+/big/f.bin       request_time >= 2: yes, upstream done before half of it: yes
+/big-off/f.bin   request_time >= 2: yes, upstream done before half of it: no
+[warn] an upstream response is buffered to a temporary file $LAB/proxy_temp/1/00/0000000001 while reading upstream
+ok - buffering on frees the backend early, off ties it to the client
+
+## realip
+18122 /     203.0.113.7               -> remote_addr=203.0.113.7 realip_remote_addr=127.0.0.1
+18122 /     203.0.113.7, 10.0.0.2     -> remote_addr=10.0.0.2 realip_remote_addr=127.0.0.1
+18122 /rec/ 203.0.113.7, 10.0.0.2     -> remote_addr=10.0.0.2 realip_remote_addr=127.0.0.1
+18125 /     203.0.113.7, 10.0.0.2     -> remote_addr=203.0.113.7 realip_remote_addr=127.0.0.1
+18125 /     203.0.113.7, 198.51.100.9 -> remote_addr=198.51.100.9 realip_remote_addr=127.0.0.1
+ok - the last address without recursion, the last untrusted one with it; location-level recursion is too late
+
+## CONNECT tunnel
+via 18123 to 18120: proto=HTTP/1.1 req=1[CONNECT 200]
+via 18123 to 18121: [CONNECT 403]
+via 18121 to 18120: [CONNECT 405]
+CONNECT 127.0.0.1:18120 HTTP/1.1 200
+CONNECT 127.0.0.1:18121 HTTP/1.1 403
+[info] client sent CONNECT method while reading client request headers
+ok - tunnel_pass answers CONNECT with 200, the map limits targets, other servers answer 405

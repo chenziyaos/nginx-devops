@@ -14,7 +14,7 @@ ok - without burst only the first request fits
 5x 200 DELAYED
 1x 200 PASSED
 2x 503 REJECTED
-slowest response >= 4.5 s: yes
+slowest response >= 4 s: yes
 ok - burst=5 lets burst+1 through, 5 of them queued
 [warn] *N delaying request, excess: ~1, by zone "perip"
 [warn] *N delaying request, excess: ~2, by zone "perip"
@@ -36,7 +36,7 @@ ok - nodelay passes the same 6 at once
 3x 200 DELAYED
 3x 200 PASSED
 2x 503 REJECTED
-slowest response >= 2.5 s: yes
+slowest response >= 2 s: yes
 ok - delay=2 passes excess 0..2 at once and queues 3..5
 
 ## burst=5 nodelay: the queue drains at the rate

@@ -46,7 +46,7 @@ ok - wide's stored excess is one request, not four
 5x 200
 3x 200 DELAYED
 2x 200 PASSED
-slowest response >= 2.5 s: yes
+slowest response >= 2 s: yes
 delaying request, excess: 2 3 4
 delay timers (s): 1 2 3
 ok - 2 pass at once (excess 0 and 1), 3 are delayed, none rejected

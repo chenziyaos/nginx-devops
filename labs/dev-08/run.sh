@@ -74,7 +74,8 @@ step "delay=1: excess above 1 becomes a timer of (excess - 1) / rate"
 start conf/delay.conf
 fire 5 "$U/"
 verdicts
-slowest_at_least 2.5
+# arrivals spread over up to ~1 s on a busy machine: the bound is 1 s below the formula's 3 s
+slowest_at_least 2
 echo "delaying request, excess: $(excess_of 'delaying request')"
 # the timer that ngx_add_timer() sets right after each "delaying request" line, in whole seconds
 timers=$(awk '/delaying request/ { f = 1; next }

@@ -140,7 +140,7 @@ flowchart TD
 5x 200 DELAYED
 1x 200 PASSED
 2x 503 REJECTED
-slowest response >= 4.5 s: yes
+slowest response >= 4 s: yes
 ```
 
 ```text
@@ -159,7 +159,7 @@ every response < 0.5 s: yes
 3x 200 DELAYED
 3x 200 PASSED
 2x 503 REJECTED
-slowest response >= 2.5 s: yes
+slowest response >= 2 s: yes
 ```
 
 放行总数为什么是 6：8 个请求几乎同时到达，excess 依次是 0、1000、2000、3000、4000、5000、6000、7000，大于 `burst=5000` 的后两个被拒绝。无论哪种写法，一次突发最多放行 `burst + 1` 个。

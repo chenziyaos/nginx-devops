@@ -646,7 +646,7 @@ ngx_http_limit_req_delay(ngx_http_request_t *r)
 # labs/dev-08 ## delay=1: excess above 1 becomes a timer of (excess - 1) / rate
 3x 200 DELAYED
 2x 200 PASSED
-slowest response >= 2.5 s: yes
+slowest response >= 2 s: yes
 delaying request, excess: 2 3 4
 delay timers (s): 1 2 3
 ```

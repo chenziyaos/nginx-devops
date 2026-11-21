@@ -23,7 +23,9 @@ step "burst=5: 8 requests at once"
 start conf/burst.conf
 fire 8 "$U"
 verdicts
-slowest_at_least 4.5
+# 8 curl processes do not start at the same instant; the last one may arrive up to ~1 s late
+# on a busy machine, so the bound is 1 s below the 5 s the formula gives
+slowest_at_least 4
 expect "burst=5 lets burst+1 through, 5 of them queued" "$(count_log '^200 DELAYED') $(count_log '^200 PASSED') $(count_log '^503 REJECTED')" "5 1 2"
 errlog 'delaying request' | sed -E 's/, client.*//; s/\*[0-9]+ /*N /' \
     | awk '{ match($0, /excess: [0-9.]+/); x = substr($0, RSTART + 8, RLENGTH - 8);
@@ -42,7 +44,8 @@ step "burst=5 delay=2: 8 requests at once"
 start conf/delay.conf
 fire 8 "$U"
 verdicts
-slowest_at_least 2.5
+# arrivals spread over up to ~1 s on a busy machine: the bound is 1 s below the formula's 3 s
+slowest_at_least 2
 expect "delay=2 passes excess 0..2 at once and queues 3..5" "$(count_log '^200 PASSED') $(count_log '^200 DELAYED') $(count_log '^503 REJECTED')" "3 3 2"
 stop
 

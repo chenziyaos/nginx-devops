@@ -1,0 +1,71 @@
+
+## the cache key and the file
+key:  http://127.0.0.1:18201/b/plain?x=1
+md5:  0a84d3b2cd38b0302215a6363431b381
+file: out/run/cache/1/38/0a84d3b2cd38b0302215a6363431b381
+header: version=5 valid_sec-date=3, KEY: http://127.0.0.1:18201/b/plain?x=1
+ok - the file is named by the MD5 of the key, directories taken from the end of the name
+
+## the default key is the URI sent to the backend
+/k1/k: MISS, /k2/k: HIT, /k3/k (proxy_cache_key $scheme$proxy_host$request_uri): MISS
+KEY: http127.0.0.1:18201/k3/k
+KEY: http://127.0.0.1:18201/b/plaink
+ok - locations that proxy to the same URI share an entry; the documented key keeps them apart
+
+## MISS, HIT, EXPIRED
+proxy_cache_valid 200 2s: MISS HIT, after 3.1 s: EXPIRED HIT; backend requests: 2
+ok - an expired entry goes to the backend once and is stored again
+
+## which header decides the lifetime
+backend   headers                2nd-request stored
+plain     none                   HIT        valid_sec-date=3
+cc60      max-age=60             HIT        valid_sec-date=60
+smax      max-age=60,s-maxage=90 HIT        valid_sec-date=90
+xae       X-Accel-Expires=30,max-age=60 HIT        valid_sec-date=30
+exppast   Expires=past,max-age=60 HIT        valid_sec-date=60
+private   private,max-age=60     MISS       not stored
+age0      max-age=0              MISS       not stored
+xae0      X-Accel-Expires=0,max-age=60 MISS       not stored
+cookie    Set-Cookie             MISS       not stored
+ok - X-Accel-Expires, then s-maxage, then max-age, then proxy_cache_valid; private, 0 and Set-Cookie are not stored
+
+## HEAD is cached as GET
+HEAD: MISS, then GET: HIT, body: 24 bytes
+ok - the HEAD request went to the backend as a GET and stored the full response
+
+## proxy_cache_min_uses 2
+3 requests: MISS MISS HIT; backend requests: 2
+ok - the first use only counts, the second stores, the third hits
+
+## use_stale updating with background_update
+HIT after the first request
+after 6.1 s: STALE, same body as the first: yes
+next request: HIT, body changed: yes
+ok - the expired entry is sent at once and refreshed by a background subrequest
+
+## proxy_cache_lock
+/lock/a, 5 at once: 4x HIT 1x MISS backend requests: 1
+/nolock/n, 5 at once: 5x MISS backend requests: 5
+ok - with the lock one request goes to the backend and the others wait for the file
+
+## use_stale error
+backend now answers 500
+use_stale error http_500: 200 STALE
+no use_stale:             500 EXPIRED
+ok - the old copy is sent as STALE when the backend fails; without use_stale the 500 goes through
+
+## proxy_cache_revalidate
+after expiry: REVALIDATED, then HIT
+backend log: 200 304 
+ok - the backend answers the conditional request with 304, the entry is renewed
+
+## proxy_cache_bypass
+first: MISS
+with X-Refresh: 1: BYPASS, new body: yes
+with X-Refresh: 0: HIT, same body as the bypassed one: yes
+ok - a value other than empty or 0 skips the lookup, and the fresh response replaces the entry
+
+## inactive=2s
+stored: yes, valid for: 3600 s
+deleted without a request: yes, within 2..12 s: yes
+ok - the cache manager removes entries not used for inactive, even if they are still valid

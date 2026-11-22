@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 672" width="1200" height="672">
+<rect x="0" y="0" width="1200" height="672" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">main() 先解析命令行、加载配置，最后才决定进程模式</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从左到右是启动顺序；蓝色的 ngx_init_cycle 里建好阶段引擎和过滤器链，右列是四种结局</text>
+<text x="144" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">命令行</text>
+<text x="448" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">初始化</text>
+<text x="752" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">加载配置</text>
+<text x="1056" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结局</text>
+<polyline points="252,262 330,262" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,256 340,262 330,268" fill="#8F959E"/>
+<polyline points="556,383 634,383" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,377 644,383 634,389" fill="#8F959E"/>
+<polyline points="860,383 901,383 901,201.5 938,201.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,195.5 948,201.5 938,207.5" fill="#8F959E"/>
+<polyline points="860,383 901,383 901,322.5 938,322.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,316.5 948,322.5 938,328.5" fill="#8F959E"/>
+<polyline points="860,383 901,383 901,443.5 938,443.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,437.5 948,443.5 938,449.5" fill="#8F959E"/>
+<polyline points="860,383 901,383 901,564.5 938,564.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,558.5 948,564.5 938,570.5" fill="#8F959E"/>
+<polyline points="448,309.5 448,325.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="442,325.5 448,335.5 454,325.5" fill="#8F959E"/>
+<rect x="40" y="218.5" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="257.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">ngx_get_options</text>
+<text x="144" y="277.2" font-size="12" fill="#646A73" text-anchor="middle">-p -c -g -s -t</text>
+<rect x="344" y="218.5" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="257.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">ngx_os_init</text>
+<text x="448" y="277.2" font-size="12" fill="#646A73" text-anchor="middle">ngx_add_inherited_sockets</text>
+<rect x="344" y="339.5" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="368.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">preinit</text>
+<text x="448" y="388.7" font-size="12" fill="#646A73" text-anchor="middle">ngx_preinit_modules，index</text>
+<text x="448" y="407.7" font-size="12" fill="#646A73" text-anchor="middle">= 数组下标</text>
+<rect x="648" y="339.5" width="208" height="87" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="752" y="368.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">ngx_init_cycle</text>
+<text x="752" y="388.7" font-size="12" fill="#646A73" text-anchor="middle">create_conf →</text>
+<text x="752" y="407.7" font-size="12" fill="#646A73" text-anchor="middle">ngx_conf_parse → init_conf</text>
+<rect x="952" y="158" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="196.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">-t</text>
+<text x="1056" y="216.7" font-size="12" fill="#646A73" text-anchor="middle">打印结果后退出</text>
+<rect x="952" y="279" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="308.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">-s</text>
+<text x="1056" y="328.2" font-size="12" fill="#646A73" text-anchor="middle">ngx_signal_process 发信号后</text>
+<text x="1056" y="347.2" font-size="12" fill="#646A73" text-anchor="middle">退出</text>
+<rect x="952" y="400" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="429.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master_process on</text>
+<text x="1056" y="449.2" font-size="12" fill="#646A73" text-anchor="middle">ngx_master_process_cycle，</text>
+<text x="1056" y="468.2" font-size="12" fill="#646A73" text-anchor="middle">fork worker</text>
+<rect x="952" y="521" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="548.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master_process</text>
+<text x="1056" y="570.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">off</text>
+<text x="1056" y="590.7" font-size="12" fill="#646A73" text-anchor="middle">ngx_single_process_cycle</text>
+<text x="40" y="648" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_cycle.c（1.31.9）</text>
+</svg>

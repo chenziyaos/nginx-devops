@@ -1,0 +1,40 @@
+{
+ "type": "flow",
+ "title": "alias 只做前缀替换、不做路径检查，斜杠不对齐会穿透",
+ "subtitle": "location /img 配 alias data/files/ 时，请求 /img../secret.txt 的路径怎么算出来",
+ "source": "来源：ngx_http_core_module.c（1.31.9）",
+ "steps": [
+  {
+   "title": "请求的 URI",
+   "lines": [
+    "/img../secret.txt"
+   ]
+  },
+  {
+   "title": "匹配前缀",
+   "lines": [
+    "location /img，4 字节"
+   ]
+  },
+  {
+   "title": "跳过 4 字节",
+   "lines": [
+    "剩下 ../secret.txt"
+   ]
+  },
+  {
+   "title": "拼上 alias",
+   "lines": [
+    "data/files/../secret.txt"
+   ]
+  },
+  {
+   "title": "系统解析",
+   "lines": [
+    "data/secret.txt"
+   ],
+   "tone": "risk",
+   "emph": true
+  }
+ ]
+}

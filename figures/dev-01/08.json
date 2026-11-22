@@ -1,0 +1,43 @@
+{
+ "type": "graph",
+ "title": "debug 由编译期宏控制，可用 debug_connection 限定客户端",
+ "subtitle": "三种调试方式对应三种需求：看模块流转、看函数变量、或在生产环境排错",
+ "source": "来源：src/core/ngx_log.h、src/event/ngx_event_accept.c、labs/dev-01 实验（1.31.9）",
+ "stages": [
+  {
+   "name": "调试需求",
+   "nodes": [
+    {
+     "id": "q",
+     "title": "要看什么",
+     "sub": ""
+    }
+   ]
+  },
+  {
+   "name": "具体方案",
+   "nodes": [
+    {
+     "id": "a",
+     "title": "模块间流转",
+     "sub": "--with-debug、debug_connection 限定客户端、error_log debug"
+    },
+    {
+     "id": "b",
+     "title": "函数内变量",
+     "sub": "--with-debug、-O0 -g、master_process off、daemon off、调试器附着"
+    },
+    {
+     "id": "c",
+     "title": "生产问题",
+     "sub": "不开 debug、info 级 error_log、access_log 变量"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {"from": "q", "to": "a"},
+  {"from": "q", "to": "b"},
+  {"from": "q", "to": "c"}
+ ]
+}

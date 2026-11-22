@@ -1,0 +1,71 @@
+{
+ "type": "sequence",
+ "title": "server 级 rewrite 每个请求跑一次，location 级每次匹配后都跑",
+ "subtitle": "从上到下是阶段顺序；server 级规则只有内部跳转才会再执行",
+ "source": "来源：ngx_http_rewrite_module.c、ngx_http_core.c（1.31.9）",
+ "actors": [
+  {
+   "name": "SERVER_REWRITE（1）",
+   "tone": "base"
+  },
+  {
+   "name": "FIND_CONFIG（2）",
+   "tone": "base"
+  },
+  {
+   "name": "REWRITE（3）",
+   "tone": "base"
+  },
+  {
+   "name": "POST_REWRITE（4）",
+   "tone": "base"
+  }
+ ],
+ "messages": [
+  {
+   "from": "SERVER_REWRITE（1）",
+   "to": "SERVER_REWRITE（1）",
+   "text": "server 级 rewrite（/old/ → /new/）"
+  },
+  {
+   "from": "SERVER_REWRITE（1）",
+   "to": "FIND_CONFIG（2）",
+   "text": "继续"
+  },
+  {
+   "from": "FIND_CONFIG（2）",
+   "to": "FIND_CONFIG（2）",
+   "text": "选定 location"
+  },
+  {
+   "from": "FIND_CONFIG（2）",
+   "to": "REWRITE（3）",
+   "text": "继续"
+  },
+  {
+   "from": "REWRITE（3）",
+   "to": "REWRITE（3）",
+   "text": "location 级 rewrite ... last"
+  },
+  {
+   "from": "REWRITE（3）",
+   "to": "POST_REWRITE（4）",
+   "text": "继续"
+  },
+  {
+   "from": "POST_REWRITE（4）",
+   "to": "POST_REWRITE（4）",
+   "text": "uri_changed：重新匹配"
+  },
+  {
+   "from": "POST_REWRITE（4）",
+   "to": "FIND_CONFIG（2）",
+   "text": "回头"
+  },
+  {
+   "from": "FIND_CONFIG（2）",
+   "to": "REWRITE（3）",
+   "text": "新 location 的规则"
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 439" width="1200" height="439">
+<rect x="0" y="0" width="1200" height="439" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">用 map 替代 if 能避免隐式 location 配置造成的覆盖</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">左侧是有问题的做法，右侧是推荐方案；红色代表数据丢失风险</text>
+<rect x="40" y="128" width="548" height="247" rx="12" fill="#FEF1F1" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="495.1" y="148" width="72.9" height="24" rx="12" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1" data-role="pill"/>
+<text x="531.6" y="164.2" font-size="12" fill="#D83931" text-anchor="middle" data-role="pill">避免使用</text>
+<text x="60" y="168.5" font-size="20" fill="#D83931" font-weight="bold" data-role="card-title">if 语句的问题</text>
+<line x1="60" y1="197" x2="568" y2="197" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="231" font-size="14" fill="#646A73">创建隐式 location</text>
+<text x="568" y="231" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">if 块被当成 location 解析</text>
+<line x1="60" y1="245" x2="568" y2="245" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="269" font-size="14" fill="#646A73">数组指令覆盖</text>
+<text x="568" y="269" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">内部 add_header 覆盖父层</text>
+<line x1="60" y1="283" x2="568" y2="283" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="307" font-size="14" fill="#646A73">结果</text>
+<text x="568" y="307" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">父层的头会丢失</text>
+<line x1="60" y1="321" x2="568" y2="321" stroke="#EFF0F1" stroke-width="1"/>
+<rect x="612" y="128" width="548" height="247" rx="12" fill="#F0FBEF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="624" y="127" width="524" height="3" rx="1.5" fill="#34C724" data-role="colorline"/>
+<rect x="1092.6" y="148" width="47.4" height="24" rx="12" fill="#E4FAE1" stroke="#8EE085" stroke-width="1" data-role="pill"/>
+<text x="1116.3" y="164.2" font-size="12" fill="#2EA121" text-anchor="middle" data-role="pill">推荐</text>
+<text x="632" y="168.5" font-size="20" fill="#2EA121" font-weight="bold" data-role="card-title">map 替代方案</text>
+<line x1="632" y1="197" x2="1140" y2="197" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="231" font-size="14" fill="#646A73">时机</text>
+<text x="1140" y="231" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">配置解析时定义映射</text>
+<line x1="632" y1="245" x2="1140" y2="245" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="269" font-size="14" fill="#646A73">求值</text>
+<text x="1140" y="269" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">请求时计算变量值</text>
+<line x1="632" y1="283" x2="1140" y2="283" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="307" font-size="14" fill="#646A73">隐式 location</text>
+<text x="1140" y="307" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">不创建（避免覆盖）</text>
+<line x1="632" y1="321" x2="1140" y2="321" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="345" font-size="14" fill="#646A73">继承</text>
+<text x="1140" y="345" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">add_header 正常继承</text>
+<text x="40" y="415" font-size="12" fill="#646A73" data-role="source">来源：本文整理</text>
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1300 420" width="1300" height="420">
+<rect x="0" y="0" width="1300" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">同名指令靠所在块唯一确定接收模块</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">每行是 server 出现在一种块里的情况；上下文位不同，指令表里匹配到的模块就不同</text>
+<rect x="40" y="134.4" width="1220" height="212" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="135.4" width="1218" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="166.4" width="1218" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="178.4" x2="1260" y2="178.4" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="220.4" x2="1259" y2="220.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="262.4" x2="1259" y2="262.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="304.4" x2="1259" y2="304.4" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">所在块</text>
+<text x="360.4" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">上下文位</text>
+<text x="712.4" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">处理模块</text>
+<text x="1102" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">含义</text>
+<text x="58" y="204.3" font-size="14" fill="#1F2329">http{}</text>
+<text x="360.4" y="204.3" font-size="14" fill="#1F2329">NGX_HTTP_MAIN_CONF</text>
+<text x="712.4" y="204.3" font-size="14" fill="#1F2329">ngx_http_core_module</text>
+<text x="1102" y="204.3" font-size="14" fill="#1F2329">虚拟主机</text>
+<text x="58" y="246.3" font-size="14" fill="#1F2329">upstream{}</text>
+<text x="360.4" y="246.3" font-size="14" fill="#1F2329">NGX_HTTP_UPS_CONF</text>
+<text x="712.4" y="246.3" font-size="14" fill="#1F2329">ngx_http_upstream_module</text>
+<text x="1102" y="246.3" font-size="14" fill="#1F2329">后端地址</text>
+<text x="58" y="288.3" font-size="14" fill="#1F2329">stream{}</text>
+<text x="360.4" y="288.3" font-size="14" fill="#1F2329">NGX_STREAM_MAIN_CONF</text>
+<text x="712.4" y="288.3" font-size="14" fill="#1F2329">ngx_stream_core_module</text>
+<text x="1102" y="288.3" font-size="14" fill="#1F2329">—</text>
+<text x="58" y="330.3" font-size="14" fill="#1F2329">stream 的 upstream{}</text>
+<text x="360.4" y="330.3" font-size="14" fill="#1F2329">—</text>
+<text x="712.4" y="330.3" font-size="14" fill="#1F2329">ngx_stream_upstream_module</text>
+<text x="1102" y="330.3" font-size="14" fill="#1F2329">—</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.c、ngx_http_core_module.c、ngx_http_upstream_module.c、ngx_stream_core_module.c（1.31.9）</text>
+</svg>

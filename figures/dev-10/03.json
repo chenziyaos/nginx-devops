@@ -1,0 +1,62 @@
+{
+ "type": "compare",
+ "title": "数组越靠后的过滤器越先执行",
+ "subtitle": "左边是 postconfiguration 的执行顺序，每个模块把自己压到链头；右边是 header filter 被调用的顺序，正好反过来",
+ "source": "来源：src/core/ngx_module.c、src/http/ngx_http.c（1.31.9）",
+ "cards": [
+  {
+   "title": "cycle->modules 数组顺序",
+   "rows": [
+    [
+     "1",
+     "headers_filter"
+    ],
+    {
+     "k": "2",
+     "v": "hello（插入）",
+     "tone": "main"
+    },
+    [
+     "3",
+     "copy_filter（只有 body）"
+    ],
+    [
+     "4",
+     "range_body（只有 body）"
+    ],
+    [
+     "5",
+     "not_modified"
+    ]
+   ]
+  },
+  {
+   "title": "header filter 调用顺序",
+   "primary": true,
+   "tone": "main",
+   "rows": [
+    [
+     "1",
+     "not_modified"
+    ],
+    {
+     "k": "2",
+     "v": "hello：加 X-Hello",
+     "tone": "main"
+    },
+    [
+     "3",
+     "headers_filter：加 X-Add"
+    ],
+    [
+     "4",
+     "…"
+    ],
+    [
+     "5",
+     "header_filter 写出"
+    ]
+   ]
+  }
+ ]
+}

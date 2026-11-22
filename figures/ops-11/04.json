@@ -1,0 +1,65 @@
+{
+ "type": "graph",
+ "title": "重试多个后端时，$upstream_* 变量有多个用逗号隔开的值",
+ "subtitle": "从左到右是一次请求的两次尝试；日志里按尝试顺序用逗号隔开",
+ "source": "来源：ngx_http_upstream.c（1.31.9）、labs/ops-11 实验输出",
+ "stages": [
+  {
+   "name": "尝试 1",
+   "nodes": [
+    {
+     "id": "t1",
+     "title": "18229",
+     "sub": "连接被拒绝，502",
+     "tone": "risk"
+    }
+   ]
+  },
+  {
+   "name": "重试",
+   "nodes": [
+    {
+     "id": "arrow",
+     "title": "换下一台",
+     "sub": "proxy_next_upstream error",
+     "tone": "contrast"
+    }
+   ]
+  },
+  {
+   "name": "尝试 2",
+   "nodes": [
+    {
+     "id": "t2",
+     "title": "18221",
+     "sub": "成功，200",
+     "tone": "good"
+    }
+   ]
+  },
+  {
+   "name": "日志记录",
+   "nodes": [
+    {
+     "id": "log",
+     "title": "$upstream_addr",
+     "sub": "18229, 18221（逗号分隔）"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "t1",
+   "to": "arrow"
+  },
+  {
+   "from": "arrow",
+   "to": "t2"
+  },
+  {
+   "from": "t2",
+   "to": "log"
+  }
+ ]
+}

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 509.5" width="1200" height="509.5">
+<rect x="0" y="0" width="1200" height="509.5" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">nginx -s reload 会先自检配置，kill -HUP 的错误只记在 error.log</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">两种发信号的方式在 master 处汇合；红色是两处失败的出口</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">发信号</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">发送者的检查</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">master 的 ngx_init_cycle</text>
+<polyline points="294,240.2 417.5,240.2 417.5,209.5 476,209.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,203.5 486,209.5 476,215.5" fill="#8F959E"/>
+<polyline points="294,240.2 417.5,240.2 417.5,332.5 476,332.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,326.5 486,332.5 476,338.5" fill="#8F959E"/>
+<polyline points="294,363.2 356.5,363.2 356.5,332.5 476,332.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,326.5 486,332.5 476,338.5" fill="#8F959E"/>
+<polyline points="714,332.5 807,332.5 807,271 896,271" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,265 906,271 896,277" fill="#8F959E"/>
+<polyline points="714,332.5 807,332.5 807,394 896,394" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,388 906,394 896,400" fill="#8F959E"/>
+<rect x="70" y="188.8" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="235.7" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx -s reload</text>
+<text x="180" y="255.4" font-size="12" fill="#646A73" text-anchor="middle">先自己解析一遍配置</text>
+<rect x="70" y="311.8" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="358.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">kill -HUP master</text>
+<text x="180" y="378.4" font-size="12" fill="#646A73" text-anchor="middle">不检查，直接发</text>
+<rect x="490" y="158" width="220" height="103" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">语法错误</text>
+<text x="600" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">stderr 打印 emerg，退出码 1，</text>
+<text x="600" y="234.2" font-size="12" fill="#646A73" text-anchor="middle">HUP 没有发出</text>
+<rect x="490" y="281" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="327.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master 收到 HUP</text>
+<text x="600" y="347.7" font-size="12" fill="#646A73" text-anchor="middle">nginx -s reload 退出码 0</text>
+<rect x="910" y="219.5" width="220" height="103" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="247.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">初始化失败</text>
+<text x="1020" y="267.2" font-size="12" fill="#646A73" text-anchor="middle">语法错误、端口占用、证书读不</text>
+<text x="1020" y="286.2" font-size="12" fill="#646A73" text-anchor="middle">了：error.log 记 emerg，老</text>
+<text x="1020" y="305.2" font-size="12" fill="#646A73" text-anchor="middle">worker 继续</text>
+<rect x="910" y="342.5" width="220" height="103" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="398.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">新 worker 接班</text>
+<text x="355.8" y="231.2" font-size="12" fill="#646A73" text-anchor="middle">有错</text>
+<text x="355.8" y="258.2" font-size="12" fill="#646A73" text-anchor="middle">没错</text>
+<text x="760.5" y="323.5" font-size="12" fill="#646A73" text-anchor="middle">失败</text>
+<text x="760.5" y="350.5" font-size="12" fill="#646A73" text-anchor="middle">成功</text>
+<text x="40" y="485.5" font-size="12" fill="#646A73" data-role="source">来源：labs/ops-03 实验（1.31.9）</text>
+</svg>

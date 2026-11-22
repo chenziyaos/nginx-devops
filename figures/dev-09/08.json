@@ -1,0 +1,98 @@
+{
+ "type": "graph",
+ "title": "缓冲决定的是后端连接能多早释放，代价是磁盘写入",
+ "subtitle": "从左到右：先看要不要升级，再看要不要缓冲；只有缓冲路径能在后端读完后马上放回连接",
+ "source": "来源：ngx_http_upstream_send_response、ngx_http_upstream.c（1.31.9）",
+ "stages": [
+  {
+   "name": "send_response",
+   "nodes": [
+    {
+     "id": "h1",
+     "title": "响应头已发出",
+     "sub": "send_response"
+    }
+   ]
+  },
+  {
+   "name": "升级判断",
+   "nodes": [
+    {
+     "id": "up",
+     "title": "要升级吗",
+     "sub": "u->upgrade"
+    },
+    {
+     "id": "g1",
+     "title": "双向转发",
+     "sub": "upstream_upgrade（WebSocket）"
+    }
+   ]
+  },
+  {
+   "name": "缓冲判断",
+   "nodes": [
+    {
+     "id": "b1",
+     "title": "要缓冲吗",
+     "sub": "proxy_buffering / X-Accel-Buffering"
+    }
+   ]
+  },
+  {
+   "name": "响应体路径",
+   "nodes": [
+    {
+     "id": "nb1",
+     "title": "不缓冲直转",
+     "sub": "只用一块 proxy_buffer_size，客户端慢则后端也等",
+     "tone": "risk"
+    },
+    {
+     "id": "ep1",
+     "title": "缓冲转发",
+     "sub": "event pipe：proxy_buffers 4 8k = 32 KB，不够写临时文件"
+    }
+   ]
+  },
+  {
+   "name": "释放",
+   "nodes": [
+    {
+     "id": "r1",
+     "title": "读完即放回",
+     "sub": "后端读完即 free，连接放回缓存",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "h1",
+   "to": "up"
+  },
+  {
+   "from": "up",
+   "to": "g1",
+   "label": "是"
+  },
+  {
+   "from": "up",
+   "to": "b1",
+   "label": "否"
+  },
+  {
+   "from": "b1",
+   "to": "nb1"
+  },
+  {
+   "from": "b1",
+   "to": "ep1"
+  },
+  {
+   "from": "ep1",
+   "to": "r1"
+  }
+ ]
+}

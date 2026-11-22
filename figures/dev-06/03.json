@@ -1,0 +1,40 @@
+{
+ "type": "table",
+ "title": "单行超过一块大缓冲、或大缓冲用完，都回 400",
+ "subtitle": "当前缓冲满而头没读完时从上往下检查，命中一行就停；494 对外记作 400",
+ "source": "来源：ngx_http_request.c（1.31.9）",
+ "columns": [
+  "检查",
+  "结果"
+ ],
+ "rows": [
+  [
+   "这一行已读字节 ≥ 大缓冲区大小",
+   {
+    "text": "494：client sent too long header line",
+    "tone": "risk"
+   }
+  ],
+  [
+   "连接上有空闲的大缓冲区",
+   {
+    "text": "取一块，只搬未解析完的这一行",
+    "tone": "good"
+   }
+  ],
+  [
+   "nbusy < 块数",
+   {
+    "text": "分配一块，只搬这一行",
+    "tone": "good"
+   }
+  ],
+  [
+   "以上都不满足",
+   {
+    "text": "494",
+    "tone": "risk"
+   }
+  ]
+ ]
+}

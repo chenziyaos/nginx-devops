@@ -1,0 +1,27 @@
+{
+ "type": "graph",
+ "title": "HTTP/2 由 ALPN 或连接前言触发，http2 on 决定能否使用",
+ "subtitle": "加密连接走 ALPN 回调，明文连接看前 24 字节是不是 HTTP/2 连接前言",
+ "source": "来源：ngx_http_request.c、ngx_http_v2.c（1.31.9）",
+ "stages": [
+  {"name": "连接类型", "nodes": [
+    {"id": "tls", "title": "TLS"},
+    {"id": "pl", "title": "明文"}]},
+  {"name": "协议发现", "nodes": [
+    {"id": "al", "title": "ALPN 回调", "sub": "当前 server http2 on 或 listen ... http2？"},
+    {"id": "pf", "title": "看前 24 字节", "sub": "是连接前言，且开了 http2？"}]},
+  {"name": "结果", "nodes": [
+    {"id": "h2", "title": "h2", "sub": "列表首位", "tone": "main"},
+    {"id": "h1", "title": "http/1.x", "sub": "ALPN 只给出 http/1.x"},
+    {"id": "h2c", "title": "h2c", "sub": "发 SETTINGS 和 WINDOW_UPDATE", "tone": "main"},
+    {"id": "h1p", "title": "按 HTTP/1 解析", "sub": "前言会得到 400", "tone": "risk"}]}
+ ],
+ "edges": [
+  {"from": "tls", "to": "al"},
+  {"from": "pl", "to": "pf"},
+  {"from": "al", "to": "h2", "label": "是"},
+  {"from": "al", "to": "h1", "label": "否"},
+  {"from": "pf", "to": "h2c", "label": "是"},
+  {"from": "pf", "to": "h1p", "label": "否"}
+ ]
+}

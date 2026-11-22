@@ -94,16 +94,7 @@
 
 这张图把三种情况放在一起，判断依据只有两个：有没有经过 `rewrite`，`proxy_pass` 有没有 URI 部分。
 
-```mermaid
-flowchart TD
-    A["请求进入带 proxy_pass 的 location"] --> B{"proxy_pass 里有变量？"}
-    B -- "有" --> V["用变量算出的 URI，不再拼接"]
-    B -- "没有" --> C{"rewrite ... break 改过 URI？"}
-    C -- "改过" --> R["发送改写后的完整 URI，忽略 proxy_pass 的 URI 部分"]
-    C -- "没改" --> D{"proxy_pass 带 URI 部分？"}
-    D -- "不带" --> U["发送客户端原始请求 URI：%2F、双斜杠、.. 都原样"]
-    D -- "带" --> P["规范化后的 URI 去掉 location 前缀，接在 URI 部分后面"]
-```
+![后端收到哪个 URI，先看变量，再看 rewrite，最后看 URI 部分](../figures/ops-06/01.svg)
 
 **小结**：要让后端看到客户端发来的原样路径，`proxy_pass` 只写到端口；要改前缀，就带 URI，并且让 location 和 URI 的末尾斜杠成对出现。带 URI 时后端拿到的是解码、合并斜杠之后的路径，`%2F` 会变成真正的 `/`。
 
@@ -276,19 +267,7 @@ location /h-ws/ {
 
 升级到 1.29.7 以后要不要改配置，可以按这张图判断：
 
-```mermaid
-flowchart TD
-    A["proxy_pass 的目标"] --> B{"是 upstream {} 块的名字？"}
-    B -- "否：直接写 IP:端口或域名" --> N["隐式 upstream：不保持连接，每个请求新建"]
-    B -- "是" --> C{"块里写了 keepalive？"}
-    C -- "没写" --> L["等价 keepalive 32 local：只在同一个 location 内复用"]
-    C -- "keepalive 0" --> N
-    C -- "keepalive N" --> S["所有用这个块的 location 共享 N 条空闲连接"]
-    L --> V{"proxy_http_version"}
-    S --> V
-    V -- "1.0" --> N
-    V -- "1.1（默认）或 2" --> K["复用连接"]
-```
+![upstream 块默认保持连接，直接写地址的 proxy_pass 每次新建](../figures/ops-06/02.svg)
 
 **小结**：1.29.7 之后，想要到后端的长连接，最少的改动是把直接写地址的 `proxy_pass` 改成 upstream 块，不必再手写 `proxy_http_version 1.1` 和 `proxy_set_header Connection ""`。多个 location 共用一个后端时，默认的 `local` 会让每个 location 各自维护连接池，后端的并发连接数随 location 数量增加；需要共享就显式写 `keepalive N;`。
 
@@ -339,18 +318,7 @@ flowchart TD
 
 换下一台有一条限制：请求已经发给后端之后，POST、LOCK、PATCH 默认不重试（`ngx_http_upstream.c:4700-4704` 给它们加上 `non_idempotent` 标记，配置里要显式写 `proxy_next_upstream ... non_idempotent` 才放行），避免同一笔写操作在两台后端各执行一次。连接被拒绝时请求还没发出，所以不受这条限制。
 
-```mermaid
-flowchart LR
-    A["选一台后端"] --> B{"建连"}
-    B -- "拒绝或超过 proxy_connect_timeout" --> E["记 502 或 504，标记失败"]
-    B -- "成功" --> C{"等响应头"}
-    C -- "超过 proxy_read_timeout" --> T["记 504，标记失败"]
-    C -- "收到" --> OK["把响应交给客户端"]
-    E --> D{"还有没试过的后端，且属于 proxy_next_upstream？"}
-    T --> D
-    D -- "是" --> A
-    D -- "否" --> F["返回最后一次的状态码"]
-```
+![失败之后换不换下一台，由 proxy_next_upstream 决定](../figures/ops-06/03.svg)
 
 **小结**：502 看 `connect() failed`，504 看 `upstream timed out` 后面的 `while ...` 判断卡在哪个阶段；多台后端时先查 `$upstream_addr` 和 `$upstream_status`，客户端拿到 200 并不代表没有后端失败过。
 
@@ -371,19 +339,7 @@ flowchart LR
 
 关掉 buffering 的正当理由是流式响应：Server-Sent Events、逐 token 输出的推理接口、长轮询。这类 location 写 `proxy_buffering off;`，或者让后端在响应里带 `X-Accel-Buffering: no`，nginx 按响应逐个关闭缓冲。
 
-```mermaid
-sequenceDiagram
-    participant C as 慢客户端
-    participant N as nginx
-    participant B as 后端
-    Note over N,B: proxy_buffering on
-    B->>N: 32 MB 全速写完，后端连接释放
-    N->>C: 从内存和临时文件按 8 MB/s 发送
-    Note over N,B: proxy_buffering off
-    B->>N: 写一块，等 nginx 发给客户端
-    N->>C: 发一块
-    B->>N: 再写一块，直到客户端读完
-```
+![proxy_buffering 开着时后端很快释放，关掉时后端等慢客户端](../figures/ops-06/04.svg)
 
 **小结**：普通接口保持默认的 `proxy_buffering on`，让 nginx 替后端扛住慢客户端；流式接口逐个关掉。`$upstream_response_time` 和 `$request_time` 的差，就是 buffering 替后端省下来的时间。
 
@@ -443,16 +399,7 @@ POST_READ 阶段还没选 location，用的是 server 级配置；PREACCESS 阶�
 
 location 级的 realip 配置只在 server 级没有配置（POST_READ 阶段什么都没做）时才起作用。
 
-```mermaid
-flowchart TD
-    A["X-Forwarded-For: 203.0.113.7, 10.0.0.2，连接来自 127.0.0.1"] --> B{"127.0.0.1 在 set_real_ip_from 里？"}
-    B -- "否" --> Z["不替换，remote_addr=127.0.0.1"]
-    B -- "是" --> C{"real_ip_recursive"}
-    C -- "off" --> D["取最右边：10.0.0.2"]
-    C -- "on" --> E{"10.0.0.2 受信任？"}
-    E -- "是，继续向左" --> F{"203.0.113.7 受信任？"}
-    F -- "否，停下" --> G["remote_addr=203.0.113.7"]
-```
+![realip 从 X-Forwarded-For 右边取地址，recursive 时跳过信任的代理](../figures/ops-06/05.svg)
 
 **小结**：`set_real_ip_from` 只列自己掌控的代理网段，链路超过一层就开 `real_ip_recursive on`，并且和其他 realip 指令写在同一个层级（通常是 http 或 server）。日志里同时记 `$remote_addr` 和 `$realip_remote_addr`，排查时能看出替换前后各是什么。
 
@@ -545,18 +492,7 @@ CONNECT 127.0.0.1:18121 HTTP/1.1 403
 
 第一行的 `proto=HTTP/1.1 req=1` 是后端 18120 直接回给 curl 的内容，隧道里的请求 nginx 没有经手解析。目标不在白名单时 403；对没有 `tunnel_pass` 的 18121 发 CONNECT 得到 405，error.log 里是 info 级别的 `client sent CONNECT method`。访问日志里每条隧道只有一行，在隧道关闭时写入。CONNECT 请求的 URI 是 `/`，所以它按 `location /` 匹配；changes.xml 1.31.0 同一条还写了 `auth_basic`、`satisfy`、`auth_delay` 支持代理认证，需要给隧道加认证时从这些指令入手，本篇没有做这个实验。
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as nginx（tunnel_pass）
-    participant T as 目标 127.0.0.1:18120
-    C->>N: CONNECT 127.0.0.1:18120 HTTP/1.1
-    N->>N: SERVER_REWRITE 阶段：map 白名单，不在就 403
-    N->>T: 建立 TCP 连接
-    N-->>C: HTTP/1.1 200 OK
-    C->>T: 隧道内的字节（这里是 GET /conn/），nginx 只转发
-    T-->>C: 响应字节
-```
+![tunnel_pass 在白名单检查后建立 TCP 隧道，转发原始字节不解析](../figures/ops-06/06.svg)
 
 **小结**：`tunnel_pass` 适合做受控的出口代理，例如让内网机器只能经 nginx 访问一组白名单地址。不带参数的 `tunnel_pass` 允许连接任意目标，上线前必须用 map、`allow`/`deny` 或认证限制住。
 

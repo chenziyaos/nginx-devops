@@ -1,0 +1,46 @@
+{
+  "type": "sequence",
+  "title": "只有最后一个 limit_req 写回，前面的 zone 拒绝时回滚不记账",
+  "subtitle": "时间从上到下；wide 和 narrow 是两个 zone，分别对应不同的计数空间",
+  "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+  "actors": [
+    {
+      "name": "handler"
+    },
+    {
+      "name": "zone wide"
+    },
+    {
+      "name": "zone narrow"
+    }
+  ],
+  "messages": [
+    {
+      "from": "handler",
+      "to": "zone wide",
+      "text": "lookup(account=0)"
+    },
+    {
+      "from": "zone wide",
+      "to": "handler",
+      "text": "NGX_AGAIN, count++",
+      "reply": true
+    },
+    {
+      "from": "handler",
+      "to": "zone narrow",
+      "text": "lookup(account=1)"
+    },
+    {
+      "from": "zone narrow",
+      "to": "handler",
+      "text": "NGX_BUSY",
+      "reply": true
+    },
+    {
+      "from": "handler",
+      "to": "zone wide",
+      "text": "unlock: count--, excess 不变"
+    }
+  ]
+}

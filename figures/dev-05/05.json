@@ -1,0 +1,36 @@
+{
+  "type": "milestones",
+  "title": "kevent 超时由红黑树最小定时器决定，无定时器时睡无限久",
+  "subtitle": "从左到右按时间流；数字是相应的 kevent 超时值",
+  "source": "来源：src/event/ngx_event_timer.c、labs/dev-05（1.31.9）",
+  "items": [
+    {
+      "when": "1",
+      "label": "accept 加 60000 ms 定时器"
+    },
+    {
+      "when": "2",
+      "label": "kevent 等 60000 ms"
+    },
+    {
+      "when": "3",
+      "label": "请求到达"
+    },
+    {
+      "when": "4",
+      "label": "keepalive 加 75000 ms"
+    },
+    {
+      "when": "5",
+      "label": "kevent 等 75000 ms"
+    },
+    {
+      "when": "6",
+      "label": "连接关闭"
+    },
+    {
+      "when": "7",
+      "label": "kevent 等无限久"
+    }
+  ]
+}

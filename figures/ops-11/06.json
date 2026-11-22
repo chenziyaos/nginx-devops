@@ -1,0 +1,82 @@
+{
+ "type": "graph",
+ "title": "连接从 accept 到 keepalive 或关闭，对应 stub_status 中不同的计数器",
+ "subtitle": "从上到下是连接的生命周期；颜色标记每个阶段更新的计数器",
+ "source": "来源：ngx_event_accept.c、ngx_http_request.c、ngx_connection.c（1.31.9）、labs/ops-11 实验输出",
+ "stages": [
+  {
+   "name": "建立和初始化",
+   "nodes": [
+    {
+     "id": "accept",
+     "title": "accept",
+     "sub": "accepts +1；handled +1；Active +1"
+    }
+   ]
+  },
+  {
+   "name": "处理请求",
+   "nodes": [
+    {
+     "id": "read",
+     "title": "Reading → Writing",
+     "sub": "requests +1；处理和发送"
+    }
+   ]
+  },
+  {
+   "name": "连接复用",
+   "nodes": [
+    {
+     "id": "wait",
+     "title": "Waiting",
+     "sub": "空闲，等下一个请求",
+     "tone": "good"
+    },
+    {
+     "id": "decision",
+     "title": "keepalive？",
+     "sub": "响应发完，看连接能否复用",
+     "tone": "main",
+     "emph": true
+    }
+   ]
+  },
+  {
+   "name": "连接关闭",
+   "nodes": [
+    {
+     "id": "close",
+     "title": "关闭",
+     "sub": "Active -1",
+     "tone": "contrast"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "accept",
+   "to": "read"
+  },
+  {
+   "from": "read",
+   "to": "decision"
+  },
+  {
+   "from": "decision",
+   "to": "wait",
+   "label": "keepalive"
+  },
+  {
+   "from": "wait",
+   "to": "read",
+   "label": "循环"
+  },
+  {
+   "from": "decision",
+   "to": "close",
+   "label": "关闭"
+  }
+ ]
+}

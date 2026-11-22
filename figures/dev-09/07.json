@@ -1,0 +1,56 @@
+{
+  "type": "graph",
+  "title": "指令的书写顺序就是包装顺序，算法指令要写在 sticky 之前",
+  "subtitle": "上半部分：解析 upstream{} 时各指令按顺序改写 init_upstream，后面的覆盖前面的；下半部分：init_main_conf 阶段按最终顺序调用包装函数",
+  "source": "来源：ngx_http_upstream_sticky_module.c、ngx_http_upstream_keepalive_module.c（1.31.9）",
+  "stages": [
+    {
+      "name": "解析 upstream{}（按书写顺序）",
+      "nodes": [
+        {
+          "id": "l1",
+          "title": "least_conn",
+          "sub": "init_upstream = least_conn",
+          "tone": "main"
+        },
+        {
+          "id": "s1",
+          "title": "sticky cookie srv",
+          "sub": "original = least_conn，init_upstream = sticky",
+          "tone": "main"
+        }
+      ]
+    },
+    {
+      "name": "init_main_conf",
+      "nodes": [
+        {
+          "id": "u1",
+          "title": "upstream 模块",
+          "sub": "调用 sticky 的 init_upstream → least_conn 的 init_upstream",
+          "tone": "base"
+        },
+        {
+          "id": "k1",
+          "title": "keepalive 模块",
+          "sub": "original_init_peer = sticky 的 init",
+          "tone": "base"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "l1",
+      "to": "s1"
+    },
+    {
+      "from": "s1",
+      "to": "u1"
+    },
+    {
+      "from": "u1",
+      "to": "k1"
+    }
+  ]
+}

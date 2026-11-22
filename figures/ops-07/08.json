@@ -1,0 +1,45 @@
+{
+ "type": "compare",
+ "title": "有 zone 时所有 worker 共享一份 peers；没有 zone 时各算各的",
+ "subtitle": "同一个 upstream，两个 worker 看到的权重、失败计数和连接数是否相同",
+ "source": "来源：ngx_http_upstream_round_robin.c（1.31.9）",
+ "cards": [
+  {
+   "id": "①",
+   "title": "没有 zone",
+   "subtitle": "每个 worker 自己的 peers",
+   "rows": [
+    [
+     "worker 1",
+     "自己的权重、失败计数、连接数"
+    ],
+    [
+     "worker 2",
+     "自己的权重、失败计数、连接数"
+    ]
+   ],
+   "verdict": "各算各的"
+  },
+  {
+   "id": "②",
+   "title": "有 zone",
+   "subtitle": "共享内存里的一份 peers",
+   "rows": [
+    [
+     "worker 1",
+     "读写共享的那一份"
+    ],
+    [
+     "worker 2",
+     "读写共享的那一份"
+    ]
+   ],
+   "points": [
+    "权重、失败计数、连接数、平均时间都只有一份"
+   ],
+   "verdict": "共享一份",
+   "primary": true,
+   "tone": "main"
+  }
+ ]
+}

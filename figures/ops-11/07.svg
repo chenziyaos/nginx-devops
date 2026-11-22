@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 534" width="1200" height="534">
+<rect x="0" y="0" width="1200" height="534" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">日志文件 mv 后 nginx 继续写旧文件，USR1 才能让其切换到新文件</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">纵轴是时间顺序；logrotate 发送 USR1 信号是关键</text>
+<line x1="180" y1="168" x2="180" y2="470" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">logrotate</text>
+<line x1="460" y1="168" x2="460" y2="470" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master</text>
+<line x1="740" y1="168" x2="740" y2="470" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">worker</text>
+<line x1="1020" y1="168" x2="1020" y2="470" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">磁盘</text>
+<text x="190" y="202.6" font-size="13" fill="#1F2329">mv access.log access.log.1</text>
+<polyline points="180,211 1008,211" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,205 1018,211 1008,217" fill="#8F959E"/>
+<text x="750" y="243.6" font-size="13" fill="#1F2329">继续写同一个 fd（现在叫</text>
+<text x="750" y="263.6" font-size="13" fill="#1F2329">access.log.1）</text>
+<polyline points="740,272 1008,272" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,266 1018,272 1008,278" fill="#8F959E"/>
+<text x="190" y="304.6" font-size="13" fill="#1F2329">kill -USR1</text>
+<polyline points="180,313 448,313" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,307 458,313 448,319" fill="#8F959E"/>
+<text x="470" y="345.6" font-size="13" fill="#1F2329">flush，open access.log（新建），</text>
+<text x="470" y="365.6" font-size="13" fill="#1F2329">chown</text>
+<polyline points="460,374 1008,374" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,368 1018,374 1008,380" fill="#8F959E"/>
+<text x="470" y="406.6" font-size="13" fill="#1F2329">转发 USR1 信号</text>
+<polyline points="460,415 728,415" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,409 738,415 728,421" fill="#8F959E"/>
+<text x="750" y="447.6" font-size="13" fill="#1F2329">flush，open，之后写新文件</text>
+<polyline points="740,456 1008,456" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,450 1018,456 1008,462" fill="#8F959E"/>
+<text x="40" y="510" font-size="12" fill="#646A73" data-role="source">来源：ngx_process_cycle.c、ngx_event.c（1.31.9）、labs/ops-11 实验输出</text>
+</svg>

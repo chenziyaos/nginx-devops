@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 572" width="1200" height="572">
+<rect x="0" y="0" width="1200" height="572" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">日志是否写出取决于 if= 条件和缓冲配置</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是请求结束时的日志处理逻辑；蓝色是关键决策点，绿色是最终动作</text>
+<text x="113.6" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">检查条件</text>
+<text x="356.8" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">条件判断</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">日志处理</text>
+<text x="843.2" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">缓冲决策</text>
+<text x="1086.4" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">最终写出</text>
+<polyline points="191.2,296 269.2,296" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,290 279.2,296 269.2,302" fill="#8F959E"/>
+<polyline points="434.4,296 475.4,296 475.4,222 512.4,222" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,216 522.4,222 512.4,228" fill="#8F959E"/>
+<polyline points="434.4,296 475.4,296 475.4,370 512.4,370" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,364 522.4,370 512.4,376" fill="#8F959E"/>
+<polyline points="677.6,370 755.6,370" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,364 765.6,370 755.6,376" fill="#8F959E"/>
+<polyline points="920.8,370 961.8,370 961.8,296 998.8,296" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,290 1008.8,296 998.8,302" fill="#8F959E"/>
+<polyline points="920.8,370 961.8,370 961.8,444 998.8,444" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,438 1008.8,444 998.8,450" fill="#8F959E"/>
+<rect x="40" y="232" width="147.2" height="128" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="113.6" y="291.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">请求结束</text>
+<text x="113.6" y="311.2" font-size="12" fill="#646A73" text-anchor="middle">进入 log 阶段</text>
+<rect x="283.2" y="232" width="147.2" height="128" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
+<text x="356.8" y="291.4" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">if= 的值</text>
+<text x="356.8" y="311.2" font-size="12" fill="#646A73" text-anchor="middle">为空或等于 0？</text>
+<rect x="526.4" y="158" width="147.2" height="128" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="207.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">跳过</text>
+<text x="600" y="227.7" font-size="12" fill="#646A73" text-anchor="middle">这个 access_log</text>
+<text x="600" y="246.7" font-size="12" fill="#646A73" text-anchor="middle">不写</text>
+<rect x="526.4" y="306" width="147.2" height="128" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="333.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">按</text>
+<text x="600" y="355.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">log_format</text>
+<text x="600" y="377.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">求值</text>
+<text x="600" y="397.7" font-size="12" fill="#646A73" text-anchor="middle">默认转义 / json /</text>
+<text x="600" y="416.7" font-size="12" fill="#646A73" text-anchor="middle">none</text>
+<rect x="769.6" y="306" width="147.2" height="128" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
+<text x="843.2" y="365.4" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">buffer= 配置</text>
+<text x="843.2" y="385.2" font-size="12" fill="#646A73" text-anchor="middle">是否开启缓冲？</text>
+<rect x="1012.8" y="232" width="147.2" height="128" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="291.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">直接写</text>
+<text x="1086.4" y="311.2" font-size="12" fill="#646A73" text-anchor="middle">即刻落盘</text>
+<rect x="1012.8" y="380" width="147.2" height="128" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="439.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">内存缓冲</text>
+<text x="1086.4" y="459.2" font-size="12" fill="#646A73" text-anchor="middle">满或 flush 时写</text>
+<text x="483.4" y="263" font-size="12" fill="#646A73">是</text>
+<text x="483.4" y="337" font-size="12" fill="#646A73">否</text>
+<text x="969.8" y="337" font-size="12" fill="#646A73">否</text>
+<text x="969.8" y="411" font-size="12" fill="#646A73">是</text>
+<text x="40" y="548" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_log_module.c（1.31.9）</text>
+</svg>

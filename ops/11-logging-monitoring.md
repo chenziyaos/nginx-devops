@@ -18,16 +18,7 @@
 
 每一行 access log 都在请求结束时的 log 阶段生成：`ngx_http_log_handler` 遍历这个 location 的所有 `access_log`，先求 `if=` 条件，再按 `log_format` 逐项求值、转义，最后写进缓冲区或文件。所以字段的含义取决于两件事：变量在这一刻取的是什么值，以及写出时用了哪种转义。
 
-```mermaid
-flowchart LR
-    R[请求结束] --> L[log 阶段<br/>ngx_http_log_handler]
-    L --> F{if= 的值<br/>为空或 0?}
-    F -- 是 --> S[跳过这个 access_log]
-    F -- 否 --> V[按 log_format 求值<br/>默认转义 / json / none]
-    V --> B{配置了 buffer=?}
-    B -- 否 --> W[直接 write]
-    B -- 是 --> M[写进内存缓冲<br/>满了或 flush 到时再写]
-```
+![日志是否写出取决于 if= 条件和缓冲配置](../figures/ops-11/01.svg)
 
 ## 1. 默认转义把 0x80 以上的字节写成 \xHH；JSON 日志必须用 escape=json
 
@@ -96,15 +87,7 @@ ok - default writes \xHH for " \ control bytes and bytes >= 0x80; json uses \" \
 
 注意 `escape=json` 只负责转义，不负责引号：`log_format` 里每个字符串变量外面要自己写 `"..."`，数字变量（如 `$status`、`$request_time`）可以不加。变量不存在时写出的是 `-`（默认转义）或空字符串（`escape=json`），下游的 schema 要能接受。
 
-```mermaid
-flowchart LR
-    B[变量里的一个字节] --> Q{属于哪一类}
-    Q -- 0x00–0x1F 控制字符 --> C1["默认：\xHH<br/>json：\n \t 或 \u00XX"]
-    Q -- 双引号、反斜杠 --> C2["默认：\xHH<br/>json：前面加反斜杠"]
-    Q -- 0x7F --> C3["默认：\xHH<br/>json：原样"]
-    Q -- 0x80–0xFF --> C4["默认：\xHH<br/>json：原样（UTF-8 保留）"]
-    Q -- 其他可打印 ASCII --> C5[两种都原样]
-```
+![默认转义把 0x80 以上的字节也写成 \xHH，escape=json 原样保留](../figures/ops-11/02.svg)
 
 **小结**：给机器读的日志一律 `escape=json`，并且所有可能为空或来自客户端的变量都加引号；给人读的日志保留默认格式即可。
 
@@ -167,14 +150,7 @@ ok - bytes_sent is the header plus the body
 
 247 = 236 + 11，差值就是 curl 收到的响应头长度。
 
-```mermaid
-flowchart LR
-    S0[读到请求的第一批数据<br/>r->start_sec] --> U0[开始连接后端<br/>u->start_time]
-    U0 --> C[连接建立<br/>connect_time 止于此]
-    C --> H[响应头解析完<br/>header_time 止于此]
-    H --> E[后端响应收完<br/>response_time 止于此]
-    E --> L[最后一个字节发给客户端，写日志<br/>request_time 止于此]
-```
+![四个时间变量的起止点不同，能把慢请求分到不同环节](../figures/ops-11/03.svg)
 
 **小结**：access log 里同时记 `$request_time`、`$upstream_connect_time`、`$upstream_header_time`、`$upstream_response_time`，就能把一次慢请求分到“连不上”“后端处理慢”“传输慢”“客户端慢”四类中的一类。
 
@@ -215,12 +191,7 @@ ok - the dead server and the live one are both listed, separated by ", "
 
 （`T` 是把 `0.000` 这类时间统一替换后的写法。）连接失败的那次尝试，`$upstream_status` 记成 502。这意味着统计“后端 5xx 比例”时，不能直接对 `$upstream_status` 字段做精确匹配，要先按 `, ` 拆开，或者只看最后一个值；同理，`$upstream_response_time` 不能直接当数字求和。
 
-```mermaid
-flowchart LR
-    A[请求] --> T1[尝试 1<br/>:18229<br/>连接被拒绝，记 502]
-    T1 -- proxy_next_upstream error --> T2[尝试 2<br/>:18221<br/>200]
-    T2 --> L["$upstream_addr = 18229, 18221<br/>$upstream_status = 502, 200"]
-```
+![重试多个后端时，$upstream_* 变量有多个用逗号隔开的值](../figures/ops-11/04.svg)
 
 **小结**：日志解析规则要按“逗号分隔的列表”处理所有 `$upstream_*` 字段，否则一次重试就会让解析器报错或者把 502 算进错误率。
 
@@ -285,18 +256,7 @@ ok - the line waits in memory until the flush timer fires
 
 请求结束 0.2 秒后文件里还是空的，3 秒的 `flush` 到时才落盘，3.5 秒时已经有 1 行。用 `tail -f` 排障时如果看不到刚发的请求，先检查是不是开了 `buffer`。缓冲区是每个 worker 各一份，worker 异常退出时缓冲区里的日志会丢；正常退出和 USR1（§6）时会先写出。
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant W as worker
-    participant M as 内存缓冲（32k）
-    participant F as buf.log
-    C->>W: GET /buf
-    W->>M: 写入第一行，启动 flush 定时器（3 秒）
-    Note over F: 0.2 秒时文件仍为空
-    W->>F: 定时器到期，write 整个缓冲
-    Note over F: 3.5 秒时有 1 行
-```
+![日志先进内存缓冲，flush 定时器到期后才落盘](../figures/ops-11/05.svg)
 
 404 还有另一面：静态文件不存在时，error log 里会有一条 error 级别的 `open() ... failed`。爬虫扫描大量不存在的路径时，这些行会淹没真正的错误，`log_not_found off` 可以关掉：
 
@@ -378,16 +338,7 @@ ok - a keepalive request adds a request but no connection; a new connection adds
 
 同一条连接上的第二次读取，requests 加 1，accepts 不变；新连接上的第三次，两者各加 1。`Writing: 1` 是这个 status 请求自己。`Active connections: 2` 和 `Waiting: 1` 里多出来的那条连接，是 §3 里前端连到 18221 后端、请求结束后留在 upstream keepalive 缓存里的连接：1.29.7 起 upstream 组默认开启 keepalive，而实验的前后端是同一个 nginx，这条连接在后端那一侧就是一个空闲的 keepalive 连接。前 17 次 accepts 里也包含了这类“前端连后端”的连接。
 
-```mermaid
-flowchart LR
-    A[accept] -->|accepts +1| H[拿到连接结构]
-    H -->|handled +1，Active +1| RD[Reading<br/>读请求头]
-    RD -->|requests +1 在读之前| WR[Writing<br/>处理与发送]
-    WR --> K{keepalive?}
-    K -- 是 --> WT[Waiting<br/>空闲等待下一个请求]
-    WT --> RD
-    K -- 否 --> C[关闭，Active -1]
-```
+![连接从 accept 到 keepalive 或关闭，对应 stub_status 中不同的计数器](../figures/ops-11/06.svg)
 
 **小结**：监控里关注三个量：accepts 与 handled 的差（大于 0 说明 `worker_connections` 不够）、requests 的增速（QPS）、Waiting 占 Active 的比例（keepalive 连接太多时它会占满连接数）。同一台机器上既做前端又做后端时，这些数字包含了内部代理连接。
 
@@ -418,19 +369,7 @@ ok - the renamed file keeps receiving lines until USR1 reopens the path
 
 `ngx_reopen_files` 对每个文件先调用 `flush`（把 §4 的缓冲区写出），再以追加方式打开同一个路径，传入的 `ccf->user` 用来把新文件的属主改成 worker 的用户，这样以普通用户运行的 worker 也能写。logrotate 的 `postrotate` 里执行 `kill -USR1 $(cat nginx.pid)` 就是这个用途；用 `copytruncate` 不需要信号，但复制和截断之间写入的日志会丢。
 
-```mermaid
-sequenceDiagram
-    participant R as logrotate
-    participant M as master
-    participant W as worker
-    participant F as 磁盘
-    R->>F: mv access.log access.log.1
-    W->>F: 继续写同一个 fd（现在叫 access.log.1）
-    R->>M: kill -USR1
-    M->>F: flush，open access.log（追加、创建），chown 给 worker 用户
-    M->>W: 转发 USR1
-    W->>F: flush，open access.log，之后写新文件
-```
+![日志文件 mv 后 nginx 继续写旧文件，USR1 才能让其切换到新文件](../figures/ops-11/07.svg)
 
 **小结**：日志轮转的标准做法是 `mv` 加 USR1。worker 处理到这个信号之前结束的请求仍会写进旧文件，压缩或上传旧文件要放在 USR1 之后，并留出 worker 处理信号的时间。
 
@@ -466,13 +405,7 @@ ok - a path picks one value; broken or missing JSON gives "-"
 
 第一行是合法 JSON，取到了 `t-42` 和 `a1`；第二行的 JSON 被截断，解析失败，模块把这个来源的所有目标变量重置为“不存在”，日志里是 `-`；第三行没有这个头。解析失败只在 debug 日志里留一条 `json_set: invalid JSON source`，不会让请求出错。
 
-```mermaid
-flowchart LR
-    H["$http_x_ctx<br/>请求头里的 JSON"] --> P{第一次用到<br/>$tenant 或 $first_item}
-    P --> J[ngx_json_parse_ctx 解析一次]
-    J -- 合法 --> V1["$tenant = t-42<br/>$first_item = a1"]
-    J -- 不合法或为空 --> V2[同一来源的目标变量<br/>全部置为不存在，日志里是 -]
-```
+![json_set 对来源变量做一次解析，一次取多个路径的值](../figures/ops-11/08.svg)
 
 所以这个模块是“读 JSON”，不是“写 JSON”：它不能输出 nginx 的状态，也不能拼装 JSON 响应。要输出 JSON 格式的状态，开源版仍然只有 `stub_status` 的纯文本（或者用 `$connections_active` 等 4 个变量自己拼 `log_format escape=json` / `return`）。它适合的场景是从 JSON 格式的请求头、cookie 或 `$request_body` 里取一个字段，用于日志、`map` 或路由；解析深度默认上限 32 层（`NGX_HTTP_JSON_DEFAULT_MAX_DEPTH`），由 `json_max_depth` 调整，范围 1 到 256。
 

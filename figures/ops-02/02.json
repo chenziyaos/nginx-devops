@@ -1,0 +1,82 @@
+{
+ "type": "graph",
+ "title": "标量指令在子级没写时才继承父级的值",
+ "subtitle": "merge 函数检查子级值是否 UNSET；未设则继承父级，已设则使用自己的值",
+ "source": "来源：ngx_conf_file.h（1.31.9）",
+ "stages": [
+  {
+   "name": "解析",
+   "nodes": [
+    {
+     "id": "parse",
+     "title": "配置解析",
+     "sub": "从上到下读 server\n和 location 块"
+    }
+   ]
+  },
+  {
+   "name": "server 块",
+   "nodes": [
+    {
+     "id": "server",
+     "title": "server 块",
+     "sub": "proxy_connect_timeout 5s"
+    }
+   ]
+  },
+  {
+   "name": "location 值检查",
+   "nodes": [
+    {
+     "id": "unset",
+     "title": "location 值为 UNSET",
+     "sub": "未设置"
+    },
+    {
+     "id": "isset",
+     "title": "location 值非 UNSET",
+     "sub": "已设置 10s"
+    }
+   ]
+  },
+  {
+   "name": "结果",
+   "nodes": [
+    {
+     "id": "inherit",
+     "title": "继承 server 值",
+     "sub": "5s",
+     "tone": "good"
+    },
+    {
+     "id": "override",
+     "title": "使用 location 值",
+     "sub": "10s",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "parse",
+   "to": "server"
+  },
+  {
+   "from": "server",
+   "to": "unset"
+  },
+  {
+   "from": "server",
+   "to": "isset"
+  },
+  {
+   "from": "unset",
+   "to": "inherit"
+  },
+  {
+   "from": "isset",
+   "to": "override"
+  }
+ ]
+}

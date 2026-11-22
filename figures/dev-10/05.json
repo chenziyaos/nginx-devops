@@ -1,0 +1,40 @@
+{
+ "type": "table",
+ "title": "每一道检查都在配置解析阶段完成",
+ "subtitle": "load_module 从上往下检查，任一不过就报 [emerg] 退出；四道都过才插入 modules 数组",
+ "source": "来源：src/core/nginx.c、src/core/ngx_module.c（1.31.9）",
+ "columns": [
+  "检查",
+  "不通过时的报错"
+ ],
+ "rows": [
+  [
+   "1. 还没解析 events / http 块（modules_used 为 0）",
+   {
+    "text": "is specified too late",
+    "tone": "risk"
+   }
+  ],
+  [
+   "2. version 等于 nginx_version（1031009）",
+   {
+    "text": "version 1030007 instead of 1031009",
+    "tone": "risk"
+   }
+  ],
+  [
+   "3. signature 与 nginx 一致",
+   {
+    "text": "is not binary compatible",
+    "tone": "risk"
+   }
+  ],
+  [
+   "4. 没有同名模块已加载",
+   {
+    "text": "is already loaded",
+    "tone": "risk"
+   }
+  ]
+ ]
+}

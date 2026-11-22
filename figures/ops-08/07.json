@@ -1,0 +1,18 @@
+{
+ "type": "sequence",
+ "title": "浏览器从 Alt-Svc 头学到 HTTP/3，下一次访问时用 QUIC",
+ "subtitle": "TCP 和 UDP 共用同一个端口号和证书；浏览器先走 TCP 拿到 Alt-Svc，然后试 UDP",
+ "source": "来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）",
+ "actors": [
+  {"name": "浏览器"},
+  {"name": "nginx TCP 18160", "tone": "main"},
+  {"name": "nginx UDP 18160"}
+ ],
+ "messages": [
+  {"from": "浏览器", "to": "nginx TCP 18160", "text": "第一次访问：TLS + h2"},
+  {"from": "nginx TCP 18160", "to": "浏览器", "text": "响应头 alt-svc，h3 在 18160，ma=86400", "reply": true},
+  {"from": "浏览器", "to": "浏览器", "text": "记住 86400 秒"},
+  {"from": "浏览器", "to": "nginx UDP 18160", "text": "之后的访问：QUIC 握手，ALPN h3"},
+  {"from": "nginx UDP 18160", "to": "浏览器", "text": "HTTP/3 响应", "reply": true}
+ ]
+}

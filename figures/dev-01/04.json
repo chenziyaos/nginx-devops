@@ -1,0 +1,44 @@
+{
+ "type": "table",
+ "title": "过滤器在 ngx_modules[] 里越靠后，执行时越早",
+ "subtitle": "左列从上到下是注册顺序，右列是执行顺序；每个过滤器都把自己插到链表头，两列正好相反",
+ "source": "来源：src/http/ngx_http.c、auto/modules（1.31.9）",
+ "columns": [
+  "ngx_modules[] 注册顺序",
+  "执行顺序（链表从头到尾）"
+ ],
+ "rows": [
+  [
+   "write",
+   "not_modified"
+  ],
+  [
+   "header",
+   "copy"
+  ],
+  [
+   "chunked",
+   "headers"
+  ],
+  [
+   "gzip",
+   "postpone"
+  ],
+  [
+   "postpone",
+   "gzip"
+  ],
+  [
+   "headers",
+   "chunked"
+  ],
+  [
+   "copy",
+   "header"
+  ],
+  [
+   "not_modified",
+   "write"
+  ]
+ ]
+}

@@ -61,23 +61,7 @@ type 位表示可在 http/server/location/if 块中，接受 2 或 3 个参数�
     }
 ```
 
-```mermaid
-flowchart TD
-    Main["main 块"] --> WP["worker_processes<br/>NGX_MAIN_CONF"]
-    Main --> HTTP["http 块"]
-    HTTP --> HM["max_header_size<br/>NGX_HTTP_MAIN_CONF"]
-    HTTP --> SRV["server 块"]
-    SRV --> LISTEN["listen<br/>NGX_HTTP_SRV_CONF"]
-    SRV --> LOC["location 块"]
-    LOC --> RETURN["return<br/>NGX_HTTP_LOC_CONF"]
-    LOC --> IF["if 块"]
-    IF --> IFRET["return<br/>NGX_HTTP_LIF_CONF"]
-    ADD["add_header<br/>ALL_CONF"]
-    ADD -.能用在.-> HM
-    ADD -.能用在.-> LISTEN
-    ADD -.能用在.-> RETURN
-    ADD -.能用在.-> IFRET
-```
+![指令能写在哪一层，由它的 type 位决定](../figures/ops-02/01.svg)
 
 实验：在 server 块里写 `worker_processes auto;`：
 
@@ -122,17 +106,7 @@ ok - is not allowed here
 
 这种继承规则对 `keepalive_timeout`、`client_max_body_size`、`proxy_connect_timeout` 等可以写在 http/server/location 多级的标量参数都适用；`worker_processes` 这类只能写在 main 的指令只有一级，谈不上继承。例如，如果 http 块里写 `proxy_connect_timeout 5s;` 而某个 location 没有设置，该 location 会继承 5 秒的超时；但如果这个 location 明确写了 `proxy_connect_timeout 10s;`，就会使用 10 秒。
 
-```mermaid
-flowchart TD
-    A["配置解析时"] --> B["server 块设<br/>proxy_connect_timeout 5s"]
-    B --> C["location 块未设<br/>proxy_connect_timeout"]
-    C --> D["merge 函数执行"]
-    D --> E["location 值为 UNSET"]
-    E --> F["使用 server 块的 5s"]
-    B --> G["location 块设<br/>proxy_connect_timeout 10s"]
-    G --> H["location 值非 UNSET"]
-    H --> I["使用 location 块的 10s"]
-```
+![标量指令在子级没写时才继承父级的值](../figures/ops-02/02.svg)
 
 这让配置可以在 http 块设全局超时，只在需要特殊值的地方覆盖。如果忘记在某个 location 设置，会自动使用父级的值，这避免了配置遗漏导致的问题。
 
@@ -193,15 +167,7 @@ ok - inherited location: X-Parent present
 
 `/` 路径只有 `X-Child`，没有 `X-Parent`；`/inherited` 才有 `X-Parent`。这个覆盖行为对 `proxy_set_header`、`limit_req`（多个 zone）也适用。
 
-```mermaid
-flowchart TD
-    A["配置解析时"] --> B["server 块<br/>add_header X-Parent"]
-    B --> C{子级 location<br/>有没有 add_header}
-    C -->|无| D["继承父级全部"]
-    C -->|有任意一条| E["整组覆盖"]
-    E --> F["使用子级的全部<br/>（包括多条）"]
-    E --> G["父级的全部被丢弃"]
-```
+![数组指令一旦在子级出现一条，整组覆盖父级的所有元素](../figures/ops-02/03.svg)
 
 **小结**：数组指令的覆盖是全组的，不能只改其中一条；merge 时不知道你想补充还是替换，默认解读为替换；从 1.29.3 起可以用 `add_header_inherit` 改变这个行为。
 
@@ -475,15 +441,7 @@ server {
 
 用 map 实现条件逻辑时，if 块不再创建隐式 location，所以父层的所有 add_header 都会保留。
 
-```mermaid
-flowchart LR
-    A["if 语句"] --> B["if 块被当成<br/>location 配置解析"]
-    B --> C["if 内的 add_header<br/>整组覆盖父层"]
-    C --> D["父层的头丢失"]
-    E["map 替代方案"] --> F["map 在配置解析时<br/>定义条件映射"]
-    F --> G["请求时按条件<br/>计算变量值"]
-    G --> H["add_header 正确<br/>使用变量，不覆盖"]
-```
+![用 map 替代 if 能避免隐式 location 配置造成的覆盖](../figures/ops-02/04.svg)
 
 **小结**：if 块内部是隐式的 location 配置，其中的数组指令会覆盖父层（如 add_header、proxy_set_header）；只有 rewrite、return、set 这类在 rewrite 阶段的指令才能在 if 里可靠使用；条件判断最好用 map 实现，避免 if 造成的隐式覆盖和不确定行为。
 

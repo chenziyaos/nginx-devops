@@ -1,0 +1,83 @@
+{
+  "type": "graph",
+  "title": "整组后端都被摘除时返回 502；backup 组在此时接手",
+  "subtitle": "从上到下：请求先查主组，没有可用后端时查 backup，都没有则返回 502",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "stages": [
+    {
+      "name": "请求到达",
+      "nodes": [
+        {
+          "id": "q",
+          "title": "选择后端"
+        }
+      ]
+    },
+    {
+      "name": "主组检查",
+      "nodes": [
+        {
+          "id": "p",
+          "title": "可用后端？",
+          "sub": "主组"
+        },
+        {
+          "id": "sel",
+          "title": "按算法选择",
+          "tone": "good"
+        }
+      ]
+    },
+    {
+      "name": "Backup 检查",
+      "nodes": [
+        {
+          "id": "b",
+          "title": "有 backup？"
+        },
+        {
+          "id": "bk",
+          "title": "选 backup",
+          "tone": "good"
+        }
+      ]
+    },
+    {
+      "name": "错误响应",
+      "nodes": [
+        {
+          "id": "busy",
+          "title": "502",
+          "sub": "no live upstreams",
+          "tone": "risk"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "q",
+      "to": "p"
+    },
+    {
+      "from": "p",
+      "to": "sel",
+      "label": "有"
+    },
+    {
+      "from": "p",
+      "to": "b",
+      "label": "无"
+    },
+    {
+      "from": "b",
+      "to": "bk",
+      "label": "有"
+    },
+    {
+      "from": "b",
+      "to": "busy",
+      "label": "无"
+    }
+  ]
+}

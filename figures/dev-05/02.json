@@ -1,0 +1,44 @@
+{
+  "type": "sequence",
+  "title": "kill -HUP 只在主循环的下一轮才真正执行，处理函数只置标志",
+  "subtitle": "信号处理函数和主循环之间只隔着一个标志位；真正的工作（ngx_init_cycle、启动 worker）在 sigsuspend 返回后",
+  "source": "来源：src/os/unix/ngx_process.c、ngx_process_cycle.c（1.31.9）",
+  "actors": [
+    "运维",
+    "ngx_signal_handler",
+    "master 主循环"
+  ],
+  "messages": [
+    {
+      "from": "运维",
+      "to": "ngx_signal_handler",
+      "text": "kill -HUP"
+    },
+    {
+      "from": "ngx_signal_handler",
+      "to": "ngx_signal_handler",
+      "text": "ngx_reconfigure = 1"
+    },
+    {
+      "from": "ngx_signal_handler",
+      "to": "master 主循环",
+      "text": "返回，sigsuspend 随之返回",
+      "reply": true
+    },
+    {
+      "from": "master 主循环",
+      "to": "master 主循环",
+      "text": "ngx_init_cycle（新配置）"
+    },
+    {
+      "from": "master 主循环",
+      "to": "master 主循环",
+      "text": "启动新 worker"
+    },
+    {
+      "from": "master 主循环",
+      "to": "master 主循环",
+      "text": "给老 worker 发 QUIT"
+    }
+  ]
+}

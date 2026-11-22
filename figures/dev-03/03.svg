@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 720" width="1200" height="720">
+<rect x="0" y="0" width="1200" height="720" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">keepalive 空闲连接只保留连接池，请求池和头缓冲整个释放</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上到下；nginx 一侧的自环标出该时刻分配或释放的内存</text>
+<line x1="320" y1="168" x2="320" y2="656" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="220" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="320" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">客户端</text>
+<line x1="880" y1="168" x2="880" y2="656" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="780" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="880" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx</text>
+<text x="330" y="202.6" font-size="13" fill="#1F2329">建立连接</text>
+<polyline points="320,211 868,211" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="868,205 878,211 868,217" fill="#8F959E"/>
+<text x="870" y="243.6" font-size="13" fill="#1F2329" text-anchor="end">连接池 512 B（A）</text>
+<polyline points="880,252 854,252 854,270 866,270" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="866,264 876,270 866,276" fill="#8F959E"/>
+<text x="330" y="310.6" font-size="13" fill="#1F2329">GET /</text>
+<polyline points="320,319 868,319" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="868,313 878,319 868,325" fill="#8F959E"/>
+<text x="870" y="351.6" font-size="13" fill="#1F2329" text-anchor="end">头缓冲 1 KB（B）</text>
+<text x="870" y="371.6" font-size="13" fill="#1F2329" text-anchor="end">请求池 4 KB × 2（C、D）</text>
+<polyline points="880,380 854,380 854,398 866,398" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="866,392 876,398 866,404" fill="#8F959E"/>
+<text x="870" y="438.6" font-size="13" fill="#1F2329" text-anchor="end">200 OK</text>
+<polyline points="880,447 332,447" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="332,441 322,447 332,453" fill="#8F959E"/>
+<text x="870" y="479.6" font-size="13" fill="#1F2329" text-anchor="end">释放 C、D、ngx_pfree(B)</text>
+<text x="870" y="499.6" font-size="13" fill="#1F2329" text-anchor="end">只留连接池 A</text>
+<polyline points="880,508 854,508 854,526 866,526" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="866,520 876,526 866,532" fill="#8F959E"/>
+<text x="330" y="566.5" font-size="13" fill="#1F2329">关闭连接</text>
+<polyline points="320,575 868,575" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="868,569 878,575 868,581" fill="#8F959E"/>
+<text x="870" y="607.5" font-size="13" fill="#1F2329" text-anchor="end">释放 A</text>
+<polyline points="880,616 854,616 854,634 866,634" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="866,628 876,634 866,640" fill="#8F959E"/>
+<text x="40" y="696" font-size="12" fill="#646A73" data-role="source">来源：labs/dev-03 实验输出</text>
+</svg>

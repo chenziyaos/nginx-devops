@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 561" width="1200" height="561">
+<rect x="0" y="0" width="1200" height="561" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">延迟用写事件定时器实现，不阻塞 worker 但占着连接</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上到下；delay 毫秒后定时器到期，请求继续处理下一个阶段</text>
+<line x1="180" y1="168" x2="180" y2="497" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">客户端</text>
+<line x1="460" y1="168" x2="460" y2="497" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">PREACCESS</text>
+<line x1="740" y1="168" x2="740" y2="497" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">定时器红黑树</text>
+<line x1="1020" y1="168" x2="1020" y2="497" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">后续阶段</text>
+<text x="190" y="202.6" font-size="13" fill="#1F2329">请求，excess = 3000</text>
+<polyline points="180,211 448,211" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,205 458,211 448,217" fill="#8F959E"/>
+<text x="470" y="243.6" font-size="13" fill="#1F2329">account：delay = 2000ms</text>
+<polyline points="460,252 486,252 486,270 474,270" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="474,264 464,270 474,276" fill="#8F959E"/>
+<text x="470" y="310.6" font-size="13" fill="#1F2329">ngx_add_timer(write, 2000)</text>
+<polyline points="460,319 728,319" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,313 738,319 728,325" fill="#8F959E"/>
+<text x="450" y="351.6" font-size="13" fill="#1F2329" text-anchor="end">NGX_AGAIN</text>
+<polyline points="460,360 192,360" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="192,354 182,360 192,366" fill="#8F959E"/>
+<text x="730" y="392.6" font-size="13" fill="#1F2329" text-anchor="end">2000 ms 后到期</text>
+<polyline points="740,401 472,401" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="472,395 462,401 472,407" fill="#8F959E"/>
+<text x="470" y="433.6" font-size="13" fill="#1F2329">ngx_http_core_run_phases</text>
+<polyline points="460,442 1008,442" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,436 1018,442 1008,448" fill="#8F959E"/>
+<text x="1010" y="474.6" font-size="13" fill="#1F2329" text-anchor="end">200</text>
+<polyline points="1020,483 192,483" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="192,477 182,483 192,489" fill="#8F959E"/>
+<text x="40" y="537" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+</svg>

@@ -19,17 +19,7 @@
 
 [开发篇 05](05-process-event-loop.md) 讲了 worker 的事件循环；这一篇跟着一个请求从第一个字节走到连接关闭。下图是全程的主干，判断是：请求处理分三段，读请求和发响应是事件驱动的，中间的阶段数组是一次同步遍历，任何一步返回“还没完成”都会让出 worker：
 
-```mermaid
-flowchart LR
-    A["accept<br/>ngx_http_init_connection"] --> B["读请求行<br/>ngx_http_process_request_line"]
-    B --> C["读请求头<br/>ngx_http_process_request_headers"]
-    C --> D["整体校验<br/>ngx_http_process_request_header"]
-    D --> E["阶段数组<br/>ngx_http_core_run_phases"]
-    E --> F["header filter 链<br/>body filter 链"]
-    F --> G["ngx_http_finalize_request<br/>count 归零"]
-    G --> H["keepalive / 延迟关闭 / 关闭"]
-    H -. "下一个请求" .-> B
-```
+![读请求、跑阶段、发响应、count 归零才释放](../figures/dev-06/01.svg)
 
 ## 1. 一个请求在连接上换三次读处理函数，数据不够就返回等下一个事件
 
@@ -117,18 +107,7 @@ ok - the request line handler runs twice, the header handler twice
 
 下图是连接上读处理函数的切换，判断是：每个状态都可以在数据不够时退出，下一个读事件从同一个状态继续：
 
-```mermaid
-stateDiagram-v2
-    [*] --> wait: accept
-    wait --> line: 第一批数据到达<br/>ngx_http_create_request
-    line --> line: NGX_AGAIN
-    line --> headers: 请求行解析完
-    headers --> headers: NGX_AGAIN
-    headers --> request: 空行<br/>ngx_http_process_request
-    request --> keepalive: 响应完成，keepalive
-    keepalive --> line: 下一个请求的数据
-    request --> [*]: 关闭
-```
+![读处理函数在数据不足时退出，下一个读事件从保存的状态继续](../figures/dev-06/02.svg)
 
 **小结**：请求的读取没有专门的线程或协程，靠的是“状态存在请求结构里 + 读处理函数在连接上切换”；写模块时，任何返回 `NGX_AGAIN` 的地方都要保证有事件把请求叫回来。
 
@@ -217,18 +196,7 @@ ok - the 2000-byte line moves to a 4k buffer, the 5000-byte line is 400
 
 下图是一行请求头放不下时的判断顺序，判断是：先比单行长度，再看有没有可用的块：
 
-```mermaid
-flowchart TB
-    A["当前缓冲区满，头还没读完"] --> B{"这一行已读的字节<br/>≥ 大缓冲区大小？"}
-    B -- 是 --> X["494，对外 400<br/>client sent too long header line"]
-    B -- 否 --> C{"连接上有空闲的大缓冲区？"}
-    C -- 有 --> E["取一块"]
-    C -- 没有 --> D{"nbusy < 块数？"}
-    D -- 是 --> F["分配一块"]
-    D -- 否 --> X
-    E --> G["只搬未解析完的这一行"]
-    F --> G
-```
+![单行超过一块大缓冲、或大缓冲用完，都回 400](../figures/dev-06/03.svg)
 
 **小结**：遇到“Request Header Or Cookie Too Large”，先看 error.log 的 info 行是 `too long header line` 还是 `too large request`：前者调大 `large_client_header_buffers` 的块大小，后者调块数。
 
@@ -458,15 +426,7 @@ ok - the last phase line is access phase: 8, then 403
 
 下图是阶段数组上的三种跳转，判断是：除了顺序前进，只有 POST_REWRITE、`satisfy any` 和 `next` 三种跳转，都由启动时算好的下标决定：
 
-```mermaid
-flowchart LR
-    S1["1 rewrite<br/>(server)"] --> F2["2 find_config"]
-    F2 --> R3["3 rewrite<br/>(location)"] --> P4["4 post_rewrite"]
-    P4 -- "uri_changed：next=2" --> F2
-    P4 --> G5["5–7 preaccess"] --> A8["8–10 access"]
-    A8 -- "satisfy any 放行：next=12" --> C12
-    A8 --> P11["11 post_access"] --> C12["12–13 precontent"] --> C14["14–17 content"]
-```
+![阶段之间只有三种跳转：顺序、回 FIND_CONFIG、satisfy any 越级](../figures/dev-06/04.svg)
 
 **小结**：写阶段处理函数时，先确定注册在哪个阶段，再按那个阶段的 checker 选返回值；同样返回 `NGX_OK`，在 PREACCESS 是“这一阶段我说了算，进下一阶段”，在 REWRITE 和 CONTENT 是“请求结束了”。
 
@@ -642,15 +602,7 @@ ok - error_page restarts at index 1 and holds one more reference
 
 下图对比两种回头方式，判断是：`rewrite last` 只重新选 location，内部跳转相当于把请求从 server 级重新送一遍：
 
-```mermaid
-flowchart TB
-    subgraph L["rewrite ... last"]
-        L1["3 rewrite：改 r->uri"] --> L2["4 post_rewrite<br/>uri_changes--"] --> L3["2 find_config<br/>r->ctx 保留"]
-    end
-    subgraph I["error_page / try_files / index"]
-        I1["ngx_http_internal_redirect<br/>uri_changes--，count++"] --> I2["清空 r->ctx<br/>r->internal = 1"] --> I3["1 server rewrite"]
-    end
-```
+![rewrite last 只重新选 location，内部跳转重新执行 server 级](../figures/dev-06/05.svg)
 
 **小结**：两种回头共用 `uri_changes`，所以“`rewrite last` 和 `error_page` 互相跳”的配置也会在 10 次后报 500；模块如果在请求上下文里存了状态，内部跳转后要重新建，`rewrite last` 则不会丢。
 
@@ -881,20 +833,7 @@ ok - two subrequests, three references, one writev to the client
 
 下图是这次请求里 `c->data` 的交接，判断是：同一时刻只有一个请求能写连接，其余的输出在内存里排队：
 
-```mermaid
-sequenceDiagram
-    participant M as 主请求 /page.shtml
-    participant S as 子请求 /slow
-    participant F as 子请求 /fast.txt
-    M->>M: 输出 A，创建 S、F（count 3）
-    Note over M,F: c->data = S
-    S->>S: 连接后端，NGX_AGAIN
-    F->>F: 读完文件，fast 存进 postpone
-    S->>M: 后端响应到达，输出 slow，结束，c->data = M
-    M->>F: 输出 B，postpone filter wake
-    F->>M: 放出 fast，结束，c->data = M
-    M->>M: 输出 C，last_buf，writev 201 字节
-```
+![子请求的输出按顺序排队，与完成的先后无关](../figures/dev-06/06.svg)
 
 **小结**：子请求是“同一个连接上的多个请求”，没有并行写；先完成的子请求只是先把输出准备好。`NGX_HTTP_MAX_SUBREQUESTS`（50）限制嵌套深度，`r->main->count` 不能超过 65535 − 1000（第 2448 行），两者防的都是配置写出的无限子请求。
 
@@ -1001,18 +940,7 @@ count 归零之前，连接的去向按顺序判断：
 
 下图是请求结束到连接去向的判断，判断是：引用计数决定请求是否结束，配置和连接状态决定连接是否留下：
 
-```mermaid
-flowchart TB
-    A["ngx_http_finalize_request"] --> B{"还有输出或子请求？"}
-    B -- 有 --> W["ngx_http_writer 等写事件"]
-    B -- 没有 --> C{"r->main->count == 1？"}
-    C -- 否 --> D["count--，等其他引用"]
-    C -- 是 --> E{"keepalive？"}
-    E -- 是 --> K["ngx_http_set_keepalive"]
-    E -- 否 --> F{"需要延迟关闭？"}
-    F -- 是 --> L["ngx_http_set_lingering_close"]
-    F -- 否 --> X["ngx_http_close_request<br/>LOG 阶段，释放请求和连接"]
-```
+![count 归零才释放，再按配置走 keepalive、延迟关闭或关闭](../figures/dev-06/07.svg)
 
 LOG 阶段不在阶段数组里，`ngx_http_free_request` 调用 `ngx_http_log_request` 执行它（日志里的 `http log handler`），所以 access log 写在请求释放时，keepalive 的连接也是每个请求结束各写一行。
 

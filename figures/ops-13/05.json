@@ -1,0 +1,28 @@
+{
+  "type": "flow",
+  "title": "debug 日志用 *连接号 串行，按四段读找出异常",
+  "subtitle": "从左到右是 debug 日志里按顺序出现的关键行；每段定位问题的不同方面",
+  "source": "来源：本文整理",
+  "steps": [
+    {
+      "name": "按 *连接号 过滤",
+      "lines": ["把同一连接的所有行找出来"]
+    },
+    {
+      "name": "解析阶段",
+      "lines": ["http request line、http uri / args"]
+    },
+    {
+      "name": "选择阶段",
+      "lines": ["test location、using configuration"]
+    },
+    {
+      "name": "处理阶段",
+      "lines": ["各阶段、phase: N"]
+    },
+    {
+      "name": "结束状态",
+      "lines": ["http finalize request: 状态"]
+    }
+  ]
+}

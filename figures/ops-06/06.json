@@ -1,0 +1,61 @@
+{
+ "type": "sequence",
+ "title": "tunnel_pass 在白名单检查后建立 TCP 隧道，转发原始字节不解析",
+ "subtitle": "从上到下是消息顺序；隧道建立后 nginx 只转发字节",
+ "source": "来源：ngx_http_tunnel_module.c（1.31.0+）",
+ "actors": [
+  {
+   "name": "客户端"
+  },
+  {
+   "name": "nginx（tunnel_pass）"
+  },
+  {
+   "name": "目标 127.0.0.1:18120"
+  }
+ ],
+ "messages": [
+  {
+   "from": "客户端",
+   "to": "nginx（tunnel_pass）",
+   "text": "CONNECT 目标 HTTP/1.1"
+  },
+  {
+   "from": "nginx（tunnel_pass）",
+   "to": "nginx（tunnel_pass）",
+   "text": "SERVER_REWRITE：map 检查"
+  },
+  {
+   "from": "nginx（tunnel_pass）",
+   "to": "目标 127.0.0.1:18120",
+   "text": "建立 TCP 连接"
+  },
+  {
+   "from": "nginx（tunnel_pass）",
+   "to": "客户端",
+   "text": "HTTP/1.1 200 OK",
+   "reply": true
+  },
+  {
+   "from": "客户端",
+   "to": "目标 127.0.0.1:18120",
+   "text": "隧道内字节（转发）"
+  },
+  {
+   "from": "目标 127.0.0.1:18120",
+   "to": "客户端",
+   "text": "目标响应（转发）",
+   "reply": true
+  }
+ ],
+ "sections": [
+  {
+   "at": 0,
+   "label": "CONNECT 握手"
+  },
+  {
+   "at": 4,
+   "label": "隧道数据转发"
+  }
+ ]
+}

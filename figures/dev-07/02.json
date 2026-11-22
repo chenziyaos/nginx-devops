@@ -1,0 +1,48 @@
+{
+ "type": "graph",
+ "title": "变量名字在配置时用，请求时只用下标",
+ "subtitle": "分为配置阶段（上）和请求（下）两部分；配置里按名字找变量定义，请求里按下标存值",
+ "source": "来源：ngx_http_variables.c、ngx_http_variables.h（1.31.9）",
+ "stages": [
+  {
+   "name": "配置阶段",
+   "nodes": [
+    {
+     "id": "keys_hash",
+     "title": "variables_keys / variables_hash",
+     "sub": "所有定义"
+    },
+    {
+     "id": "vars",
+     "title": "cmcf->variables",
+     "sub": "用到的 20 个，下标 0–19",
+     "tone": "main",
+     "emph": true
+    }
+   ]
+  },
+  {
+   "name": "请求",
+   "nodes": [
+    {
+     "id": "arr",
+     "title": "r->variables[20]",
+     "sub": "值 + valid / not_found",
+     "tone": "base"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "keys_hash",
+   "to": "vars",
+   "label": "init_vars 配对"
+  },
+  {
+   "from": "vars",
+   "to": "arr",
+   "label": "下标"
+  }
+ ]
+}

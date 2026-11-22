@@ -19,14 +19,7 @@
 
 [运维篇 02](../ops/02-config.md) §6、§7 从配置的角度讲了“变量在请求时求值”和 `if` 的陷阱，[开发篇 06](06-http-request.md) §5 讲了 `rewrite last` 在阶段数组上怎么回头。这一篇看 rewrite 模块内部。下图是一条指令从配置到执行的路径，判断是：nginx 在启动时完成所有的“编译”，请求里只剩按字节码执行：
 
-```mermaid
-flowchart LR
-    A["配置：set $b &quot;$a-$uri&quot;"] --> B["ngx_http_rewrite_set<br/>ngx_http_get_variable_index"]
-    B --> C["字节码数组<br/>complex_value / copy_var / copy / set_var"]
-    C --> D["请求：REWRITE 阶段<br/>ngx_http_rewrite_handler"]
-    D --> E["解释器循环<br/>code(e) 直到停止指令"]
-    E --> F["r->variables[下标]"]
-```
+![配置在启动时编成字节码，请求时只执行不解析](../figures/dev-07/01.svg)
 
 ## 1. 变量在配置时就编好号：用到的变量进 cmcf->variables，请求里按下标存值
 
@@ -86,18 +79,7 @@ ok - set adds changeable variables; $uri is nocacheable, $sent_http_content_type
 
 请求创建时按 `cmcf->variables.nelts` 分配 `r->variables` 数组，每个元素是一个 `ngx_http_variable_value_t`（长度、指针和 `valid`、`not_found`、`no_cacheable` 几个标志位）。下图是三者的关系，判断是：名字只在配置阶段用，请求里只有下标：
 
-```mermaid
-flowchart LR
-    subgraph C["配置阶段"]
-        K["variables_keys / variables_hash<br/>所有定义"]
-        V["cmcf->variables<br/>用到的 20 个，下标 0–19"]
-        K -- "init_vars 配对 get_handler" --> V
-    end
-    subgraph R["请求"]
-        RV["r->variables[20]<br/>值 + valid / not_found"]
-    end
-    V -- "下标" --> RV
-```
+![变量名字在配置时用，请求时只用下标](../figures/dev-07/02.svg)
 
 **小结**：写模块时，变量要在配置阶段用 `ngx_http_get_variable_index` 换成下标，请求里用下标取值；运行时按名字查（`ngx_http_get_variable`）要走哈希，只在名字到请求时才知道的场合用。
 
@@ -327,14 +309,7 @@ ok - the first if is false, the regex if captures Bob
 
 下图是 `if ($arg_mode = "deny")` 执行时栈的变化，判断是：比较和判断是两条独立的指令，中间只靠栈传递结果：
 
-```mermaid
-flowchart LR
-    A["push_var $arg_mode<br/>栈：ok"] --> B["push_value deny<br/>栈：ok, deny"]
-    B --> C["equal<br/>弹两个，压结果<br/>栈：空串（不等）"]
-    C --> D["if<br/>弹一个：空串为假"]
-    D -- "假：ip += next(88)" --> E["288 push_var $http_x_name"]
-    D -- "真：ip += 24" --> F["224 return 403"]
-```
+![if 的条件和判断是独立的两条指令，通过栈传递结果](../figures/dev-07/03.svg)
 
 **小结**：rewrite 模块的指令在请求里不再解析文本，执行代价是若干次函数指针调用；同一个 location 里的指令严格按书写顺序执行，这也是 `set` 写在 `if` 前后效果不同的原因。
 
@@ -448,17 +423,7 @@ ok - x=1&q=1, then x=1 only
 
 下图是一次 `rewrite` 的两遍处理，判断是：拼接结果从不需要扩容，代价是变量要被求值两次（长度一次、内容一次），缓存让第二次不再调用取值函数：
 
-```mermaid
-flowchart TB
-    A["regex_start：匹配 r->uri"] --> B{"有变量？"}
-    B -- 否 --> C["长度 = code->size + 各捕获长度"]
-    B -- 是 --> D["临时引擎跑 lengths 数组求和"]
-    C --> E["+ 原参数长度（add_args）"]
-    D --> E
-    E --> F["ngx_pnalloc 一次分配"]
-    F --> G["copy / copy_capture / start_args<br/>依次写入"]
-    G --> H["regex_end：写回 r->uri、r->args"]
-```
+![替换串分两遍处理：先算长度、再拷贝，避免反复扩容](../figures/dev-07/04.svg)
 
 **小结**：替换串只在匹配成功后才求长度和拷贝，不匹配时 `regex_start` 用 `next` 一次跳过整段；想丢掉原参数，在替换串末尾加 `?`，这是编译时的标志，不是运行时的判断。
 
@@ -589,14 +554,7 @@ ok - /old/ -> /new/, /chain/ -> /step2/ (two rewrites, the third skipped), /brk/
 
 下图对比四种写法执行后的去向，判断是：停止指令只结束本 location 的字节码，后面去哪由 `uri_changed` 和 `status` 决定：
 
-```mermaid
-flowchart TB
-    A["rewrite 匹配成功"] --> B{"标志"}
-    B -- 无 --> C["继续执行下一条指令"]
-    B -- last --> D["stop，uri_changed = 1<br/>POST_REWRITE 回到 FIND_CONFIG"]
-    B -- break --> E["stop，uri_changed = 0<br/>留在当前 location"]
-    B -- "redirect / permanent" --> F["stop，status 302 / 301<br/>Location 头"]
-```
+![last 重新匹配 location，break 留在原地，redirect 返回 302](../figures/dev-07/05.svg)
 
 **小结**：location 里不带标志的 `rewrite` 改了 URI 但不停止，后面的指令照常执行，执行完如果 URI 变过，仍会重新匹配 location；想“改完就停在这里”用 `break`，想“改完重新选 location”用 `last`。
 
@@ -798,19 +756,7 @@ SERVER_REWRITE（下标 1）执行时 `r->loc_conf` 还是 server 级的配置�
 
 下图是一个请求经过两层规则的时机，判断是：server 级规则在 location 匹配之前，只有内部跳转会让它再执行：
 
-```mermaid
-sequenceDiagram
-    participant S as SERVER_REWRITE（1）
-    participant F as FIND_CONFIG（2）
-    participant L as REWRITE（3）
-    participant P as POST_REWRITE（4）
-    S->>F: server 级 rewrite（/old/ → /new/）
-    F->>L: 选定 location
-    L->>P: location 级 rewrite ... last
-    P->>F: uri_changed：重新匹配
-    F->>L: 新 location 的规则
-    Note over S: 只有内部跳转回到这里
-```
+![server 级 rewrite 每个请求跑一次，location 级每次匹配后都跑](../figures/dev-07/06.svg)
 
 **小结**：对所有 location 都适用的改写放在 server 级，它在每个请求里只执行一次；需要依赖 location 的改写放进 location，配合 `last` 时注意它只会重跑 location 级规则。
 

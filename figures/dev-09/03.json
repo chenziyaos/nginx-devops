@@ -1,0 +1,63 @@
+{
+ "type": "graph",
+ "title": "算法模块在配置阶段只登记函数，所有的选择都发生在请求里",
+ "subtitle": "左列是配置阶段，右列是请求阶段；init_upstream 设好的 peer.init 在每个请求开始时调用，填进 get / free",
+ "source": "来源：ngx_http_upstream.c、ngx_http_upstream_init_main_conf（1.31.9）",
+ "stages": [
+  {
+   "name": "配置阶段",
+   "nodes": [
+    {
+     "id": "instr",
+     "title": "算法指令",
+     "sub": "least_conn / hash / …，写 init_upstream"
+    },
+    {
+     "id": "initup",
+     "title": "init_upstream",
+     "sub": "(cf, us)：建 peers 链表，设 peer.init",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "请求阶段",
+   "nodes": [
+    {
+     "id": "initpeer",
+     "title": "peer.init",
+     "sub": "(r, us)：分配 rrp，设 tries、get、free",
+     "tone": "main"
+    },
+    {
+     "id": "get",
+     "title": "发起连接",
+     "sub": "connect_peer 调 get"
+    },
+    {
+     "id": "free",
+     "title": "尝试结束",
+     "sub": "调用 free(state)"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "instr",
+   "to": "initup"
+  },
+  {
+   "from": "initup",
+   "to": "initpeer"
+  },
+  {
+   "from": "initpeer",
+   "to": "get"
+  },
+  {
+   "from": "get",
+   "to": "free"
+  }
+ ]
+}

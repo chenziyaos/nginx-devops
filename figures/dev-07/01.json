@@ -1,0 +1,36 @@
+{
+ "type": "flow",
+ "title": "配置在启动时编成字节码，请求时只执行不解析",
+ "subtitle": "从左到右是处理链路；蓝色是关键转换点",
+ "source": "来源：ngx_http_rewrite_module.c、ngx_http_script.c、ngx_http_variables.c（1.31.9）",
+ "steps": [
+  {
+   "title": "配置",
+   "lines": ["set $b \"$a-$uri\""]
+  },
+  {
+   "title": "ngx_http_rewrite_set",
+   "lines": ["ngx_http_get_variable_index"],
+   "tone": "main",
+   "emph": true
+  },
+  {
+   "title": "字节码数组",
+   "lines": ["complex_value / copy_var", "copy / set_var"]
+  },
+  {
+   "title": "请求：REWRITE 阶段",
+   "lines": ["ngx_http_rewrite_handler"]
+  },
+  {
+   "title": "解释器循环",
+   "lines": ["code(e) 直到停止指令"],
+   "tone": "main",
+   "emph": true
+  },
+  {
+   "title": "r->variables[下标]",
+   "lines": []
+  }
+ ]
+}

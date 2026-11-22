@@ -63,13 +63,7 @@ ok - the sequence of the smooth weighted algorithm in ngx_http_upstream_get_peer
 
 每 7 个请求一轮，A 5 次、B 和 C 各 1 次，而且 B、C 被插在 A 中间，不会出现 “A A A A A B C” 那样的连续 5 次。`effective_weight` 平时等于配置的权重，后端失败时会被调低（§2），之后每被参与一次计算就加 1，慢慢恢复。
 
-```mermaid
-flowchart LR
-    s["每个请求"] --> a["所有可用后端<br/>current += effective"]
-    a --> b["选 current 最大的<br/>并列取先出现的"]
-    b --> c["选中者 current -= 总权重 7"]
-    c --> r["A A B A C A A<br/>每 7 个一轮"]
-```
+![每个请求通过三步算出去哪台后端：加权、比较、扣减](../figures/ops-07/01.svg)
 
 **小结**：轮询的顺序是确定的，排查“流量不均”时可以按这个算法预期每台的比例。单 worker 时顺序完全可复现；多 worker 而没有 `zone` 时，每个 worker 各算各的（§8），整体比例不变，但单看一个客户端的连续请求就不一定是这个顺序。
 
@@ -141,15 +135,7 @@ ok - with one server every request connects again
 
 一台后端被摘掉，也没有别的机器可用，所以 nginx 干脆每次都去连。`proxy_pass http://IP:端口` 这种隐式 upstream 也属于这种情况。
 
-```mermaid
-stateDiagram-v2
-    [*] --> 可用
-    可用 --> 摘除: 失败次数达到 max_fails（默认 1）<br/>warn: temporarily disabled
-    摘除 --> 摘除: fail_timeout（默认 10 秒）内<br/>不参与选择
-    摘除 --> 试探: fail_timeout 到期
-    试探 --> 可用: 这个请求成功，fails 清零
-    试探 --> 摘除: 又失败
-```
+![一台后端失败后进摘除状态、fail_timeout 到期后试探、成功恢复](../figures/ops-07/02.svg)
 
 **小结**：`max_fails` 和 `fail_timeout` 决定了一台坏机器每个周期还会拖慢几个请求。后端连接超时长的环境，`proxy_connect_timeout` 要调小，否则每次试探都让一个客户端等很久。
 
@@ -172,14 +158,7 @@ ok - the second request finds no live peer; backup answers when the group is dea
 - `withbak` 组的两台主后端都连不上，请求全部落到 `backup` 的 D。backup 是另一组 peers（`peers->next`），主组选不出来时才会轮到它。
 - `withdown` 里标了 `down` 的 B 永远不会被选中，适合临时下线一台机器做维护。
 
-```mermaid
-flowchart TB
-    r["请求"] --> p{"主组里有可用后端?"}
-    p -->|有| sel["按算法选择"]
-    p -->|没有| b{"有 backup?"}
-    b -->|有| bk["在 backup 组里选择"]
-    b -->|没有| busy["502<br/>no live upstreams while connecting to upstream"]
-```
+![整组后端都被摘除时返回 502；backup 组在此时接手](../figures/ops-07/03.svg)
 
 **小结**：监控 error.log 里的 `no live upstreams`，它比单条 `connect() failed` 更值得告警：前者意味着这组后端此刻对所有请求都不可用。
 
@@ -229,16 +208,7 @@ ok - 500 is passed on by default; with http_500 GETs move on, a POST that was se
 
 403 和 404 写进 `proxy_next_upstream` 时会换机器，但不算失败（`ngx_http_upstream_next` 里这两种传给 `peer.free` 的是 `NGX_PEER_NEXT`，不是 `NGX_PEER_FAILED`）。重试次数默认等于组里的后端数，`proxy_next_upstream_tries` 和 `proxy_next_upstream_timeout` 可以再加限制。
 
-```mermaid
-flowchart TB
-    r["后端返回 500"] --> n{"proxy_next_upstream<br/>包含 http_500?"}
-    n -->|否，默认| pass["500 交给客户端<br/>不计失败"]
-    n -->|是| m{"已发出的 POST / PATCH / LOCK<br/>且没写 non_idempotent?"}
-    m -->|是| pass2["500 交给客户端<br/>不计失败"]
-    m -->|否| t{"还有可试的后端?"}
-    t -->|是| next["换下一台<br/>这台记失败，可能被摘除"]
-    t -->|否，已是最后一台| last["500 交给客户端<br/>不计失败"]
-```
+![500 要写进 proxy_next_upstream 才会换机器；POST 发出后不会重试](../figures/ops-07/04.svg)
 
 **小结**：要让 nginx 替一台返回 5xx 的机器兜底，就把对应状态写进 `proxy_next_upstream`；同时要接受它也会摘掉这台机器。下单、扣款这类 POST 接口不要加 `non_idempotent`，否则一次超时可能变成两次下单。
 
@@ -316,13 +286,7 @@ ok - every request goes to the peer the formula picks
 
 按公式算出 4040，对 3 取模得 2，也就是第三台 C，5 个请求都去了 C。只看前 3 个字节意味着同一个 /24 网段的客户端都落在同一台；在 NAT 或公司出口后面的大量用户会集中到一台后端。IPv6 用全部 16 个字节。
 
-```mermaid
-flowchart LR
-    k["60 个 key<br/>42 个原本不在 C 上"] --> p["普通 hash<br/>crc32(key) % 总权重"]
-    k --> c["hash consistent<br/>每台 160 × 权重 个点"]
-    p --> pm["去掉 C 后模数变了<br/>21 个换了机器"]
-    c --> cm["去掉 C 只删掉 C 的点<br/>0 个换了机器"]
-```
+![一致性哈希摘掉一台只影响那台的 key；普通哈希会影响其他机器](../figures/ops-07/05.svg)
 
 **小结**：需要“同一个 key 总去同一台”时用 `hash $key consistent`，key 可以是 `$request_uri`、`$cookie_xxx` 或 `$arg_xxx`。`ip_hash` 的粒度是 /24，并且经过 realip 之后才算准客户端地址。
 
@@ -384,12 +348,7 @@ ok - after E took about 1 s once, least_time keeps sending to A
 
 前两个请求时两台都还没有记录（或者都在 20 毫秒以内），并列，轮询给了 A 和 E；E 花了约 1 秒之后，它的估计值是 1000 多，A 是 20，剩下 8 个都给了 A。源码里还有一条“每过一个 `fail_timeout` 把慢后端的时间减半”的规则（`rt >>= (now - checked) / (fail_timeout + 1)`），让变慢的后端过一段时间还有机会被选中。
 
-```mermaid
-flowchart LR
-    t["后端的平均时间<br/>新值占 5%"] --> c["向上取整到 20 ms<br/>超过 5000 ms 按 5000"]
-    c --> m["× (1 + 当前连接数)"]
-    m --> w["按权重比较，最小者胜<br/>并列时轮询"]
-```
+![least_time 按平均时间乘以 (1 + 连接数) 选最小值](../figures/ops-07/06.svg)
 
 **小结**：后端性能不均（混部、不同机型）时，`least_time` 比 `least_conn` 更直接；但 20 毫秒的分档意味着差别小于 20 毫秒的后端会被当成一样快。只有一台后端时它直接退回轮询。
 
@@ -438,18 +397,7 @@ ok - the cookie is the MD5 of the server address, and requests carrying it stay 
 
 cookie 指向的后端被摘除、标了 `down` 或者连接数满了时，`ngx_http_upstream_get_rr_peer_by_sid` 返回空，请求按正常算法选机器，响应里写回新后端的 cookie。`server` 的 `drain` 参数让一台后端只接收带着自己 cookie 的请求，不接新会话，用于平滑下线。实验没有覆盖 `route` 模式的变量用法、`learn` 模式和 `drain`。
 
-```mermaid
-sequenceDiagram
-    participant B as 浏览器
-    participant N as nginx（sticky cookie srv）
-    participant A as 后端 A
-    B->>N: 第一个请求，没有 cookie
-    N->>A: 按轮询选中 A
-    N-->>B: Set-Cookie: srv=md5("127.0.0.1:18141")
-    B->>N: 之后的请求带 srv=0e57…
-    N->>A: 按 SID 找到 A，直接选它
-    Note over N: A 被摘除或 down 时<br/>按算法另选，并写回新 cookie
-```
+![sticky cookie：第一个请求分配 cookie，之后的请求一直去同一台](../figures/ops-07/07.svg)
 
 **小结**：需要会话保持而后端没有共享会话时，`sticky cookie` 比 `ip_hash` 精确，粒度是单个浏览器而不是 /24 网段。后端地址改变（换 IP 或端口）后，老 cookie 全部失效，用户会被重新分配。
 
@@ -479,18 +427,7 @@ ok - server ... resolve is rejected unless the upstream has a zone
 
 同一段代码前面还有两项检查：负载均衡方法要支持运行时修改（带 `NGX_HTTP_UPSTREAM_MODIFY` 标志，`least_time` 带了），并且要配置 `resolver`。不写 `resolve` 时，域名只在启动和 reload 时解析一次，后端换了 IP 要 reload 才生效。
 
-```mermaid
-flowchart TB
-    subgraph noz["没有 zone"]
-        w1["worker 1<br/>自己的 peers"]
-        w2["worker 2<br/>自己的 peers"]
-    end
-    subgraph z["有 zone"]
-        sh["共享内存里的一份 peers<br/>权重、失败计数、连接数、平均时间"]
-        w3["worker 1"] --> sh
-        w4["worker 2"] --> sh
-    end
-```
+![有 zone 时所有 worker 共享一份 peers；没有 zone 时各算各的](../figures/ops-07/08.svg)
 
 **小结**：生产配置里 upstream 一律写 `zone`，多 worker 下的失败计数和 `least_conn` / `least_time` 才有意义。后端在容器平台上、IP 会变时，加 `resolver` 和 `server ... resolve`。
 

@@ -1,0 +1,27 @@
+{
+ "type": "graph",
+ "title": "证书选择在握手中途完成，SNI 到 ALPN 回调依次触发",
+ "subtitle": "一个连接从第一个字节到读 HTTP 请求；蓝色是证书在这一步才定下来",
+ "source": "来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）",
+ "stages": [
+  {"name": "第一个字节", "nodes": [
+    {"id": "b", "title": "0x16 或最高位为 1？"}]},
+  {"name": "ClientHello", "nodes": [
+    {"id": "p", "title": "按明文 HTTP 读请求", "sub": "ssl 端口上返回 497/400", "tone": "risk"},
+    {"id": "d", "title": "SNI 回调", "sub": "找 server，换 SSL_CTX"}]},
+  {"name": "证书与会话", "nodes": [
+    {"id": "e", "title": "证书回调", "sub": "路径带变量时这里读文件", "tone": "main", "emph": true},
+    {"id": "f", "title": "ticket 回调", "sub": "加密或解密会话"}]},
+  {"name": "协议", "nodes": [
+    {"id": "g", "title": "ALPN 回调", "sub": "h2 / http/1.1 / h3"},
+    {"id": "h", "title": "握手完成", "sub": "读 HTTP 请求"}]}
+ ],
+ "edges": [
+  {"from": "b", "to": "p", "label": "否"},
+  {"from": "b", "to": "d", "label": "是"},
+  {"from": "d", "to": "e"},
+  {"from": "e", "to": "f"},
+  {"from": "f", "to": "g"},
+  {"from": "g", "to": "h"}
+ ]
+}

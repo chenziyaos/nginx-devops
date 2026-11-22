@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 480" width="1200" height="480">
+<rect x="0" y="0" width="1200" height="480" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">小块顺着块链切分，大块单独 malloc 且挂在 large 链上</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">块 0 包含整个池的管理字段和小块分配区；块 1 只有块头和小块分配区；从池的 large 指针可以回收大块</text>
+<rect x="40" y="128" width="958" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="178.3" font-size="18" fill="#646A73" font-weight="bold">块 0（1024 字节）</text>
+<rect x="278.3" y="144" width="345.9" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="451.2" y="167" font-size="14" fill="#1F2329" text-anchor="middle">ngx_pool_t</text>
+<text x="451.2" y="187" font-size="12" fill="#646A73" text-anchor="middle">80 字节
+max/current/large/cleanup</text>
+<rect x="636.1" y="144" width="345.9" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="809.1" y="167" font-size="14" fill="#1F2329" text-anchor="middle">小块</text>
+<text x="809.1" y="187" font-size="12" fill="#646A73" text-anchor="middle">+80 … +1012
+4 × 4 对齐</text>
+<rect x="40" y="228" width="958" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="278.3" font-size="18" fill="#646A73" font-weight="bold">块 1（1024 字节）</text>
+<rect x="278.3" y="244" width="345.9" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="451.2" y="267" font-size="14" fill="#1F2329" text-anchor="middle">ngx_pool_data_t</text>
+<text x="451.2" y="287" font-size="12" fill="#646A73" text-anchor="middle">32 字节</text>
+<rect x="636.1" y="244" width="345.9" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="809.1" y="267" font-size="14" fill="#1F2329" text-anchor="middle">小块</text>
+<text x="809.1" y="287" font-size="12" fill="#646A73" text-anchor="middle">+32 起 944 字节</text>
+<rect x="40" y="328" width="958" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="378.3" font-size="18" fill="#646A73" font-weight="bold">堆上</text>
+<rect x="278.3" y="344" width="703.7" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="630.1" y="367" font-size="14" fill="#1F2329" text-anchor="middle">大块</text>
+<text x="630.1" y="387" font-size="12" fill="#646A73" text-anchor="middle">945 字节（malloc）</text>
+<rect x="1010" y="128" width="150" height="288" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="side"/>
+<text x="1085" y="162" font-size="18" fill="#646A73" font-weight="bold" text-anchor="middle">指针</text>
+<rect x="1026" y="184" width="118" height="44" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1"/>
+<text x="1085" y="211" font-size="14" fill="#1F2329" text-anchor="middle">d.next</text>
+<rect x="1026" y="238" width="118" height="44" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1"/>
+<text x="1085" y="265" font-size="14" fill="#1F2329" text-anchor="middle">large</text>
+<text x="40" y="456" font-size="12" fill="#646A73" data-role="source">来源：本文整理（实验值）</text>
+</svg>

@@ -1,0 +1,104 @@
+{
+ "type": "graph",
+ "title": "内置模块查不到就尝试用 load_module 加载",
+ "subtitle": "配置里出现指令 X 时 nginx 依次检查；红色是 error.log 里会看到的报错",
+ "source": "来源：src/core/nginx.c、src/core/ngx_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "内置模块",
+   "nodes": [
+    {
+     "id": "a",
+     "title": "查 ngx_modules[]",
+     "sub": "X 所属模块在不在"
+    }
+   ]
+  },
+  {
+   "name": "load_module",
+   "nodes": [
+    {
+     "id": "ok1",
+     "title": "正常解析",
+     "tone": "good"
+    },
+    {
+     "id": "c",
+     "title": "有 load_module？"
+    },
+    {
+     "id": "u",
+     "title": "unknown directive",
+     "tone": "risk"
+    }
+   ]
+  },
+  {
+   "name": "dlopen",
+   "nodes": [
+    {
+     "id": "d",
+     "title": "dlopen",
+     "sub": "失败时报 dlopen() ... failed"
+    }
+   ]
+  },
+  {
+   "name": "版本和签名",
+   "nodes": [
+    {
+     "id": "g",
+     "title": "版本号不同",
+     "sub": "version N instead of M",
+     "tone": "risk"
+    },
+    {
+     "id": "i",
+     "title": "签名不同",
+     "sub": "is not binary compatible",
+     "tone": "risk"
+    },
+    {
+     "id": "ok2",
+     "title": "加载成功",
+     "sub": "之后正常解析",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "a",
+   "to": "ok1",
+   "label": "在"
+  },
+  {
+   "from": "a",
+   "to": "c",
+   "label": "不在"
+  },
+  {
+   "from": "c",
+   "to": "u",
+   "label": "没有"
+  },
+  {
+   "from": "c",
+   "to": "d",
+   "label": "有"
+  },
+  {
+   "from": "d",
+   "to": "g"
+  },
+  {
+   "from": "d",
+   "to": "i"
+  },
+  {
+   "from": "d",
+   "to": "ok2"
+  }
+ ]
+}

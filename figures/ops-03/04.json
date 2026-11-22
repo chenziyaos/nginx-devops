@@ -1,0 +1,23 @@
+{
+ "type": "graph",
+ "title": "QUIT 等请求做完，worker_shutdown_timeout 给它设上限",
+ "subtitle": "老 worker 收到不同信号后的退出方式；TERM / INT 不等请求",
+ "source": "来源：labs/ops-03 实验（1.31.9）",
+ "stages": [
+  {"name": "信号", "nodes": [
+    {"id": "q", "title": "收到 QUIT"},
+    {"id": "t", "title": "收到 TERM / INT"}]},
+  {"name": "先做的事", "nodes": [
+    {"id": "b", "title": "关闭监听和空闲连接", "sub": "监听 socket、空闲 keepalive 连接"},
+    {"id": "g", "title": "立即关闭连接退出", "tone": "risk"}]},
+  {"name": "看 worker_shutdown_timeout", "nodes": [
+    {"id": "d", "title": "等请求结束", "sub": "没有配置：最后一个请求结束才退出", "tone": "main"},
+    {"id": "e", "title": "到期强制退出", "sub": "有配置：到期后关闭剩余连接", "tone": "contrast"}]}
+ ],
+ "edges": [
+  {"from": "q", "to": "b"},
+  {"from": "t", "to": "g"},
+  {"from": "b", "to": "d", "label": "没有"},
+  {"from": "b", "to": "e", "label": "有"}
+ ]
+}

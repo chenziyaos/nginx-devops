@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 618" width="1200" height="618">
+<rect x="0" y="0" width="1200" height="618" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">location 先查前缀树，再试正则和 predicate，最后回到前缀</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">绿色是查找结束的出口；正则和 predicate 都按书写顺序，第一个成立的胜出</text>
+<text x="144" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">静态 location 树</text>
+<text x="448" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">前缀的结果</text>
+<text x="752" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">正则之后</text>
+<text x="1056" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">最后</text>
+<polyline points="252,304 293,304 293,200 330,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,194 340,200 330,206" fill="#8F959E"/>
+<polyline points="252,304 330,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,298 340,304 330,310" fill="#8F959E"/>
+<polyline points="252,304 293,304 293,408 330,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,402 340,408 330,414" fill="#8F959E"/>
+<polyline points="556,408 597,408 597,356 634,356" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,350 644,356 634,362" fill="#8F959E"/>
+<polyline points="556,408 597,408 597,460 634,460" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,454 644,460 634,466" fill="#8F959E"/>
+<polyline points="860,460 901,460 901,408 938,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,402 948,408 938,414" fill="#8F959E"/>
+<polyline points="860,460 901,460 901,512 938,512" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,506 948,512 938,518" fill="#8F959E"/>
+<rect x="40" y="262" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">找最长前缀</text>
+<text x="144" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">URI 在静态树里查</text>
+<rect x="344" y="158" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="448" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">= location</text>
+<text x="448" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">完全相等，结束</text>
+<rect x="344" y="262" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="448" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">^~ 前缀</text>
+<text x="448" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">最长前缀带 ^~，结束</text>
+<rect x="344" y="366" width="208" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="448" y="393.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">正则</text>
+<text x="448" y="413.7" font-size="12" fill="#646A73" text-anchor="middle">前缀不带 ^~ 或没有前缀；按书</text>
+<text x="448" y="432.7" font-size="12" fill="#646A73" text-anchor="middle">写顺序</text>
+<rect x="648" y="314" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="752" y="351.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">这个正则</text>
+<text x="752" y="371.2" font-size="12" fill="#646A73" text-anchor="middle">第一个匹配，结束</text>
+<rect x="648" y="418" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="455.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">predicate</text>
+<text x="752" y="475.2" font-size="12" fill="#646A73" text-anchor="middle">按书写顺序（§5）</text>
+<rect x="952" y="366" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">这个 predicate</text>
+<text x="1056" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">第一个为真，结束</text>
+<rect x="952" y="470" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="507.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">回到最长前缀</text>
+<text x="1056" y="527.2" font-size="12" fill="#646A73" text-anchor="middle">没有前缀则用 server 级配置</text>
+<text x="605" y="386" font-size="12" fill="#646A73">匹配</text>
+<text x="615.5" y="478" font-size="12" fill="#646A73" text-anchor="middle">都不匹配</text>
+<text x="909" y="438" font-size="12" fill="#646A73">为真</text>
+<text x="919.5" y="530" font-size="12" fill="#646A73" text-anchor="middle">都为假</text>
+<text x="40" y="594" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.9）</text>
+</svg>

@@ -19,23 +19,7 @@
 
 [运维篇 03](../ops/03-processes-signals.md) 从外面看了进程模型：master 管进程、worker 处理请求、reload 新老交替。这一篇进到两个循环里面。下图是两类进程各自的循环和它们之间唯一的通道，判断是：master 和 worker 都是单线程地睡在一个系统调用上，被信号或事件唤醒后才做事：
 
-```mermaid
-flowchart LR
-    subgraph M["master"]
-        S["信号处理函数<br/>只置标志"] --> W["sigsuspend 返回"]
-        W --> F["按标志处理：<br/>reload / 退出 / 重开日志 / 回收子进程"]
-        F --> Z["sigsuspend"]
-        Z --> W
-    end
-    subgraph K["worker"]
-        T["找最近的定时器"] --> E["kevent / epoll_wait<br/>超时 = 定时器剩余"]
-        E --> A["投递的 accept"]
-        A --> X["到期定时器"]
-        X --> P["投递队列"]
-        P --> T
-    end
-    F -- "channel：socketpair<br/>失败才 kill" --> E
-```
+![master 和 worker 各自睡在一个系统调用上，只被信号或事件唤醒](../figures/dev-05/01.svg)
 
 ## 1. master 只在 sigsuspend 里等：信号处理函数置标志，主循环醒来再做事
 
@@ -150,19 +134,7 @@ flowchart LR
 
 下图是一次 `kill -HUP` 在 master 里的路径，判断是：信号处理函数和主循环之间只隔着一个标志位：
 
-```mermaid
-sequenceDiagram
-    participant U as 运维
-    participant H as ngx_signal_handler
-    participant L as master 主循环
-    U->>H: kill -HUP
-    H->>H: ngx_reconfigure = 1
-    H-->>L: 返回，sigsuspend 随之返回
-    L->>L: ngx_init_cycle(新配置)
-    L->>L: 启动新 worker
-    L->>L: 给老 worker 发 QUIT（走 channel）
-    L->>L: 回到 sigsuspend
-```
+![kill -HUP 只在主循环的下一轮才真正执行，处理函数只置标志](../figures/dev-05/02.svg)
 
 **小结**：master 不处理连接，也没有事件循环，只在 `sigsuspend` 上等信号；`TERM` 的升级节奏是 50 ms 起、逐次翻倍，`delay` 超过 1000 改发 `SIGKILL`。
 
@@ -334,21 +306,7 @@ ok - connections and events are allocated up front: 512 x sizeof
 
 下图是三个数组的关系，判断是：连接和它的两个事件靠同一个下标绑定，空闲链表只串连接：
 
-```mermaid
-flowchart LR
-    F["free_connections"] --> C0
-    subgraph CN["connections：512 × 248 = 126976 字节"]
-        C0["c[0]"] -- data --> C1["c[1]"] -- data --> C2["…"] -- data --> C3["c[511]"]
-    end
-    subgraph RE["read_events：512 × 104 = 53248 字节"]
-        R0["read_events[0]"]
-    end
-    subgraph WE["write_events：512 × 104 = 53248 字节"]
-        W0["write_events[0]"]
-    end
-    C0 -- read --> R0
-    C0 -- write --> W0
-```
+![worker 启动时一次分配所有连接和事件，之后只操作链表](../figures/dev-05/03.svg)
 
 日志里紧接着的三行 `kevent set event: 5/6/7 ... fl:0005` 是两个监听 socket（19100、19101）和 channel 的注册，`fl` 的含义在 §7。
 
@@ -525,19 +483,7 @@ ok - kevent waits for the nearest timer: 60000 ms after accept, 75000 ms in keep
 
 下图把一轮循环画成固定的流水线，判断是：网络事件、定时器、投递事件三类工作在同一个线程里按固定顺序处理，没有抢占：
 
-```mermaid
-flowchart TB
-    A["ngx_event_find_timer<br/>最近的定时器还剩多少 ms"] --> B{"accept_mutex？"}
-    B -- "开且抢到" --> C["flags |= NGX_POST_EVENTS<br/>事件先入队"]
-    B -- "开但没抢到" --> D["超时最多 500 ms"]
-    B -- "关（默认）" --> E
-    C --> E["kevent / epoll_wait"]
-    D --> E
-    E --> F["ngx_posted_accept_events<br/>然后释放 accept 锁"]
-    F --> G["ngx_event_expire_timers"]
-    G --> H["ngx_posted_events"]
-    H --> A
-```
+![worker 循环的五个固定阶段：算超时 → 条件分支 → 等内核 → 处理三类事件 → 回圈](../figures/dev-05/04.svg)
 
 **小结**：一个 worker 里任何处理函数阻塞，整轮都停下，这一 worker 上的其他连接都跟着等；这是 nginx 要求模块不做阻塞调用、磁盘读写必要时交给线程池的根本原因。
 
@@ -694,15 +640,7 @@ ngx_event_add_timer(ngx_event_t *ev, ngx_msec_t timer)
 
 下图是一个空闲 worker 的时间线，判断是：worker 睡多久完全由红黑树里最小的那个键决定：
 
-```mermaid
-flowchart LR
-    A["accept<br/>加 60000 ms 定时器"] --> B["kevent 等 60000"]
-    B --> C["请求到达<br/>删定时器"]
-    C --> D["keepalive<br/>加 75000 ms 定时器"]
-    D --> E["kevent 等 75000"]
-    E --> F["连接关闭<br/>删定时器"]
-    F --> G["红黑树为空<br/>kevent 等 -1（无限）"]
-```
+![kevent 超时由红黑树最小定时器决定，无定时器时睡无限久](../figures/dev-05/05.svg)
 
 **小结**：nginx 的超时精度是毫秒级的“到点才醒”，没有每秒一次的扫描；定时器多少只影响红黑树的高度，空闲 worker 不消耗 CPU。
 
@@ -826,18 +764,7 @@ ok - the second request is posted and runs at the end of the same loop iteration
 
 下图是这一轮的时序，判断是：投递队列让“已经在内存里的工作”不必再经过内核：
 
-```mermaid
-sequenceDiagram
-    participant K as kevent
-    participant H as 请求处理
-    participant Q as ngx_posted_events
-    K->>H: fd 3 可读（两个请求一起到）
-    H->>H: 处理第一个请求，发响应
-    H->>Q: 剩余字节：新建请求，post event
-    Note over K,Q: ngx_process_events 返回（timer delta）
-    Q->>H: posted event：处理第二个请求
-    H->>K: 加 5000 ms 定时器（lingering_timeout）
-```
+![流水线请求在同一轮循环末尾通过投递队列处理，不用再等 kevent](../figures/dev-05/06.svg)
 
 **小结**：凡是“数据已在用户态、内核不会再通知”的继续处理，都要靠投递队列；写模块时如果在处理函数里读了一部分就返回，需要自己投递或保证还会有事件到来，否则连接会停在那里直到超时。
 
@@ -1103,19 +1030,7 @@ ok - four sockets for the reuseport listener, one for the shared one
 
 下图对比三种方式，判断是：分连接这件事，默认交给内核的唤醒策略，`accept_mutex` 收回到用户态的锁，`reuseport` 推给内核的哈希：
 
-```mermaid
-flowchart TB
-    subgraph D["默认（accept_mutex off）"]
-        D1["1 个监听 socket"] --> D2["4 个 worker 都注册<br/>Linux 用 EPOLLEXCLUSIVE"]
-    end
-    subgraph A["accept_mutex on"]
-        A1["1 个监听 socket"] --> A2["持锁 worker 注册<br/>kevent 等 -1"]
-        A1 -.-> A3["其他 worker<br/>每 500 ms 抢一次锁"]
-    end
-    subgraph R["reuseport"]
-        R1["4 个监听 socket<br/>同一地址"] --> R2["每个 worker 只注册自己的"]
-    end
-```
+![三种方式分 worker 连接：都监听、独占、按 socket 分](../figures/dev-05/07.svg)
 
 **小结**：默认配置下所有 worker 等在同一个监听 socket 上，Linux 靠 `EPOLLEXCLUSIVE` 让内核只唤醒其中一个；`accept_mutex` 适合连接很少、想让少数 worker 处理的场景，空闲时其余 worker 每 500 ms 空转一次；`reuseport` 让每个 worker 有独立的监听队列，代价是某个 worker 卡住时，分到它那个 socket 上的连接只能等。
 

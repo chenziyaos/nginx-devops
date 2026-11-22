@@ -19,15 +19,7 @@
 
 [运维篇 01](../ops/01-install.md) §4 讲了动态模块怎么编、`load_module` 的路径相对于什么。这一篇从源码看模块本身。前面几篇讲的机制在这里都有对应：指令解析和合并（[开发篇 04](04-startup-config.md) §2、§7），content handler 和过滤器链（[开发篇 06](06-http-request.md) §4、§6），变量下标和缓存（[开发篇 07](07-rewrite-script.md) §1、§2）。下图是模块的每个回调在 nginx 生命周期里被调用的时机，判断是：模块不主动做任何事，所有代码都在框架回调它的时候运行：
 
-```mermaid
-flowchart LR
-    L["load_module<br/>dlopen，ngx_add_module"] --> PRE["http{} 开始<br/>preconfiguration：登记变量"]
-    PRE --> CR["create_loc_conf<br/>每个 server、location 一份"]
-    CR --> CMD["遇到 hello 指令<br/>ngx_http_hello：设 clcf->handler"]
-    CMD --> MG["merge_loc_conf<br/>子级没设的取父级"]
-    MG --> POST["postconfiguration<br/>压入 header filter"]
-    POST --> REQ["请求：content handler<br/>header filter，变量取值"]
-```
+![模块不主动做任何事，所有代码都在框架回调时运行](../figures/dev-10/01.svg)
 
 ## 1. 一个模块就是一个 ngx_module_t：type 决定谁来调用它，ctx 和 commands 是交给框架的两张表
 
@@ -295,12 +287,7 @@ ok - inherited, switched off by an empty value, evaluated per request
 
 `/files/` 继承了 `srv`。`/off/` 的空串编译成一个长度为 0 的复杂值，它不是 UNSET，所以不继承；过滤器在求值得到空串时跳过（§4 的代码）。`/var/` 的 `$uri` 在每个请求里求值。下图是这三个 location 的合并结果，判断是：“没写”和“写了空值”是两种状态，模块要用 UNSET 把前者区分出来：
 
-```mermaid
-flowchart TB
-    S["server：hello_header &quot;srv&quot;"] --> F["/files/：UNSET_PTR<br/>merge 后 = srv"]
-    S --> O["/off/：hello_header &quot;&quot;<br/>长度 0 的复杂值，不继承"]
-    S --> V["/var/：hello_header &quot;uri=$uri&quot;<br/>请求时求值"]
-```
+![未设与空值是两种状态，merge 要用 UNSET 把前者区分出来](../figures/dev-10/02.svg)
 
 **小结**：每个配置字段都要有一个“没设”的值（`NGX_CONF_UNSET`、`NGX_CONF_UNSET_PTR` 等），create 里设好，merge 里用对应的 `ngx_conf_merge_*_value` 合并；想让用户在子级关掉继承来的设置，给指令一个显式的“关”值（空串、`off`），不要靠省略。
 
@@ -399,17 +386,7 @@ ok - X-Hello is pushed before X-Add
 
 两个过滤器都往 `r->headers_out.headers` 链表尾部追加，先执行的先追加，header filter 模块按链表顺序写出响应头，所以 `X-Hello` 在前。下图是这一段模块顺序和过滤器调用顺序的关系，判断是：两者正好相反，数组里越靠后的过滤器越先执行：
 
-```mermaid
-flowchart LR
-    subgraph M["cycle->modules（postconfiguration 的顺序）"]
-        direction LR
-        H1["headers_filter"] --> H2["hello（插入）"] --> H3["copy_filter"] --> H4["range_body"] --> H5["not_modified"]
-    end
-    subgraph C["header filter 的调用顺序"]
-        direction LR
-        C1["not_modified"] --> C2["hello：加 X-Hello"] --> C3["headers_filter：加 X-Add"] --> C4["… header_filter 写出"]
-    end
-```
+![数组越靠后的过滤器越先执行](../figures/dev-10/03.svg)
 
 hello 的过滤器对每个请求都会被调用，没配置 `hello_header` 的 location 里它只做一次判断就交给下一个；子请求（`r != r->main`）也直接跳过，响应头只属于主请求。
 
@@ -536,13 +513,7 @@ ok - an HTTP_FILTER module is ordered before copy_filter; the signatures match
 
 `ngx_module_type=HTTP_FILTER` 决定了 order：实验输出里 `auto/module` 那一段是它处理动态模块时的判断，类型是 `HTTP_FILTER` 或 `HTTP_AUX_FILTER`、又没写 `ngx_module_order` 时，order 默认是“自己，然后 copy_filter”。configure 为每个动态模块生成一个 `objs/<模块名>_modules.c`，里面是三个数组：`ngx_modules`（模块结构的地址）、`ngx_module_names`（名字）、`ngx_module_order`（插入位置），它和模块源文件一起链接成 `.so`。静态编译时这三项分别进 `objs/ngx_modules.c` 的总表，模块源文件本身一个字也不用改，这就是同一份源码既能 `--add-module` 也能 `--add-dynamic-module` 的原因。实验最后两行是 `.so` 和 nginx 可执行文件里的签名串，两者相同（§7）。下图是从 `config` 到 `.so` 的过程，判断是：模块的元数据由构建系统生成，源文件里只有代码：
 
-```mermaid
-flowchart LR
-    CFG["modules/ngx_http_hello_module/config<br/>type / name / srcs"] --> AM["auto/module<br/>DYNAMIC 分支"]
-    AM --> GEN["objs/ngx_http_hello_module_modules.c<br/>ngx_modules / names / order"]
-    SRC["ngx_http_hello_module.c"] --> SO["objs/ngx_http_hello_module.so<br/>-shared -undefined dynamic_lookup"]
-    GEN --> SO
-```
+![模块的元数据由构建系统生成，源文件里只有代码](../figures/dev-10/04.svg)
 
 **小结**：`config` 里至少写 `ngx_addon_name`、`ngx_module_type`、`ngx_module_name`、`ngx_module_srcs`；一个 `.so` 里放多个模块时，`ngx_module_name` 写多个名字。改了模块源文件只需要 `make modules`，不必重编 nginx，前提是用同一份源码树和同样的 configure 参数。
 
@@ -617,19 +588,7 @@ ok - wrong version, wrong signature, too late, twice
 
 四条都是 `[emerg]`，`nginx -t` 就能发现，不会等到 reload 才失败。下图是 `load_module` 的检查顺序，判断是：每一道检查都在配置解析阶段完成，模块代码一行都还没执行：
 
-```mermaid
-flowchart TB
-    A["load_module 路径"] --> B{"modules_used？<br/>已经过了 events 或 http 块"}
-    B -- 是 --> E1["is specified too late"]
-    B -- 否 --> C["dlopen，dlsym 三个数组"]
-    C --> D{"version == nginx_version？"}
-    D -- 否 --> E2["version ... instead of 1031009"]
-    D -- 是 --> F{"signature 相同？"}
-    F -- 否 --> E3["is not binary compatible"]
-    F -- 是 --> G{"同名模块已加载？"}
-    G -- 是 --> E4["is already loaded"]
-    G -- 否 --> H["按 ngx_module_order 插入 cycle->modules"]
-```
+![每一道检查都在配置解析阶段完成](../figures/dev-10/05.svg)
 
 版本号精确到补丁号：1.31.9 只认 1031009，给 1.31.8 编的模块也会被拒绝。
 
@@ -648,12 +607,7 @@ ok - the new worker counts from 1
 
 reload 前是 6（§2 到 §5 的 6 个请求）；reload 时 master 按新配置建新 cycle、`fork` 新的 worker，旧 worker 处理完手上的请求后退出（[开发篇 04](04-startup-config.md) §8），新 worker 从 master 的 0 开始，一个请求之后是 1。下图是这个过程里计数器的副本，判断是：worker 之间、reload 前后都不共享静态变量，要共享就得用共享内存：
 
-```mermaid
-flowchart TB
-    M["master<br/>dlopen .so，计数 = 0"] -- "fork" --> W1["旧 worker<br/>计数 6"]
-    M -- "HUP 后 fork" --> W2["新 worker<br/>计数 0 → 1"]
-    W1 -. "处理完请求后退出" .-> X["计数随进程消失"]
-```
+![worker 之间、reload 前后都不共享静态变量，要共享就得用共享内存](../figures/dev-10/06.svg)
 
 旧 cycle 的内存池上挂着一个 cleanup，cycle 释放时调用 `ngx_unload_module` 做 `dlclose`（[`nginx.c` 第 1737 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/nginx.c#L1737)）；新 cycle 在此之前已经 `dlopen` 过同一个文件，动态链接器按引用计数保留映射，模块代码在 reload 期间不会被卸掉。
 

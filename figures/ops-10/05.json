@@ -1,0 +1,23 @@
+{
+ "type": "sequence",
+ "title": "过期后，第一个请求拿旧内容并后台更新，其他请求也拿旧内容",
+ "subtitle": "顺序从上到下；蓝色是客户端见到的快速响应，后台更新不堵塞",
+ "source": "来源：本文整理",
+ "actors": [
+  {"name": "客户端", "tone": "main"},
+  {"name": "nginx"},
+  {"name": "后台子请求"},
+  {"name": "后端"}
+ ],
+ "messages": [
+  {"from": "客户端", "to": "nginx", "text": "条目已过期"},
+  {"from": "nginx", "to": "nginx", "text": "node.updating = 1，状态 STALE"},
+  {"from": "nginx", "to": "客户端", "text": "立即返回旧内容"},
+  {"from": "nginx", "to": "后台子请求", "text": "ngx_http_subrequest，BACKGROUND"},
+  {"from": "后台子请求", "to": "后端", "text": "回源"},
+  {"from": "后端", "to": "后台子请求", "text": "新响应"},
+  {"from": "后台子请求", "to": "nginx", "text": "重写缓存文件，updating = 0"},
+  {"from": "客户端", "to": "nginx", "text": "下一个请求"},
+  {"from": "nginx", "to": "客户端", "text": "HIT，新内容"}
+ ]
+}

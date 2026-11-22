@@ -108,7 +108,17 @@ $ python3 tools/excerpt.py src/http/ngx_http_upstream_round_robin.c 884-889
 ```
 ````
 
-**检查章节。** `tools/check_docs.py` 检查每章的源码片段与源码逐行一致、引用的实验输出与 `expected.txt` 一致、GitHub 源码链接指向 1.31.9 里存在的行，且链接文字里的标识符确实出现在那几行；`tools/check_mermaid.sh <章节文件...>` 用 mermaid-cli 渲染章节里的图，语法错误会失败。
+**检查章节。** `tools/check_docs.py` 检查每章的源码片段与源码逐行一致、引用的实验输出与 `expected.txt` 一致、GitHub 源码链接指向 1.31.9 里存在的行，且链接文字里的标识符确实出现在那几行；每张图的 SVG 和 spec 都存在，图片的替代文字等于 spec 里的标题。
+
+**改图。** 每章的图在 `figures/<篇>-<章>/`：`NN.json` 是 spec，只写内容（一句结论做标题、节点、连线、哪个是主角哪个是风险），`NN.svg` 是生成结果，章节按顺序引用 `01.svg`、`02.svg`……。版式和配色由 lark-figure 排版引擎计算，这个引擎不在本仓库里：
+
+```bash
+LARK_FIGURE=/path/to/lark-figure/scripts/figure.py python3 tools/build_figures.py ops-09   # 重新生成一章的图
+python3 tools/build_figures.py --png ops-09    # 同时把 PNG 预览放到 figures/.preview/
+python3 tools/build_figures.py --check         # 检查提交的 SVG 是否和 spec 一致
+```
+
+没有引擎也能看图和改正文；改 spec 必须有引擎才能重新生成，不要手改 SVG。
 
 **改写 hello 模块。** `modules/ngx_http_hello_module/` 是开发篇 10 讲解的模块。改完源码后用 `tools/build_modules.sh` 只重编动态模块，再跑 `tools/verify_labs.sh dev-10`。
 
@@ -128,7 +138,7 @@ $ python3 tools/excerpt.py src/http/ngx_http_upstream_round_robin.c 884-889
 - 所有实验只在 macOS（arm64，kqueue，16 KB 内存页）上运行过。Linux 上事件模块是 epoll，debug 日志里的事件行、页大小相关的数字（如开发篇 03 的 slab 分档）会不同，`verify_labs.sh` 在 Linux 上预计会报差异；`tools/build.sh` 在 Linux 上也没有测过。
 - 有几个实验依赖时序：限流（运维篇 09、开发篇 08）按“至少等了多少秒”判断，开发篇 05 的 `accept_mutex` 比较的是空闲后的最终状态。机器很忙时仍可能偶发失败，重跑一次即可区分偶发和真实差异。
 - HTTP/3 只验证到 QUIC 握手和 ALPN（运维篇 08），没有发出 HTTP/3 请求；各章“已知局限与待核实”列出了其余没有实验覆盖的说法。
-- 第一次运行 `tools/check_mermaid.sh` 需要 Node.js，`npx` 会下载 mermaid-cli 和一个无头浏览器。
+- 图由 lark-figure 引擎从 spec 生成，引擎没有公开；没有它只能看图，不能重新生成。SVG 里的文字用系统无衬线字体显示，Windows 和 Linux 上字宽会略有不同。
 - 不支持 Windows。
 
 ## 排障
@@ -143,11 +153,12 @@ $ python3 tools/excerpt.py src/http/ngx_http_upstream_round_robin.c 884-889
 
 ```text
 ops/  dev/            章节
+figures/<id>/         章节的图：NN.json（spec）和 NN.svg（生成结果）
 labs/<id>/            实验：run.sh、HYPOTHESES.md、conf/、expected.txt
 labs/lib.sh           实验公共函数（start、stop、expect、fire 等）
 labs/ctest.sh         把小 C 程序链接到 nginx 目标文件
 modules/              本仓库自己的动态模块（hello）
-tools/                构建、实验核对、源码摘录、文档检查
+tools/                构建、实验核对、源码摘录、文档检查、生成图
 ```
 
 `.nginx/`、`.nginx-src/` 和各实验的 `logs/`、`out/` 由脚本生成，不进版本库。

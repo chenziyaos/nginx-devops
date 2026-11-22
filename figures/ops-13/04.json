@@ -1,0 +1,15 @@
+{
+ "type": "tree",
+ "title": "502 有五种来源，先看 while 后缀，再看前半句",
+ "subtitle": "第二层是 error.log 里 while 后面的阶段，第三层是那一行开头的原文和对应的处理",
+ "source": "来源：ngx_http_upstream.c（1.31.9）",
+ "root": {"label": "502", "tone": "risk", "children": [
+  {"label": "connecting to upstream", "sub": "连接阶段", "tone": "base", "children": [
+    {"label": "后端端口不通", "sub": "connect() failed"},
+    {"label": "整组被摘除", "sub": "no live upstreams：往前找最初的失败"}]},
+  {"label": "reading response header", "sub": "读响应头阶段", "tone": "base", "children": [
+    {"label": "后端不回响应就关闭", "sub": "prematurely closed"},
+    {"label": "后端或中间设备发 RST", "sub": "reset by peer"},
+    {"label": "调大 proxy_buffer_size", "sub": "too big header", "tone": "main"}]}
+ ]}
+}

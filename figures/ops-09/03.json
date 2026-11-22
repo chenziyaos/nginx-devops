@@ -1,0 +1,26 @@
+{
+ "type": "sequence",
+ "title": "被第二条规则拒绝时，第一条的 excess 不变",
+ "subtitle": "同一个 location 写了两条 limit_req；前面的规则只预检，最后一条通过后才统一写回",
+ "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+ "actors": [
+  {"name": "limit_req handler", "tone": "main"},
+  {"name": "perip", "sub": "第 1 条"},
+  {"name": "perserver", "sub": "最后一条"}
+ ],
+ "messages": [
+  {"from": "limit_req handler", "to": "perip", "text": "lookup(account=0)"},
+  {"from": "perip", "to": "limit_req handler", "text": "NGX_AGAIN，count + 1", "reply": true},
+  {"from": "limit_req handler", "to": "perserver", "text": "lookup(account=1)"},
+  {"from": "perserver", "to": "limit_req handler", "text": "NGX_BUSY", "reply": true},
+  {"from": "limit_req handler", "to": "perip", "text": "unlock：count − 1"},
+  {"from": "limit_req handler", "to": "limit_req handler", "text": "返回 503，perip 的 excess 不变"},
+  {"from": "perserver", "to": "limit_req handler", "text": "NGX_OK，写回 excess", "reply": true},
+  {"from": "limit_req handler", "to": "perip", "text": "account：写回 excess，count − 1"},
+  {"from": "limit_req handler", "to": "limit_req handler", "text": "取两条规则里最长的延迟"}
+ ],
+ "sections": [
+  {"at": 3, "label": "perserver 超过 burst"},
+  {"at": 6, "label": "两条都通过"}
+ ]
+}

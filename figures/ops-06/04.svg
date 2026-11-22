@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 562" width="1200" height="562">
+<rect x="0" y="0" width="1200" height="562" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">proxy_buffering 开着时后端很快释放，关掉时后端等慢客户端</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">32 MB 文件，客户端读 8 MB/s；从上到下是时间流向</text>
+<line x1="226.7" y1="168" x2="226.7" y2="498" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">慢客户端</text>
+<line x1="600" y1="168" x2="600" y2="498" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx</text>
+<line x1="973.3" y1="168" x2="973.3" y2="498" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">后端</text>
+<rect x="40" y="186" width="137.7" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="108.8" y="202.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">proxy_buffering on</text>
+<line x1="185.7" y1="198" x2="1160" y2="198" stroke="#EFF0F1" stroke-width="1"/>
+<text x="963.3" y="236.6" font-size="13" fill="#1F2329" text-anchor="end">全速写 32 MB</text>
+<polyline points="973.3,245 612,245" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,239 602,245 612,251" fill="#8F959E"/>
+<text x="610" y="277.6" font-size="13" fill="#1F2329">连接释放</text>
+<polyline points="600,286 961.3,286" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="961.3,280 971.3,286 961.3,292" fill="#8F959E"/>
+<text x="590" y="318.6" font-size="13" fill="#1F2329" text-anchor="end">按 8 MB/s 发送</text>
+<polyline points="600,327 238.7,327" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="238.7,321 228.7,327 238.7,333" fill="#8F959E"/>
+<rect x="40" y="343" width="144.4" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="112.2" y="359.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">proxy_buffering off</text>
+<line x1="192.4" y1="355" x2="1160" y2="355" stroke="#EFF0F1" stroke-width="1"/>
+<text x="963.3" y="393.6" font-size="13" fill="#1F2329" text-anchor="end">写一块缓冲区</text>
+<polyline points="973.3,402 612,402" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,396 602,402 612,408" fill="#8F959E"/>
+<text x="590" y="434.6" font-size="13" fill="#1F2329" text-anchor="end">发一块给客户端</text>
+<polyline points="600,443 238.7,443" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="238.7,437 228.7,443 238.7,449" fill="#8F959E"/>
+<text x="963.3" y="475.6" font-size="13" fill="#1F2329" text-anchor="end">再写，循环到完成</text>
+<polyline points="973.3,484 612,484" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,478 602,484 612,490" fill="#8F959E"/>
+<text x="40" y="538" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_proxy_module.c、labs/ops-06 实验输出</text>
+</svg>

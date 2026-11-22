@@ -1,0 +1,44 @@
+{
+  "type": "sequence",
+  "title": "端口不断靠的是同一个 fd 在新旧 cycle 之间传递",
+  "subtitle": "从上到下是 reload 时 master、旧 worker、新 worker 的交接顺序；数字（fd 5）和端口（19082、19084）来自实验输出",
+  "source": "来源：ngx_cycle.c、labs/dev-04 实验输出",
+  "actors": [
+    {
+      "name": "master"
+    },
+    {
+      "name": "旧 worker（旧 cycle）"
+    },
+    {
+      "name": "新 worker"
+    }
+  ],
+  "messages": [
+    {
+      "from": "master",
+      "to": "master",
+      "label": "ngx_init_cycle(old)：19082 fd 5、19084 新建"
+    },
+    {
+      "from": "master",
+      "to": "master",
+      "label": "关闭 19083、释放旧 cycle 内存池"
+    },
+    {
+      "from": "master",
+      "to": "新 worker",
+      "label": "fork（继承 fd 5 和新 fd）"
+    },
+    {
+      "from": "master",
+      "to": "旧 worker（旧 cycle）",
+      "label": "QUIT"
+    },
+    {
+      "from": "旧 worker（旧 cycle）",
+      "to": "旧 worker（旧 cycle）",
+      "label": "处理完手上的请求后退出"
+    }
+  ]
+}

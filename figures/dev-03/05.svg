@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 637" width="1200" height="637">
+<rect x="0" y="0" width="1200" height="637" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">zone 在 fork 之前就映射好，每个 worker 看到同一个地址</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上到下；master 在 fork 前完成所有映射和初始化</text>
+<line x1="320" y1="168" x2="320" y2="573" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="220" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="320" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master</text>
+<line x1="880" y1="168" x2="880" y2="573" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="780" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="880" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">worker</text>
+<text x="330" y="202.6" font-size="13" fill="#1F2329">解析配置</text>
+<text x="330" y="222.6" font-size="13" fill="#1F2329">ngx_shared_memory_add(name, size, tag)</text>
+<polyline points="320,231 346,231 346,249 334,249" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="334,243 324,249 334,255" fill="#8F959E"/>
+<text x="330" y="289.6" font-size="13" fill="#1F2329">ngx_init_cycle</text>
+<text x="330" y="309.6" font-size="13" fill="#1F2329">mmap(MAP_ANON|MAP_SHARED)</text>
+<polyline points="320,318 346,318 346,336 334,336" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="334,330 324,336 334,342" fill="#8F959E"/>
+<text x="330" y="376.6" font-size="13" fill="#1F2329">ngx_init_zone_pool</text>
+<text x="330" y="396.6" font-size="13" fill="#1F2329">slab_pool_t、锁、init 回调</text>
+<polyline points="320,405 346,405 346,423 334,423" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="334,417 324,423 334,429" fill="#8F959E"/>
+<text x="330" y="463.6" font-size="13" fill="#1F2329">fork，继承映射</text>
+<polyline points="320,472 868,472" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="868,466 878,472 868,478" fill="#8F959E"/>
+<text x="870" y="504.6" font-size="13" fill="#1F2329" text-anchor="end">ngx_slab_alloc</text>
+<text x="870" y="524.5" font-size="13" fill="#1F2329" text-anchor="end">ngx_shmtx_lock</text>
+<polyline points="880,533 854,533 854,551 866,551" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="866,545 876,551 866,557" fill="#8F959E"/>
+<text x="40" y="613" font-size="12" fill="#646A73" data-role="source">来源：本文整理</text>
+</svg>

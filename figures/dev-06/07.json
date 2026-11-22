@@ -1,0 +1,87 @@
+{
+ "type": "graph",
+ "title": "count 归零才释放，再按配置走 keepalive、延迟关闭或关闭",
+ "subtitle": "从左到右依次判断：先看还有没有输出，再看引用计数，最后决定连接去向",
+ "source": "来源：ngx_http_request.c（1.31.9）",
+ "stages": [
+  {
+   "name": "finalize_request",
+   "nodes": [
+    {
+     "id": "f",
+     "title": "finalize",
+     "sub": "ngx_http_finalize_request"
+    }
+   ]
+  },
+  {
+   "name": "能不能释放",
+   "nodes": [
+    {
+     "id": "out",
+     "title": "还有输出或子请求",
+     "sub": "writer 等写事件"
+    },
+    {
+     "id": "cnt",
+     "title": "count > 1",
+     "sub": "count--，等其他引用"
+    },
+    {
+     "id": "one",
+     "title": "count == 1",
+     "sub": "可以释放",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "连接去向",
+   "nodes": [
+    {
+     "id": "ka",
+     "title": "keepalive",
+     "sub": "set_keepalive",
+     "tone": "good"
+    },
+    {
+     "id": "lg",
+     "title": "延迟关闭",
+     "sub": "set_lingering_close"
+    },
+    {
+     "id": "cl",
+     "title": "关闭",
+     "sub": "close_request，跑 LOG 阶段",
+     "tone": "risk"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "f",
+   "to": "out"
+  },
+  {
+   "from": "f",
+   "to": "cnt"
+  },
+  {
+   "from": "f",
+   "to": "one"
+  },
+  {
+   "from": "one",
+   "to": "ka"
+  },
+  {
+   "from": "one",
+   "to": "lg"
+  },
+  {
+   "from": "one",
+   "to": "cl"
+  }
+ ]
+}

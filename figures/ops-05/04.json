@@ -1,0 +1,101 @@
+{
+ "type": "sequence",
+ "title": "open_file_cache 有效期内不重新打开文件，发布后可能返回旧内容",
+ "subtitle": "从上到下是两次文件请求的时间顺序；蓝色是缓存取用、红色是缓存返回旧内容",
+ "source": "来源：ngx_open_file_cache.c、ngx_http_core_module.c（1.31.9）",
+ "actors": [
+  {
+   "name": "客户端"
+  },
+  {
+   "name": "worker",
+   "sub": "open_file_cache",
+   "tone": "main"
+  },
+  {
+   "name": "文件系统"
+  }
+ ],
+ "messages": [
+  {
+   "from": "客户端",
+   "to": "worker",
+   "text": "GET /f.txt"
+  },
+  {
+   "from": "worker",
+   "to": "文件系统",
+   "text": "open + fstat"
+  },
+  {
+   "from": "文件系统",
+   "to": "worker",
+   "text": "fd（inode A，v1）",
+   "reply": true
+  },
+  {
+   "from": "worker",
+   "to": "worker",
+   "text": "缓存保存"
+  },
+  {
+   "from": "worker",
+   "to": "客户端",
+   "text": "v1",
+   "reply": true
+  },
+  {
+   "from": "文件系统",
+   "to": "文件系统",
+   "text": "发布：写 f.txt.new，mv 覆盖"
+  },
+  {
+   "from": "客户端",
+   "to": "worker",
+   "text": "GET /f.txt（有效期内）"
+  },
+  {
+   "from": "worker",
+   "to": "worker",
+   "text": "复用缓存 fd（inode A）"
+  },
+  {
+   "from": "worker",
+   "to": "客户端",
+   "text": "v1（已过期）",
+   "reply": true
+  },
+  {
+   "from": "客户端",
+   "to": "worker",
+   "text": "GET /f.txt（超过有效期）"
+  },
+  {
+   "from": "worker",
+   "to": "文件系统",
+   "text": "重新 stat"
+  },
+  {
+   "from": "文件系统",
+   "to": "worker",
+   "text": "fd（inode B，v2）",
+   "reply": true
+  },
+  {
+   "from": "worker",
+   "to": "客户端",
+   "text": "v2",
+   "reply": true
+  }
+ ],
+ "sections": [
+  {
+   "at": 5,
+   "label": "open_file_cache_valid（默认 60 秒）开始计时"
+  },
+  {
+   "at": 8,
+   "label": "返回旧内容"
+  }
+ ]
+}

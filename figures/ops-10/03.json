@@ -1,0 +1,70 @@
+{
+ "type": "graph",
+ "title": "缓存经历新鲜、过期、删除三个阶段，状态由两个时间点决定",
+ "subtitle": "从左到右：新鲜判断基于 valid_sec，删除判断基于最后访问时间和 inactive",
+ "source": "来源：本文整理",
+ "stages": [
+  {
+   "name": "初始",
+   "nodes": [
+    {
+     "id": "none",
+     "title": "不存在"
+    }
+   ]
+  },
+  {
+   "name": "有效",
+   "nodes": [
+    {
+     "id": "fresh",
+     "title": "新鲜",
+     "tone": "good"
+    }
+   ]
+  },
+  {
+   "name": "失效",
+   "nodes": [
+    {
+     "id": "exp",
+     "title": "过期",
+     "sub": "valid_sec < 当前秒"
+    }
+   ]
+  },
+  {
+   "name": "清理",
+   "nodes": [
+    {
+     "id": "deleted",
+     "title": "删除",
+     "sub": "inactive 超时",
+     "tone": "risk"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "none",
+   "to": "fresh",
+   "label": "MISS 回源"
+  },
+  {
+   "from": "fresh",
+   "to": "exp",
+   "label": "过期"
+  },
+  {
+   "from": "exp",
+   "to": "fresh",
+   "label": "更新"
+  },
+  {
+   "from": "fresh",
+   "to": "deleted",
+   "label": "删除"
+  }
+ ]
+}

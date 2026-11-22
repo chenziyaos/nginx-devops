@@ -1,0 +1,15 @@
+{
+ "type": "table",
+ "title": "upstream 块默认保持连接，直接写地址的 proxy_pass 每次新建",
+ "subtitle": "proxy_pass 的目标和 keepalive 写法决定空闲连接能不能复用；proxy_http_version 1.0 时都不复用",
+ "source": "来源：ngx_http_upstream_keepalive_module.c、ngx_http_proxy_module.c（1.31.9）",
+ "columns": ["proxy_pass 的目标", "keepalive", "结果"],
+ "rows": [
+  ["直接写 IP:端口或域名", "—（隐式 upstream）", {"text": "不保持连接，每个请求新建", "tone": "risk"}],
+  ["upstream {} 块", "没写", {"text": "等价 keepalive 32 local：只在同一个 location 内复用", "bold": true}],
+  ["upstream {} 块", "keepalive 0", "不保持连接，每个请求新建"],
+  ["upstream {} 块", "keepalive N", "所有用这个块的 location 共享 N 条空闲连接"]
+ ],
+ "highlight_row": 1,
+ "tone": "main"
+}

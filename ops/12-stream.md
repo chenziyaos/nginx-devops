@@ -19,16 +19,7 @@
 
 stream 和 HTTP 一样按阶段处理，但阶段只有 7 个，而且没有“请求”：一个连接（UDP 是一组同源的数据报）就是一个会话。下图的判断是：所有路由决策都发生在 content 阶段之前，能用的信息只有连接本身和 preread 阶段读到的头几个字节。
 
-```mermaid
-flowchart LR
-    A["accept"] --> P0["post_accept<br/>realip"]
-    P0 --> P1["preaccess<br/>limit_conn"]
-    P1 --> P2["access<br/>allow / deny"]
-    P2 --> P3["ssl<br/>listen ... ssl 的握手"]
-    P3 --> P4["preread<br/>ssl_preread 偷看 ClientHello"]
-    P4 --> P5["content<br/>proxy_pass / return / pass"]
-    P5 --> P6["log<br/>会话结束时写一行"]
-```
+![stream 能用来分流的名字，要到 preread 阶段才拿到](../figures/ops-12/01.svg)
 
 阶段的顺序来自 [`ngx_stream.h`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream.h#L85) 里的枚举；`$status` 的取值也定义在这个头文件里：200 正常结束、400 客户端数据不对、403 被 access 拒绝、500 内部错误、502 后端连不上、503 被限连。
 
@@ -69,18 +60,7 @@ stream 不知道这是 HTTP：它从客户端收了 18 字节，原样发给后�
 
 下图是一次 TCP 会话里字节的流向，四个计数各自在哪一段累加：
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as nginx :18240
-    participant B as 后端 :18250
-    C->>N: 18 字节（bytes_received）
-    N->>B: 18 字节（upstream_bytes_sent）
-    B->>N: 145 字节（upstream_bytes_received）
-    N->>C: 145 字节（bytes_sent）
-    B-->>N: 关闭
-    N-->>C: 关闭，写一行日志
-```
+![TCP 代理中四个字节计数各自在哪一段累加，对得上说明转发完整](../figures/ops-12/02.svg)
 
 **小结**：stream 的日志是“会话结束记录”，四个字节计数能直接核对转发是否完整；长连接要靠连接数监控，不能等日志。
 
@@ -222,18 +202,7 @@ ok - two refused connects, each one disables the server
 
 算出来到期后先是 18250、18250，第 3 个才轮到 18259，和实验的 session 3–5 一致。HTTP upstream 用的是同一套算法，[运维篇 07](07-load-balancing.md) 的实验“到期后 4 个请求里只试一次”也是这个原因。权重越高、后端越多，坏掉的那台回来得越慢；这是平滑加权轮询的设计（刚恢复的后端逐步加流量），不是 bug。
 
-```mermaid
-stateDiagram-v2
-    s1: 可用（ew = weight）
-    s2: 摘除（fails 达到 max_fails，ew 扣到 0）
-    s3: 到期（参与选择，ew 每轮加 1）
-    [*] --> s1
-    s1 --> s2: 连接失败，warn temporarily disabled
-    s2 --> s2: now - checked 不超过 fail_timeout（整秒）
-    s2 --> s3: 超过 fail_timeout
-    s3 --> s1: 被选中且连接成功
-    s3 --> s2: 被选中又失败
-```
+![后端故障后摘除、超期后权重逐步恢复](../figures/ops-12/03.svg)
 
 和 HTTP 一样，只有一台后端的 upstream（包括 `proxy_pass 地址:端口` 生成的隐式 upstream）走 `peers->single` 分支，失败计数不起作用，每个会话都会再去连。
 
@@ -290,18 +259,7 @@ ok - with proxy_responses the session ends on the reply; without it, at proxy_ti
 
 下图对比两种配置下会话的生命周期，判断是：回复到达客户端的时间相同，差别只在 nginx 什么时候释放会话：
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as nginx
-    participant B as UDP 后端 :18256
-    C->>N: ping（4 字节）
-    N->>B: ping
-    B->>N: pong（5 字节）
-    N->>C: pong
-    Note over N: proxy_responses 1 时，会话在这里结束
-    Note over N: 未设置时，等 proxy_timeout 内没有新数据报才结束
-```
+![proxy_responses 决定 UDP 会话何时结束](../figures/ops-12/04.svg)
 
 **小结**：一问一答的 UDP 服务按每个请求的回复数设 `proxy_responses`（DNS 是 1），有来有回的长会话（游戏、QUIC 透传）才依赖 `proxy_timeout`。
 
@@ -376,16 +334,7 @@ TLS 客户端和后端 18251 之间是端到端的握手，证书由后端出示
 
 下图把 18244 上三种连接的走向画在一起，判断是：分流只依赖 ClientHello 里的明文字段，非 TLS 流量落到 `default`：
 
-```mermaid
-flowchart LR
-    C["连接到 :18244"] --> P{"首字节 0x16？"}
-    P -- 是 --> S["解析 ClientHello<br/>$ssl_preread_server_name"]
-    P -- 否 --> E["变量为空"]
-    S --> M{"map"}
-    E --> M
-    M -- "a.test / b.test" --> T["TLS 后端 :18251<br/>端到端握手"]
-    M -- default --> H["HTTP 后端 :18250"]
-```
+![ssl_preread 只看明文字段，非 TLS 流量落到 default](../figures/ops-12/05.svg)
 
 **小结**：`ssl_preread` 适合“TLS 透传 + 按域名分流”，证书和私钥都留在后端；它只看明文字段，后端仍要自己校验 SNI 与证书匹配，安全策略不能只靠 nginx 这一层的 SNI 判断（1.31.9 修的 CVE-2026-123640 正是 preread 与 TLS 库解析不一致的问题）。
 
@@ -524,17 +473,7 @@ ok - deny all in the a.test server{} does not stop a.test: the access phase ran 
 
 下图是一个会话在虚拟主机之间切换的两个时机，判断是：切换之前的阶段一律按默认 server 执行：
 
-```mermaid
-flowchart LR
-    A["accept<br/>默认 server"] --> B["access<br/>按默认 server 的 allow / deny"]
-    B --> C{"listen 带 ssl？"}
-    C -- 是 --> D["握手的 SNI 回调<br/>切换 server、选证书"]
-    C -- 否 --> E{"开了 ssl_preread？"}
-    D --> E
-    E -- 是 --> F["preread 拿到名字<br/>切换 server"]
-    E -- 否 --> G["content<br/>按当前 server"]
-    F --> G
-```
+![access 按默认 server 执行，虚拟主机切换在 access 之后](../figures/ops-12/06.svg)
 
 **小结**：stream 虚拟主机让“按域名分流”可以写成和 HTTP 一样的 `server_name` 结构，但切换点在 access 之后：被选中的 server 里写 `allow`/`deny` 不生效，访问控制和 preread 开关都要放在默认 server 或 `stream{}` 级别。
 
@@ -630,13 +569,7 @@ ok - a pass to an unknown address ends with status 200
 
 下图对比两种转交方式的连接数，判断是：`pass` 少一条本机 TCP 连接，也少一次地址丢失：
 
-```mermaid
-flowchart LR
-    C1["客户端"] -- "连接 1" --> F1[":18244<br/>proxy_pass"]
-    F1 -- "连接 2（新建）" --> T1[":18251<br/>看到 nginx 的端口"]
-    C2["客户端"] -- "连接 1" --> F2[":18247<br/>pass"]
-    F2 -. "同一条连接" .-> T2[":18251<br/>看到客户端的端口"]
-```
+![pass 保留客户端连接和地址，proxy_pass 新建本机连接](../figures/ops-12/07.svg)
 
 **小结**：同一个 nginx 里“分流之后再终结 TLS”优先用 `pass`，它省一条连接并保留客户端地址；但它返回 200 的失败模式要单独告警。
 
@@ -689,18 +622,7 @@ ok - both versions carry the client port; a connection without the header gets 4
 
 下图是 PROXY 协议头在两段连接里的位置，判断是：头只存在于 nginx 到后端这一段，客户端感知不到：
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as nginx :18249
-    participant B as 后端 :18253
-    C->>N: TCP 连接（源端口 = 客户端端口）
-    N->>B: 新 TCP 连接（源端口 = nginx 的端口）
-    N->>B: PROXY 头，内含客户端地址和端口
-    N->>B: 客户端的数据
-    B->>N: 回显 pp=客户端端口 remote=nginx 端口
-    N->>C: 原样转发
-```
+![PROXY 协议头只加在 nginx 到后端这一段，后端要配置读取它](../figures/ops-12/08.svg)
 
 **小结**：跨进程、跨机器传客户端地址用 PROXY 协议，两端必须同时配置；v2 是二进制格式、能带 TLV 扩展，需要 1.31.4 以上的 mainline，stable 1.30.x 只能发 v1。
 
@@ -739,13 +661,7 @@ sequenceDiagram
 
 下图把三种做法放在“发现故障靠什么”这一条轴上比较，判断是：开源版能做的只是让被动检查更快生效，主动探测都要在 nginx 之外或补丁里实现：
 
-```mermaid
-flowchart LR
-    A["后端故障"] --> B{"谁发现？"}
-    B -- "真实连接失败" --> C["被动检查<br/>max_fails / fail_timeout<br/>调小 proxy_connect_timeout"]
-    B -- "外部探测程序" --> D["改配置或 DNS<br/>reload / resolve"]
-    B -- "nginx 内的定时探测" --> E["第三方模块或发行版<br/>每次升级要适配补丁"]
-```
+![开源版能做的只是加快被动检查生效，主动探测要靠补丁或 nginx 外部](../figures/ops-12/09.svg)
 
 **小结**：stream 的健康检查要按“连不上、连上但不可用”两类故障分别设计；后一类开源版看不见，选第三方模块时先在目标版本上 dry-run 补丁，作者 2017 年的模块在 1.31.9 上就过不了这一步。
 

@@ -1,0 +1,86 @@
+{
+ "type": "graph",
+ "title": "json_set 对来源变量做一次解析，一次取多个路径的值",
+ "subtitle": "从上到下是 json_set 的处理流程；绿色表示成功取到值，红色表示解析失败",
+ "source": "来源：ngx_http_json_module.c（1.31.5+）、labs/ops-11 实验输出",
+ "stages": [
+  {
+   "name": "来源数据",
+   "nodes": [
+    {
+     "id": "header",
+     "title": "$http_x_ctx",
+     "sub": "请求头里的 JSON"
+    }
+   ]
+  },
+  {
+   "name": "判断是否需要解析",
+   "nodes": [
+    {
+     "id": "first_use",
+     "title": "第一次使用",
+     "sub": "$tenant 或 $first_item",
+     "tone": "main",
+     "emph": true
+    }
+   ]
+  },
+  {
+   "name": "解析结果",
+   "nodes": [
+    {
+     "id": "valid",
+     "title": "合法 JSON",
+     "sub": "$tenant = t-42；$first_item = a1",
+     "tone": "good"
+    },
+    {
+     "id": "invalid",
+     "title": "不合法或为空",
+     "sub": "同一来源的目标变量都置为不存在",
+     "tone": "risk"
+    }
+   ]
+  },
+  {
+   "name": "日志输出",
+   "nodes": [
+    {
+     "id": "out_valid",
+     "title": "正常输出",
+     "sub": "取到的字段值"
+    },
+    {
+     "id": "out_missing",
+     "title": "缺失值",
+     "sub": "日志中是 -"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "header",
+   "to": "first_use"
+  },
+  {
+   "from": "first_use",
+   "to": "valid",
+   "label": "解析成功"
+  },
+  {
+   "from": "first_use",
+   "to": "invalid",
+   "label": "解析失败"
+  },
+  {
+   "from": "valid",
+   "to": "out_valid"
+  },
+  {
+   "from": "invalid",
+   "to": "out_missing"
+  }
+ ]
+}

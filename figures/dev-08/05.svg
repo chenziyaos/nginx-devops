@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">zone 满了：先清闲置 60 秒的，不够就强删队尾，日志无提示</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">新 key 建节点前先清队尾；第二轮强删不写日志，两轮都分配失败才记 alert</text>
+<rect x="40" y="152" width="1120" height="168" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="153" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="184" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="196" x2="1160" y2="196" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="258" x2="1159" y2="258" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="179" font-size="14" fill="#1F2329" font-weight="bold">轮次</text>
+<text x="264.9" y="179" font-size="14" fill="#1F2329" font-weight="bold">删谁</text>
+<text x="744.6" y="179" font-size="14" fill="#1F2329" font-weight="bold">分配成功</text>
+<text x="913.2" y="179" font-size="14" fill="#1F2329" font-weight="bold">分配失败</text>
+<text x="58" y="220.9" font-size="14" fill="#1F2329">第一轮</text>
+<text x="58" y="242.9" font-size="14" fill="#1F2329">expire(ctx, 1)</text>
+<text x="264.9" y="220.9" font-size="14" fill="#1F2329">队尾 count 为 0、闲置 ≥ 60 s、excess 漏光的，最多</text>
+<text x="264.9" y="242.9" font-size="14" fill="#1F2329">2 个</text>
+<text x="744.6" y="220.9" font-size="14" fill="#1F2329">插入红黑树和</text>
+<text x="744.6" y="242.9" font-size="14" fill="#1F2329">队头</text>
+<text x="913.2" y="231.9" font-size="14" fill="#1F2329">进入第二轮</text>
+<text x="58" y="282.9" font-size="14" fill="#1F2329">第二轮</text>
+<text x="58" y="304.9" font-size="14" fill="#1F2329">expire(ctx, 0)</text>
+<text x="264.9" y="293.9" font-size="14" fill="#D83931" font-weight="bold">强删队尾 1 个（不看闲置），再按 60 s 规则看 2 个</text>
+<text x="744.6" y="282.9" font-size="14" fill="#1F2329">插入红黑树和</text>
+<text x="744.6" y="304.9" font-size="14" fill="#1F2329">队头</text>
+<text x="913.2" y="282.9" font-size="14" fill="#D83931" font-weight="bold">队尾被占位：alert，返回</text>
+<text x="913.2" y="304.9" font-size="14" fill="#D83931" font-weight="bold">500</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+</svg>

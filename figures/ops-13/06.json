@@ -1,0 +1,41 @@
+{
+ "type": "flow",
+ "title": "排障顺序是状态码、原文、配置、规则，能解释就提前停",
+ "subtitle": "从左到右逐层深入；任何一步的信息已经能解释现象，就直接改对应指令",
+ "source": "来源：本文整理",
+ "numbered": true,
+ "steps": [
+  {
+   "title": "状态码",
+   "lines": [
+    "access log 的状态码",
+    "和 $upstream_status"
+   ],
+   "tone": "main"
+  },
+  {
+   "title": "error.log 原文",
+   "lines": [
+    "必要时调到 info"
+   ]
+  },
+  {
+   "title": "确认配置和路径",
+   "lines": [
+    "nginx -T 确认配置",
+    "debug 日志看请求路径"
+   ]
+  },
+  {
+   "title": "对照规则",
+   "lines": [
+    "§8 配置误区表"
+   ]
+  }
+ ],
+ "labels": [
+  "",
+  "解释不了",
+  "仍解释不了"
+ ]
+}

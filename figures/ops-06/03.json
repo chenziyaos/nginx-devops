@@ -1,0 +1,101 @@
+{
+ "type": "graph",
+ "title": "失败之后换不换下一台，由 proxy_next_upstream 决定",
+ "subtitle": "一次请求选后端、建连、等响应头；红色是记失败的两处，虚线是换下一台重试",
+ "source": "来源：ngx_http_upstream.c、ngx_http_proxy_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "选后端",
+   "nodes": [
+    {
+     "id": "a",
+     "title": "选一台后端"
+    }
+   ]
+  },
+  {
+   "name": "建连",
+   "nodes": [
+    {
+     "id": "e",
+     "title": "建连失败",
+     "sub": "拒绝或连接超时：记 502 或 504",
+     "tone": "risk"
+    },
+    {
+     "id": "c",
+     "title": "建连成功"
+    }
+   ]
+  },
+  {
+   "name": "等响应头",
+   "nodes": [
+    {
+     "id": "t",
+     "title": "读超时",
+     "sub": "超过 proxy_read_timeout：记 504",
+     "tone": "risk"
+    },
+    {
+     "id": "ok",
+     "title": "收到响应头",
+     "sub": "交给客户端",
+     "tone": "good"
+    }
+   ]
+  },
+  {
+   "name": "换不换",
+   "nodes": [
+    {
+     "id": "d",
+     "title": "换下一台？",
+     "sub": "还有没试过的后端，且错误类型属于 proxy_next_upstream"
+    },
+    {
+     "id": "f",
+     "title": "返回状态码",
+     "sub": "最后一次的结果"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "a",
+   "to": "e"
+  },
+  {
+   "from": "a",
+   "to": "c"
+  },
+  {
+   "from": "c",
+   "to": "t"
+  },
+  {
+   "from": "c",
+   "to": "ok"
+  },
+  {
+   "from": "e",
+   "to": "d"
+  },
+  {
+   "from": "t",
+   "to": "d"
+  },
+  {
+   "from": "d",
+   "to": "f",
+   "label": "否"
+  },
+  {
+   "from": "d",
+   "to": "a",
+   "label": "是"
+  }
+ ],
+ "aspect": "wide"
+}

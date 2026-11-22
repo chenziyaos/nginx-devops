@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">每一道检查都在配置解析阶段完成</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">load_module 从上往下检查，任一不过就报 [emerg] 退出；四道都过才插入 modules 数组</text>
+<rect x="40" y="134.4" width="1120" height="212" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="135.4" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="166.4" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="178.4" x2="1160" y2="178.4" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="220.4" x2="1159" y2="220.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="262.4" x2="1159" y2="262.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="304.4" x2="1159" y2="304.4" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">检查</text>
+<text x="673.9" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">不通过时的报错</text>
+<text x="58" y="204.3" font-size="14" fill="#1F2329">1. 还没解析 events / http 块（modules_used 为 0）</text>
+<text x="673.9" y="204.3" font-size="14" fill="#D83931" font-weight="bold">is specified too late</text>
+<text x="58" y="246.3" font-size="14" fill="#1F2329">2. version 等于 nginx_version（1031009）</text>
+<text x="673.9" y="246.3" font-size="14" fill="#D83931" font-weight="bold">version 1030007 instead of 1031009</text>
+<text x="58" y="288.3" font-size="14" fill="#1F2329">3. signature 与 nginx 一致</text>
+<text x="673.9" y="288.3" font-size="14" fill="#D83931" font-weight="bold">is not binary compatible</text>
+<text x="58" y="330.3" font-size="14" fill="#1F2329">4. 没有同名模块已加载</text>
+<text x="673.9" y="330.3" font-size="14" fill="#D83931" font-weight="bold">is already loaded</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_module.c（1.31.9）</text>
+</svg>

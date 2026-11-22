@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="27" fill="#1F2329" font-weight="bold" data-role="title">gzip 默认只压 text/html，带 Via 头时默认不压，压缩后不再支持 Range</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">四步检查依次通过才压缩；任何一步不满足就原样发送</text>
+<rect x="40" y="163.2" width="194.9" height="140" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="210.9" cy="189.2" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="210.9" y="193.7" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">1</text>
+<text x="60" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">响应</text>
+<text x="60" y="233.1" font-size="14" fill="#646A73">gzip on、状态允许</text>
+<text x="60" y="255.1" font-size="14" fill="#646A73">类型在 gzip_types</text>
+<text x="60" y="277.1" font-size="14" fill="#646A73">长度 ≥ 20</text>
+<rect x="348.4" y="163.2" width="194.9" height="140" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="519.2" cy="189.2" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="519.2" y="193.7" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">2</text>
+<text x="368.4" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">请求</text>
+<text x="368.4" y="233.1" font-size="14" fill="#646A73">Accept-Encoding</text>
+<text x="368.4" y="255.1" font-size="14" fill="#646A73">含 gzip</text>
+<text x="368.4" y="277.1" font-size="14" fill="#646A73">HTTP ≥ 1.1</text>
+<rect x="656.8" y="163.2" width="194.9" height="140" rx="12" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="step"/>
+<circle cx="827.6" cy="189.2" r="13" fill="#FFF1E0" stroke="#FF8800" stroke-width="2"/>
+<text x="827.6" y="193.7" font-size="13" fill="#D46B08" font-weight="bold" text-anchor="middle">3</text>
+<text x="676.8" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">Via 头</text>
+<text x="676.8" y="233.1" font-size="14" fill="#646A73">带 Via 时看</text>
+<text x="676.8" y="255.1" font-size="14" fill="#646A73">gzip_proxied</text>
+<text x="676.8" y="277.1" font-size="14" fill="#646A73">默认 off：不压</text>
+<rect x="965.1" y="163.2" width="194.9" height="140" rx="12" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="step"/>
+<circle cx="1136" cy="189.2" r="13" fill="#E1EAFF" stroke="#3370FF" stroke-width="2"/>
+<text x="1136" y="193.7" font-size="13" fill="#245BDB" font-weight="bold" text-anchor="middle">4</text>
+<text x="985.1" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">压缩</text>
+<text x="985.1" y="233.1" font-size="14" fill="#646A73">chunked、W/ ETag</text>
+<text x="985.1" y="255.1" font-size="14" fill="#646A73">不再支持 Range</text>
+<polyline points="240.9,233.2 332.4,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="332.4,227.2 342.4,233.2 332.4,239.2" fill="#8F959E"/>
+<text x="291.6" y="224.2" font-size="12" fill="#646A73" text-anchor="middle">通过</text>
+<polyline points="549.2,233.2 640.8,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="640.8,227.2 650.8,233.2 640.8,239.2" fill="#8F959E"/>
+<text x="600" y="224.2" font-size="12" fill="#646A73" text-anchor="middle">通过</text>
+<polyline points="857.6,233.2 949.1,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="949.1,227.2 959.1,233.2 949.1,239.2" fill="#8F959E"/>
+<text x="908.4" y="224.2" font-size="12" fill="#646A73" text-anchor="middle">没有 Via 或满足</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_gzip_filter_module.c、ngx_http_core_module.c（1.31.9）</text>
+</svg>

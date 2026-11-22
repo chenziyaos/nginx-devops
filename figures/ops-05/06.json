@@ -1,0 +1,24 @@
+{
+ "type": "graph",
+ "title": "Content-Length 在选 location 时检查，chunked 请求在读取时检查",
+ "subtitle": "请求头读完之后请求体的去向；红色是两种 413，上限都是 client_max_body_size",
+ "source": "来源：ngx_http_core_module.c、ngx_http_request_body.c（1.31.9）",
+ "stages": [
+  {"name": "find-config", "nodes": [
+    {"id": "f", "title": "选定 location", "sub": "有 Content-Length 就和上限比"}]},
+  {"name": "读请求体", "nodes": [
+    {"id": "e1", "title": "413", "sub": "too large body: N bytes", "tone": "risk"},
+    {"id": "rb", "title": "模块读请求体", "sub": "proxy、fastcgi…；chunked 累计和上限比"}]},
+  {"name": "放在哪里", "nodes": [
+    {"id": "e2", "title": "413", "sub": "too large chunked body: A+B bytes", "tone": "risk"},
+    {"id": "mem", "title": "留在内存", "sub": "不超过 client_body_buffer_size（默认 2 页）"},
+    {"id": "tmp", "title": "写 client_body_temp", "sub": "超过缓冲区；warn 日志", "tone": "contrast"}]}
+ ],
+ "edges": [
+  {"from": "f", "to": "e1", "label": "超过"},
+  {"from": "f", "to": "rb", "label": "没超过"},
+  {"from": "rb", "to": "e2", "label": "超过"},
+  {"from": "rb", "to": "mem"},
+  {"from": "rb", "to": "tmp"}
+ ]
+}

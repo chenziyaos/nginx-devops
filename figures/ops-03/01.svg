@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 464" width="1200" height="464">
+<rect x="0" y="0" width="1200" height="464" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">只有 worker 处理请求，master 只管进程</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">master 派生的四个子进程；客户端只连到 worker，蓝色是处理请求的进程</text>
+<rect x="286.6" y="234.5" width="240" height="59" rx="8" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2" data-role="node"/>
+<text x="406.6" y="259.4" font-size="14" fill="#646A73" font-weight="bold" text-anchor="middle">master</text>
+<text x="406.6" y="279.2" font-size="12" fill="#646A73" text-anchor="middle">读配置、开监听端口、管日志、收信号</text>
+<polyline points="526.6,264 606.6,264" fill="none" stroke="#C9CDD4" stroke-width="1.5"/>
+<polyline points="606.6,157.5 606.6,370.5" fill="none" stroke="#C9CDD4" stroke-width="1.5"/>
+<polyline points="606.6,157.5 686.6,157.5" fill="none" stroke="#C9CDD4" stroke-width="1.5"/>
+<rect x="686.6" y="128" width="226.8" height="59" rx="8" fill="#FFFFFF" stroke="#82A7FC" stroke-width="1" data-role="node"/>
+<text x="800" y="152.9" font-size="14" fill="#1F2329" text-anchor="middle">worker 1</text>
+<text x="800" y="172.7" font-size="12" fill="#646A73" text-anchor="middle">accept 与处理请求</text>
+<polyline points="606.6,228.5 686.6,228.5" fill="none" stroke="#C9CDD4" stroke-width="1.5"/>
+<rect x="686.6" y="199" width="226.8" height="59" rx="8" fill="#FFFFFF" stroke="#82A7FC" stroke-width="1" data-role="node"/>
+<text x="800" y="223.9" font-size="14" fill="#1F2329" text-anchor="middle">worker 2</text>
+<text x="800" y="243.7" font-size="12" fill="#646A73" text-anchor="middle">accept 与处理请求</text>
+<polyline points="606.6,299.5 686.6,299.5" fill="none" stroke="#C9CDD4" stroke-width="1.5"/>
+<rect x="686.6" y="270" width="226.8" height="59" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="node"/>
+<text x="800" y="294.9" font-size="14" fill="#1F2329" text-anchor="middle">cache manager</text>
+<text x="800" y="314.7" font-size="12" fill="#646A73" text-anchor="middle">按 max_size / inactive 清理缓存</text>
+<polyline points="606.6,370.5 686.6,370.5" fill="none" stroke="#C9CDD4" stroke-width="1.5"/>
+<rect x="686.6" y="341" width="226.8" height="59" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="node"/>
+<text x="800" y="365.9" font-size="14" fill="#1F2329" text-anchor="middle">cache loader</text>
+<text x="800" y="385.7" font-size="12" fill="#646A73" text-anchor="middle">启动时载入已有缓存，完成后退出</text>
+<text x="40" y="440" font-size="12" fill="#646A73" data-role="source">来源：labs/ops-03 实验（1.31.9）</text>
+</svg>

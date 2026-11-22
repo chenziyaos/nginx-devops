@@ -1,0 +1,82 @@
+{
+ "type": "sequence",
+ "title": "子请求的输出按顺序排队，与完成的先后无关",
+ "subtitle": "从上到下；蓝色是主请求，绿色是子请求，c->data 决定谁能写连接",
+ "source": "来源：本文整理（labs/dev-06 实验）",
+ "actors": [
+  {
+   "name": "主请求",
+   "tone": "main"
+  },
+  {
+   "name": "子请求 /slow",
+   "sub": "后端 proxy_pass",
+   "tone": "good"
+  },
+  {
+   "name": "子请求 /fast.txt",
+   "sub": "静态文件"
+  }
+ ],
+ "messages": [
+  {
+   "from": "主请求",
+   "to": "主请求",
+   "text": "输出 A，创建 /slow、/fast.txt"
+  },
+  {
+   "from": "主请求",
+   "to": "子请求 /slow",
+   "text": "c->data = /slow"
+  },
+  {
+   "from": "子请求 /slow",
+   "to": "子请求 /slow",
+   "text": "连接后端，NGX_AGAIN"
+  },
+  {
+   "from": "子请求 /fast.txt",
+   "to": "子请求 /fast.txt",
+   "text": "读完文件，fast 存进 postpone"
+  },
+  {
+   "from": "子请求 /slow",
+   "to": "主请求",
+   "text": "后端响应到达，输出 slow，结束"
+  },
+  {
+   "from": "子请求 /slow",
+   "to": "主请求",
+   "text": "c->data = 主请求"
+  },
+  {
+   "from": "主请求",
+   "to": "子请求 /fast.txt",
+   "text": "postpone filter wake"
+  },
+  {
+   "from": "子请求 /fast.txt",
+   "to": "主请求",
+   "text": "放出 fast，结束"
+  },
+  {
+   "from": "主请求",
+   "to": "主请求",
+   "text": "输出 B、C，last_buf，writev 201 字节"
+  }
+ ],
+ "sections": [
+  {
+   "at": 1,
+   "label": "SSI include，count 到 3"
+  },
+  {
+   "at": 3,
+   "label": "/fast 先完成但不能写"
+  },
+  {
+   "at": 5,
+   "label": "后端响应到达，/slow 输出按序发出"
+  }
+ ]
+}

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">alias 只做前缀替换、不做路径检查，斜杠不对齐会穿透</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">location /img 配 alias data/files/ 时，请求 /img../secret.txt 的路径怎么算出来</text>
+<rect x="40" y="172" width="179.2" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">请求的 URI</text>
+<text x="60" y="241.9" font-size="14" fill="#646A73">/img../secret.txt</text>
+<rect x="275.2" y="172" width="179.2" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="295.2" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">匹配前缀</text>
+<text x="295.2" y="241.9" font-size="14" fill="#646A73">location /img，4</text>
+<text x="295.2" y="263.9" font-size="14" fill="#646A73">字节</text>
+<rect x="510.4" y="172" width="179.2" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="530.4" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">跳过 4 字节</text>
+<text x="530.4" y="241.9" font-size="14" fill="#646A73">剩下 ../secret.txt</text>
+<rect x="745.6" y="172" width="179.2" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="765.6" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">拼上 alias</text>
+<text x="765.6" y="241.9" font-size="14" fill="#646A73">data/files/../secr</text>
+<text x="765.6" y="263.9" font-size="14" fill="#646A73">et.txt</text>
+<rect x="980.8" y="172" width="179.2" height="118" rx="12" fill="#FEF1F1" stroke="#F54A45" stroke-width="2" data-role="step"/>
+<text x="1000.8" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">系统解析</text>
+<text x="1000.8" y="241.9" font-size="14" fill="#646A73">data/secret.txt</text>
+<polyline points="225.2,231 259.2,231" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="259.2,225 269.2,231 259.2,237" fill="#8F959E"/>
+<polyline points="460.4,231 494.4,231" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="494.4,225 504.4,231 494.4,237" fill="#8F959E"/>
+<polyline points="695.6,231 729.6,231" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="729.6,225 739.6,231 729.6,237" fill="#8F959E"/>
+<polyline points="930.8,231 964.8,231" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="964.8,225 974.8,231 964.8,237" fill="#8F959E"/>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.9）</text>
+</svg>

@@ -23,16 +23,18 @@ Rules (each fenced block must declare where it comes from on its first line):
 
 Links to https://github.com/nginx/nginx/blob/<ref>/<path>#Ln[-Lm] must use the pinned ref,
 point at an existing line, and when the link text is a `code` identifier, that identifier
-must occur within lines n..max(m, n+2). Relative links must point at existing files.
+must occur within lines n..max(m, n+2). Relative links must point at existing files. A figure is an image link
+![<title>](../figures/<chapter>/NN.svg) whose text equals the title of its spec NN.json.
 Chapters under ops/ and dev/ must also follow the skeleton in spec: 一句话结论, 导读,
 5-9 numbered sections each with a **小结** line, 已知局限与待核实, 修订记录, at least one
-3 mermaid figures, 4 quoted lab outputs, at most 2 示意 blocks, a minimum length,
+3 figures, 4 quoted lab outputs, at most 2 示意 blocks, a minimum length,
 lab configs kept as files, and expect checks in run.sh for at least half of its steps. Every x.y.z version in
 the prose must exist in changes.xml; --versions lists each mention with its sentence so a
 reviewer can check it against tools/since.py.
 Exit code 1 on any error.
 """
 import glob
+import json
 import os
 import re
 import subprocess
@@ -47,6 +49,7 @@ GH = 'https://github.com/nginx/nginx/blob/'
 
 FENCE = re.compile(r'^```(\w*)[^\n]*\n(.*?)^```\s*$', re.M | re.S)
 LINK = re.compile(r'\[([^\]]*)\]\(([^)\s]+)\)')
+FIGURE = re.compile(r'!\[([^\]]*)\]\((\.\./figures/[\w-]+/\d\d\.svg)\)')
 SRC_HDR = re.compile(r'^//\s*((?:src|modules|labs)/[\w./-]+):(\d+)-(\d+)\s*$')
 CONF_LAB = re.compile(r'^#\s*lab:\s*(labs/[\w./-]+)\s*$')
 CONF_CTX = re.compile(r'^#\s*context:\s*(main|http|server|location|stream|upstream)\s*$')
@@ -143,10 +146,9 @@ def check_block(lang, body, errors, stats):
     first = body[0].strip() if body else ''
     rest = body[1:]
     if not lang:
-        return 'fenced block without a language; use text, bash, c, nginx or mermaid'
+        return 'fenced block without a language; use text, bash, c or nginx'
     if lang == 'mermaid':
-        stats['mermaid'] += 1
-        return None
+        return 'mermaid block; draw it as figures/<id>/NN.json and build it with tools/build_figures.py'
     if lang == 'c':
         m = SRC_HDR.match(first)
         if m:
@@ -219,17 +221,33 @@ def check_link(md, text, url):
     return None
 
 
+def check_figure(md, alt, url):
+    svg = os.path.normpath(os.path.join(os.path.dirname(md), url))
+    spec = svg[:-4] + '.json'
+    if not os.path.isfile(svg) or not os.path.isfile(spec):
+        return f'figure {url}: missing SVG or spec; run tools/build_figures.py'
+    title = json.load(open(spec, encoding='utf-8')).get('title', '')
+    if alt != title:
+        return f'figure {url}: image text "{alt}" differs from the spec title "{title}"'
+    return None
+
+
 def check(md):
     text = open(md, encoding='utf-8').read()
     errors = []
-    stats = {'c': 0, 'conf': 0, 'out': 0, 'sketch': 0, 'links': 0, 'mermaid': 0}
+    stats = {'c': 0, 'conf': 0, 'out': 0, 'sketch': 0, 'links': 0, 'figures': 0}
     for m in FENCE.finditer(text):
         line = text.count('\n', 0, m.start()) + 1
         err = check_block(m.group(1), m.group(2).rstrip('\n').split('\n'), errors, stats)
         if err:
             errors.append(f'{md}:{line}: {err}')
     prose = FENCE.sub('', text)
-    for m in LINK.finditer(prose):
+    for m in FIGURE.finditer(prose):
+        stats['figures'] += 1
+        err = check_figure(md, m.group(1), m.group(2))
+        if err:
+            errors.append(f'{md}: {err}')
+    for m in LINK.finditer(FIGURE.sub('', prose)):
         stats['links'] += 1
         err = check_link(md, m.group(1), m.group(2))
         if err:
@@ -264,8 +282,8 @@ def check_structure(md, text, prose, stats):
         title = s.split('\n', 1)[0].strip()
         if '**小结**' not in s:
             out.append(f'section "{title}" has no **小结** line')
-    if stats['mermaid'] < 3:
-        out.append(f'{stats["mermaid"]} mermaid figures, expected at least 3')
+    if stats['figures'] < 3:
+        out.append(f'{stats["figures"]} figures, expected at least 3')
     if stats['out'] < 4:
         out.append(f'{stats["out"]} quoted lab outputs, expected at least 4')
     need_c = {'ops': 3, 'dev': 8}[part]
@@ -369,7 +387,7 @@ def main():
         rel = os.path.relpath(md, ROOT)
         status = 'OK  ' if not errors else 'FAIL'
         print(f'{status} {rel}: {s["c"]} source excerpts, {s["conf"]} configs, {s["out"]} lab outputs, '
-              f'{s["links"]} links, {s["sketch"]} sketches, {s["mermaid"]} figures, '
+              f'{s["links"]} links, {s["sketch"]} sketches, {s["figures"]} figures, '
               f'{s.get("versions", 0)} version mentions, {s.get("chars", 0)} chars')
         if show_versions:
             prose = FENCE.sub('', open(md, encoding='utf-8').read())

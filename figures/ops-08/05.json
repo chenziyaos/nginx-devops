@@ -1,0 +1,25 @@
+{
+ "type": "sequence",
+ "title": "reload 后会话能否复用，取决于 ticket 密钥的存储位置",
+ "subtitle": "左边：无共享缓存，密钥随 SSL_CTX 创建；右边：有共享缓存，密钥存在内存里",
+ "source": "来源：ngx_event_openssl.c（1.31.9）",
+ "actors": [
+  {"name": "客户端"},
+  {"name": "旧配置 SSL_CTX", "tone": "contrast"},
+  {"name": "新配置 SSL_CTX"},
+  {"name": "共享内存 SSL 区", "tone": "main"}
+ ],
+ "messages": [
+  {"from": "客户端", "to": "旧配置 SSL_CTX", "text": "第一次握手"},
+  {"from": "旧配置 SSL_CTX", "to": "客户端", "text": "ticket（无共享缓存时用自己的密钥）", "reply": true},
+  {"from": "旧配置 SSL_CTX", "to": "新配置 SSL_CTX", "text": "reload：重新创建 SSL_CTX；同名同大小的共享内存原样交给新配置"},
+  {"from": "客户端", "to": "新配置 SSL_CTX", "text": "带着 ticket 重连"},
+  {"from": "新配置 SSL_CTX", "to": "客户端", "text": "无共享缓存：解不开，完整握手（New）", "reply": true},
+  {"from": "新配置 SSL_CTX", "to": "共享内存 SSL 区", "text": "有共享缓存：从共享内存取密钥"},
+  {"from": "共享内存 SSL 区", "to": "新配置 SSL_CTX", "text": "密钥返回"},
+  {"from": "新配置 SSL_CTX", "to": "客户端", "text": "解开 ticket，复用（Reused）", "reply": true}
+ ],
+ "sections": [
+  {"at": 3, "label": "reload"}
+ ]
+}

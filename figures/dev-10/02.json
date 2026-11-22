@@ -1,0 +1,84 @@
+{
+ "type": "graph",
+ "title": "未设与空值是两种状态，merge 要用 UNSET 把前者区分出来",
+ "subtitle": "从上到下：server 级的值合并到三个不同的 location；对比继承、覆盖和显式关闭",
+ "source": "来源：本文整理（1.31.9）",
+ "stages": [
+  {
+   "name": "server 级",
+   "nodes": [
+    {
+     "id": "srv",
+     "title": "hello_header",
+     "sub": "\"srv\""
+    }
+   ]
+  },
+  {
+   "name": "location 级（create 后）",
+   "nodes": [
+    {
+     "id": "f",
+     "title": "/files/",
+     "sub": "UNSET_PTR"
+    },
+    {
+     "id": "o",
+     "title": "/off/",
+     "sub": "hello_header \"\""
+    },
+    {
+     "id": "v",
+     "title": "/var/",
+     "sub": "hello_header \"uri=$uri\""
+    }
+   ]
+  },
+  {
+   "name": "merge 后",
+   "nodes": [
+    {
+     "id": "f2",
+     "title": "/files/",
+     "sub": "继承 srv"
+    },
+    {
+     "id": "o2",
+     "title": "/off/",
+     "sub": "长度 0，不继承"
+    },
+    {
+     "id": "v2",
+     "title": "/var/",
+     "sub": "uri=$uri，请求时求值"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "srv",
+   "to": "f"
+  },
+  {
+   "from": "srv",
+   "to": "o"
+  },
+  {
+   "from": "srv",
+   "to": "v"
+  },
+  {
+   "from": "f",
+   "to": "f2"
+  },
+  {
+   "from": "o",
+   "to": "o2"
+  },
+  {
+   "from": "v",
+   "to": "v2"
+  }
+ ]
+}

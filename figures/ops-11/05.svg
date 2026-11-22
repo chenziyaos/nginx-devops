@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">日志先进内存缓冲，flush 定时器到期后才落盘</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">纵轴是时间顺序；0.2 秒时文件为空，3 秒后日志进磁盘</text>
+<line x1="180" y1="179.6" x2="180" y2="338.6" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="139.6" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="164.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">客户端</text>
+<line x1="460" y1="179.6" x2="460" y2="338.6" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="139.6" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="164.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">worker</text>
+<line x1="740" y1="179.6" x2="740" y2="338.6" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="139.6" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="164.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">内存缓冲</text>
+<line x1="1020" y1="179.6" x2="1020" y2="338.6" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="139.6" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="164.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">buf.log</text>
+<text x="190" y="214.2" font-size="13" fill="#1F2329">GET /buf</text>
+<polyline points="180,222.6 448,222.6" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,216.6 458,222.6 448,228.6" fill="#8F959E"/>
+<text x="470" y="255.2" font-size="13" fill="#1F2329">写入第一行，启动 3 秒 flush 定时器</text>
+<polyline points="460,263.6 728,263.6" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,257.6 738,263.6 728,269.6" fill="#8F959E"/>
+<text x="470" y="296.2" font-size="13" fill="#1F2329">0.2 秒时文件为空；3.5 秒时定时器到</text>
+<text x="470" y="316.2" font-size="13" fill="#1F2329">期，write 落盘</text>
+<polyline points="460,324.6 1008,324.6" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,318.6 1018,324.6 1008,330.6" fill="#8F959E"/>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_log_module.c（1.31.9）、labs/ops-11 实验输出</text>
+</svg>

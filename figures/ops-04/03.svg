@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 559.2" width="1200" height="559.2">
+<rect x="0" y="0" width="1200" height="559.2" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">try_files 只检查前面的参数，最后一个参数是兜底去向</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">以 try_files $uri $uri/ ＜最后一个＞ 为例；前面的参数按顺序检查文件或目录是否存在</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">检查存在</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结果</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">最后一个参数的三种写法</text>
+<polyline points="294,190.5 417.5,190.5 417.5,220.8 476,220.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,214.8 486,220.8 476,226.8" fill="#8F959E"/>
+<polyline points="294,311.5 356.5,311.5 356.5,220.8 476,220.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,214.8 486,220.8 476,226.8" fill="#8F959E"/>
+<polyline points="294,311.5 356.5,311.5 356.5,341.8 476,341.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,335.8 486,341.8 476,347.8" fill="#8F959E"/>
+<polyline points="714,341.8 807,341.8 807,220.8 896,220.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,214.8 906,220.8 896,226.8" fill="#8F959E"/>
+<polyline points="714,341.8 896,341.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,335.8 906,341.8 896,347.8" fill="#8F959E"/>
+<polyline points="714,341.8 807,341.8 807,462.8 896,462.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,456.8 906,462.8 896,468.8" fill="#8F959E"/>
+<polyline points="180,227 180,265" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="174,265 180,275 186,265" fill="#8F959E"/>
+<rect x="70" y="158" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">参数 1：$uri</text>
+<text x="180" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">文件</text>
+<rect x="70" y="279" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="306.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">参数 2：$uri/</text>
+<text x="180" y="326.7" font-size="12" fill="#646A73" text-anchor="middle">目录，检查前去掉斜杠</text>
+<rect x="490" y="188.2" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="600" y="216.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">改写 $uri</text>
+<text x="600" y="235.9" font-size="12" fill="#646A73" text-anchor="middle">留在本 location</text>
+<rect x="490" y="309.2" width="220" height="65" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="600" y="337.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">最后一个参数</text>
+<text x="600" y="356.9" font-size="12" fill="#646A73" text-anchor="middle">不检查</text>
+<rect x="910" y="188.2" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="216.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">=404</text>
+<text x="1020" y="235.9" font-size="12" fill="#646A73" text-anchor="middle">直接返回状态码</text>
+<rect x="910" y="309.2" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="337.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">@name</text>
+<text x="1020" y="356.9" font-size="12" fill="#646A73" text-anchor="middle">named location</text>
+<rect x="910" y="430.2" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="458.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">/index.html</text>
+<text x="1020" y="477.9" font-size="12" fill="#646A73" text-anchor="middle">内部跳转，重新选 location</text>
+<text x="355.8" y="181.5" font-size="12" fill="#646A73" text-anchor="middle">存在</text>
+<text x="188" y="250" font-size="12" fill="#646A73">不存在</text>
+<text x="416.2" y="238.8" font-size="12" fill="#646A73" text-anchor="middle">存在</text>
+<text x="416.2" y="332.8" font-size="12" fill="#646A73" text-anchor="middle">不存在</text>
+<text x="40" y="535.2" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_try_files_module.c（1.31.9）</text>
+</svg>

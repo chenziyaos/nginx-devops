@@ -1,0 +1,78 @@
+{
+ "type": "sequence",
+ "title": "GET / 走两遍阶段引擎，第一次触发内部跳转，第二次才到 static",
+ "subtitle": "阶段引擎处理请求时不保存状态，每次都从指定下标开始运行；internal redirect 后从下标 1 重开",
+ "source": "来源：labs/dev-01 实验输出（1.31.9）",
+ "actors": [
+  {
+   "name": "curl"
+  },
+  {
+   "name": "阶段引擎"
+  },
+  {
+   "name": "index (14)"
+  },
+  {
+   "name": "static (17)"
+  },
+  {
+   "name": "过滤器"
+  },
+  {
+   "name": "write_filter"
+  }
+ ],
+ "messages": [
+  {
+   "from": "curl",
+   "to": "阶段引擎",
+   "label": "GET /"
+  },
+  {
+   "from": "阶段引擎",
+   "to": "阶段引擎",
+   "label": "0 → 1 → 3 … 13"
+  },
+  {
+   "from": "阶段引擎",
+   "to": "index (14)",
+   "label": "CONTENT 下标 14"
+  },
+  {
+   "from": "index (14)",
+   "to": "阶段引擎",
+   "label": "内部跳转 /index.html"
+  },
+  {
+   "from": "阶段引擎",
+   "to": "static (17)",
+   "label": "从下标 1 再走，17 处"
+  },
+  {
+   "from": "static (17)",
+   "to": "过滤器",
+   "label": "响应头"
+  },
+  {
+   "from": "过滤器",
+   "to": "write_filter",
+   "label": "234 字节，暂存"
+  },
+  {
+   "from": "static (17)",
+   "to": "过滤器",
+   "label": "7 字节，last_buf"
+  },
+  {
+   "from": "过滤器",
+   "to": "write_filter",
+   "label": "241 字节全部"
+  },
+  {
+   "from": "write_filter",
+   "to": "curl",
+   "label": "写出响应"
+  }
+ ]
+}

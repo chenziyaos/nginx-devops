@@ -1,0 +1,24 @@
+{
+ "type": "graph",
+ "title": "nginx -s reload 会先自检配置，kill -HUP 的错误只记在 error.log",
+ "subtitle": "两种发信号的方式在 master 处汇合；红色是两处失败的出口",
+ "source": "来源：labs/ops-03 实验（1.31.9）",
+ "stages": [
+  {"name": "发信号", "nodes": [
+    {"id": "a", "title": "nginx -s reload", "sub": "先自己解析一遍配置"},
+    {"id": "k", "title": "kill -HUP master", "sub": "不检查，直接发"}]},
+  {"name": "发送者的检查", "nodes": [
+    {"id": "e1", "title": "语法错误", "sub": "stderr 打印 emerg，退出码 1，HUP 没有发出", "tone": "risk"},
+    {"id": "h", "title": "master 收到 HUP", "sub": "nginx -s reload 退出码 0"}]},
+  {"name": "master 的 ngx_init_cycle", "nodes": [
+    {"id": "e2", "title": "初始化失败", "sub": "语法错误、端口占用、证书读不了：error.log 记 emerg，老 worker 继续", "tone": "risk"},
+    {"id": "ok", "title": "新 worker 接班", "tone": "good"}]}
+ ],
+ "edges": [
+  {"from": "a", "to": "e1", "label": "有错"},
+  {"from": "a", "to": "h", "label": "没错"},
+  {"from": "k", "to": "h"},
+  {"from": "h", "to": "e2", "label": "失败"},
+  {"from": "h", "to": "ok", "label": "成功"}
+ ]
+}

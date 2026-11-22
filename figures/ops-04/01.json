@@ -1,0 +1,48 @@
+{
+ "type": "flow",
+ "title": "server_name 先查三张哈希表，书写顺序只影响正则的先后",
+ "subtitle": "Host 已转小写、去掉末尾的点；每一步命中就选中这个 server，不再往后查",
+ "source": "来源：ngx_http_request.c（1.31.9）",
+ "numbered": true,
+ "steps": [
+  {
+   "title": "精确名",
+   "lines": [
+    "完全相同"
+   ]
+  },
+  {
+   "title": "前缀通配",
+   "lines": [
+    "*.x，取最长"
+   ]
+  },
+  {
+   "title": "后缀通配",
+   "lines": [
+    "x.*，取最长"
+   ]
+  },
+  {
+   "title": "正则",
+   "lines": [
+    "按书写顺序",
+    "第一个匹配"
+   ],
+   "tone": "main",
+   "emph": true
+  },
+  {
+   "title": "默认",
+   "lines": [
+    "默认 server（§1）"
+   ]
+  }
+ ],
+ "labels": [
+  "未命中",
+  "未命中",
+  "未命中",
+  "都不匹配"
+ ]
+}

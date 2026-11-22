@@ -1,0 +1,60 @@
+{
+ "type": "sequence",
+ "title": "proxy_buffering 开着时后端很快释放，关掉时后端等慢客户端",
+ "subtitle": "32 MB 文件，客户端读 8 MB/s；从上到下是时间流向",
+ "source": "来源：ngx_http_proxy_module.c、labs/ops-06 实验输出",
+ "actors": [
+  {
+   "name": "慢客户端"
+  },
+  {
+   "name": "nginx"
+  },
+  {
+   "name": "后端"
+  }
+ ],
+ "messages": [
+  {
+   "from": "后端",
+   "to": "nginx",
+   "text": "全速写 32 MB"
+  },
+  {
+   "from": "nginx",
+   "to": "后端",
+   "text": "连接释放",
+   "reply": true
+  },
+  {
+   "from": "nginx",
+   "to": "慢客户端",
+   "text": "按 8 MB/s 发送"
+  },
+  {
+   "from": "后端",
+   "to": "nginx",
+   "text": "写一块缓冲区"
+  },
+  {
+   "from": "nginx",
+   "to": "慢客户端",
+   "text": "发一块给客户端"
+  },
+  {
+   "from": "后端",
+   "to": "nginx",
+   "text": "再写，循环到完成"
+  }
+ ],
+ "sections": [
+  {
+   "at": 0,
+   "label": "proxy_buffering on"
+  },
+  {
+   "at": 3,
+   "label": "proxy_buffering off"
+  }
+ ]
+}

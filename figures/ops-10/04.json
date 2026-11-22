@@ -1,0 +1,16 @@
+{
+ "type": "table",
+ "title": "X-Accel-Expires 优先级最高，Set-Cookie 和 private 让响应不被缓存",
+ "subtitle": "从上往下第一个出现的来源决定有效期；响应带 Set-Cookie 时无论哪一层都不存",
+ "source": "来源：ngx_http_upstream.c（1.31.9）",
+ "columns": ["顺序", "来源", "取值", "结果"],
+ "rows": [
+  ["①", "X-Accel-Expires", "0 / 大于 0", "不存 / 有效期 = 它"],
+  ["②", "Cache-Control", "private、no-cache、no-store 或 max-age=0", {"text": "不存", "tone": "risk"}],
+  ["③", "Cache-Control", "s-maxage 或 max-age", "有效期 = s-maxage，没有就用 max-age"],
+  ["④", "Expires", "在未来", "有效期 = Expires"],
+  ["⑤", "proxy_cache_valid", "覆盖这个状态码", "有效期 = 配置值"],
+  ["—", "以上都没有", "", {"text": "不存", "tone": "risk"}],
+  ["—", "Set-Cookie", "任意", {"text": "不存", "tone": "risk"}]
+ ]
+}

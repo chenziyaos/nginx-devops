@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 618" width="1200" height="618">
+<rect x="0" y="0" width="1200" height="618" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">HTTP/2 由 ALPN 或连接前言触发，http2 on 决定能否使用</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">加密连接走 ALPN 回调，明文连接看前 24 字节是不是 HTTP/2 连接前言</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">连接类型</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">协议发现</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结果</text>
+<polyline points="294,252 476,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,246 486,252 476,258" fill="#8F959E"/>
+<polyline points="294,460 476,460" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,454 486,460 476,466" fill="#8F959E"/>
+<polyline points="714,252 776.5,252 776.5,200 896,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,194 906,200 896,206" fill="#8F959E"/>
+<polyline points="714,252 776.5,252 776.5,304 896,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,298 906,304 896,310" fill="#8F959E"/>
+<polyline points="714,460 837.5,460 837.5,408 896,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,402 906,408 896,414" fill="#8F959E"/>
+<polyline points="714,460 837.5,460 837.5,512 896,512" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,506 906,512 896,518" fill="#8F959E"/>
+<rect x="70" y="210" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="256.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">TLS</text>
+<rect x="70" y="418" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="464.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">明文</text>
+<rect x="490" y="210" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="237.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">ALPN 回调</text>
+<text x="600" y="257.7" font-size="12" fill="#646A73" text-anchor="middle">当前 server http2 on 或</text>
+<text x="600" y="276.7" font-size="12" fill="#646A73" text-anchor="middle">listen ... http2？</text>
+<rect x="490" y="418" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="455.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">看前 24 字节</text>
+<text x="600" y="475.2" font-size="12" fill="#646A73" text-anchor="middle">是连接前言，且开了 http2？</text>
+<rect x="910" y="158" width="220" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">h2</text>
+<text x="1020" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">列表首位</text>
+<rect x="910" y="262" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">http/1.x</text>
+<text x="1020" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">ALPN 只给出 http/1.x</text>
+<rect x="910" y="366" width="220" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="393.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">h2c</text>
+<text x="1020" y="413.7" font-size="12" fill="#646A73" text-anchor="middle">发 SETTINGS 和</text>
+<text x="1020" y="432.7" font-size="12" fill="#646A73" text-anchor="middle">WINDOW_UPDATE</text>
+<rect x="910" y="470" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="507.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">按 HTTP/1 解析</text>
+<text x="1020" y="527.2" font-size="12" fill="#646A73" text-anchor="middle">前言会得到 400</text>
+<text x="836.2" y="191" font-size="12" fill="#646A73" text-anchor="middle">是</text>
+<text x="836.2" y="295" font-size="12" fill="#646A73" text-anchor="middle">否</text>
+<text x="775.8" y="451" font-size="12" fill="#646A73" text-anchor="middle">是</text>
+<text x="775.8" y="478" font-size="12" fill="#646A73" text-anchor="middle">否</text>
+<text x="40" y="594" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_http_v2.c（1.31.9）</text>
+</svg>

@@ -55,13 +55,7 @@ ngx_http_limit_req_init(ngx_conf_t *cf)
 
 `return` 在 REWRITE 阶段就结束了请求，PREACCESS 根本没有机会运行。下图只画出和本篇有关的几个阶段，`return` 的出口在限流之前：
 
-```mermaid
-flowchart LR
-    A["SERVER_REWRITE / REWRITE<br/>rewrite 模块：return、rewrite、set"] -->|"没有 return"| B["PREACCESS<br/>realip → limit_req → limit_conn"]
-    A -->|"return 200"| X["直接生成响应<br/>限流模块没有运行"]
-    B --> C["ACCESS<br/>allow / deny、auth_basic"]
-    C --> D["CONTENT<br/>静态文件、proxy_pass"]
-```
+![return 在 REWRITE 阶段就结束请求，限流没有机会运行](../figures/ops-09/01.svg)
 
 `limit_conn`（[同样挂在 PREACCESS](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_conn_module.c#L766)）、ACCESS 阶段的 `allow`/`deny`、`auth_basic`、`auth_request` 也一样。要限流的 location，内容应该来自静态文件、`proxy_pass`、`fastcgi_pass` 这类在 CONTENT 阶段工作的模块。本篇后面的实验都用 `root html;` 出一个静态文件。
 
@@ -109,15 +103,7 @@ flowchart LR
 
 请求进入 limit_req 之后的判决路径如下，后面三节分别展开右边三个出口：
 
-```mermaid
-flowchart TD
-    A["请求进入 PREACCESS 阶段"] --> B["按 key 找到节点<br/>excess = 旧值 - rate × 经过时间 + 1"]
-    B --> C{"excess > burst ?"}
-    C -- "是" --> R["拒绝：返回 limit_req_status（默认 503）<br/>不写回 excess"]
-    C -- "否" --> D{"excess > delay ?<br/>（不写 delay 时为 0，nodelay 时为极大值）"}
-    D -- "否" --> P["立即放行<br/>$limit_req_status = PASSED"]
-    D -- "是" --> W["排队等待 (excess - delay) / rate 秒<br/>$limit_req_status = DELAYED"]
-```
+![超过 burst 才拒绝，超过 delay 只是排队](../figures/ops-09/02.svg)
 
 **小结**：nginx 只为每个 key 存一个随时间衰减的超出量，`burst` 是它的上限；在上限以内的请求不会被拒绝，但它们要不要等，取决于下一节的 `nodelay` 和 `delay=`。
 
@@ -320,24 +306,7 @@ ngx_http_limit_req_unlock(ngx_http_limit_req_limit_t *limits, ngx_uint_t n)
 
 一个请求经过两条规则的过程如下，被第二条拒绝时，第一条只撤回“正在使用”计数，excess 没有被写过：
 
-```mermaid
-sequenceDiagram
-    participant H as limit_req handler
-    participant A as zone perip（第 1 条）
-    participant B as zone perserver（最后一条）
-    H->>A: lookup(account=0)：算 excess，与 burst 比较
-    A-->>H: NGX_AGAIN，count + 1，不写 excess
-    H->>B: lookup(account=1)
-    alt excess > burst
-        B-->>H: NGX_BUSY
-        H->>A: unlock：count - 1
-        H-->>H: 返回 503，perip 的 excess 不变
-    else 通过
-        B-->>H: NGX_OK，写回 excess
-        H->>A: account：写回 excess，count - 1
-        H-->>H: 取两条规则中最长的延迟
-    end
-```
+![被第二条规则拒绝时，第一条的 excess 不变](../figures/ops-09/03.svg)
 
 所以被 `perserver` 拒绝的 5 个请求没有让 `perip` 的 excess 增长。排队时间取各条规则里最长的那个（`account` 对每条规则都算一次，保留最大值）。同一个 zone 在同一个 location 里写两次，`nginx -t` 会报 `is duplicate`。
 
@@ -368,21 +337,7 @@ sequenceDiagram
 
 由此可以推出：一个 HTTP/1.1 keepalive 连接在两个请求之间空闲时不占计数；HTTP/2 的一个 TCP 连接上同时有 3 个流，就占 3 个计数。计数跟着请求的生命周期走：
 
-```mermaid
-stateDiagram-v2
-    s1: 读完请求头
-    s2: PREACCESS 阶段 conn + 1
-    s3: 返回 503，不计数
-    s4: 处理并发送响应
-    s5: 请求内存池销毁，conn - 1
-    [*] --> s1
-    s1 --> s2: 未达上限
-    s1 --> s3: 已达上限
-    s2 --> s4
-    s4 --> s5
-    s5 --> [*]
-    s3 --> [*]
-```
+![limit_conn 的计数跟着请求走，不跟着连接走](../figures/ops-09/04.svg)
 
 
 实验用 `limit_rate 2k` 让一个 4 KB 的文件下载约 2 s，`limit_conn addr 1`：

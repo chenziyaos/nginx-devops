@@ -1,0 +1,98 @@
+{
+  "type": "graph",
+  "title": "upstream 的每一步都由事件驱动，函数返回就意味着在等下一个事件",
+  "subtitle": "从上到下：init_request → connect → send_request → process_header → send_response，然后按 buffering 分为两条路径最后都到 finalize",
+  "source": "来源：ngx_http_upstream.c、ngx_http_upstream_handler（1.31.9）",
+  "stages": [
+    {
+      "name": "请求建立与连接",
+      "nodes": [
+        {
+          "id": "init",
+          "title": "init_request",
+          "sub": "生成请求，调 peer.init"
+        },
+        {
+          "id": "conn",
+          "title": "connect",
+          "sub": "建立连接或复用",
+          "tone": "main"
+        }
+      ]
+    },
+    {
+      "name": "请求发送与响应读取",
+      "nodes": [
+        {
+          "id": "send",
+          "title": "send_request",
+          "sub": "发送请求到后端"
+        },
+        {
+          "id": "hdr",
+          "title": "process_header",
+          "sub": "读响应头"
+        }
+      ]
+    },
+    {
+      "name": "响应体处理",
+      "nodes": [
+        {
+          "id": "buf",
+          "title": "buffering on",
+          "sub": "process_upstream：event pipe",
+          "tone": "contrast"
+        },
+        {
+          "id": "nobuf",
+          "title": "buffering off",
+          "sub": "non_buffered：直转",
+          "tone": "contrast"
+        }
+      ]
+    },
+    {
+      "name": "清理",
+      "nodes": [
+        {
+          "id": "fin",
+          "title": "finalize",
+          "sub": "peer.free，连接放回缓存"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "init",
+      "to": "conn"
+    },
+    {
+      "from": "conn",
+      "to": "send"
+    },
+    {
+      "from": "send",
+      "to": "hdr"
+    },
+    {
+      "from": "hdr",
+      "to": "buf",
+      "label": "on"
+    },
+    {
+      "from": "hdr",
+      "to": "nobuf",
+      "label": "off"
+    },
+    {
+      "from": "buf",
+      "to": "fin"
+    },
+    {
+      "from": "nobuf",
+      "to": "fin"
+    }
+  ]
+}

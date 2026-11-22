@@ -1,0 +1,70 @@
+{
+ "type": "graph",
+ "title": "radix 树返回查找路上最后一个有值的节点，即最长前缀匹配",
+ "subtitle": "从根按地址位逐层下降；查 10.2.0.1 时路上最后一个有值的节点是 /8，答案就是值 1",
+ "source": "来源：src/core/ngx_radix_tree.c（1.31.9）、labs/dev-02 实验输出",
+ "stages": [
+  {
+   "name": "树根",
+   "nodes": [
+    {
+     "id": "root",
+     "title": "根",
+     "tone": "base"
+    }
+   ]
+  },
+  {
+   "name": "前 8 位",
+   "nodes": [
+    {
+     "id": "n10",
+     "title": "前 8 位 = 10",
+     "sub": "值 1（10.0.0.0/8）",
+     "tone": "main"
+    },
+    {
+     "id": "n11",
+     "title": "前 8 位 = 11",
+     "sub": "无值",
+     "tone": "base"
+    }
+   ]
+  },
+  {
+   "name": "前 16 位",
+   "nodes": [
+    {
+     "id": "n101",
+     "title": "前 16 位 = 10.1",
+     "sub": "值 2（10.1.0.0/16）",
+     "tone": "main"
+    },
+    {
+     "id": "n102",
+     "title": "前 16 位 = 10.2",
+     "sub": "无节点，停在 /8",
+     "tone": "contrast"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "root",
+   "to": "n10"
+  },
+  {
+   "from": "root",
+   "to": "n11"
+  },
+  {
+   "from": "n10",
+   "to": "n101"
+  },
+  {
+   "from": "n10",
+   "to": "n102"
+  }
+ ]
+}

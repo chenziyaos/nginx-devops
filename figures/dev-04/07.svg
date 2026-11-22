@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 531" width="1200" height="531">
+<rect x="0" y="0" width="1200" height="531" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">端口不断靠的是同一个 fd 在新旧 cycle 之间传递</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是 reload 时 master、旧 worker、新 worker 的交接顺序；数字（fd 5）和端口（19082、19084）来自实验输出</text>
+<line x1="226.7" y1="168" x2="226.7" y2="467" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master</text>
+<line x1="600" y1="168" x2="600" y2="467" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="13" fill="#1F2329" font-weight="bold" text-anchor="middle">旧 worker（旧 cycle）</text>
+<line x1="973.3" y1="168" x2="973.3" y2="467" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">新 worker</text>
+<text x="236.7" y="202.6" font-size="13" fill="#1F2329">ngx_init_cycle(old)：19082 fd 5、19084 新建</text>
+<polyline points="226.7,211 252.7,211 252.7,229 240.7,229" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="240.7,223 230.7,229 240.7,235" fill="#8F959E"/>
+<text x="236.7" y="269.6" font-size="13" fill="#1F2329">关闭 19083、释放旧 cycle 内存池</text>
+<polyline points="226.7,278 252.7,278 252.7,296 240.7,296" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="240.7,290 230.7,296 240.7,302" fill="#8F959E"/>
+<text x="236.7" y="336.6" font-size="13" fill="#1F2329">fork（继承 fd 5 和新 fd）</text>
+<polyline points="226.7,345 961.3,345" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,339 971.3,345 961.3,351" fill="#8F959E"/>
+<text x="236.7" y="377.6" font-size="13" fill="#1F2329">QUIT</text>
+<polyline points="226.7,386 588,386" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,380 598,386 588,392" fill="#8F959E"/>
+<text x="610" y="418.6" font-size="13" fill="#1F2329">处理完手上的请求后退出</text>
+<polyline points="600,427 626,427 626,445 614,445" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="614,439 604,445 614,451" fill="#8F959E"/>
+<text x="40" y="507" font-size="12" fill="#646A73" data-role="source">来源：ngx_cycle.c、labs/dev-04 实验输出</text>
+</svg>

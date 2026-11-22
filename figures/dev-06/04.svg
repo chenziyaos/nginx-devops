@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 588" width="1200" height="588">
+<rect x="0" y="0" width="1200" height="588" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">阶段之间只有三种跳转：顺序、回 FIND_CONFIG、satisfy any 越级</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从左到右按阶段编号执行；虚线是 uri 改了回到 2，跳过 11 的线是 satisfy any 放行</text>
+<text x="113.6" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">server</text>
+<text x="356.8" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">找 location</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">location 改写</text>
+<text x="843.2" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">访问控制</text>
+<text x="1086.4" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">内容</text>
+<polyline points="191.2,190.5 269.2,190.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,184.5 279.2,190.5 269.2,196.5" fill="#8F959E"/>
+<polyline points="434.4,190.5 512.4,190.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,184.5 522.4,190.5 512.4,196.5" fill="#8F959E"/>
+<polyline points="677.6,289.5 755.6,289.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,283.5 765.6,289.5 755.6,295.5" fill="#8F959E"/>
+<polyline points="920.8,487.5 961.8,487.5 961.8,438 998.8,438" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,432 1008.8,438 998.8,444" fill="#8F959E"/>
+<polyline points="920.8,388.5 961.8,388.5 961.8,438 998.8,438" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,432 1008.8,438 998.8,444" fill="#8F959E"/>
+<polyline points="573.5,326 573.5,348 383.3,348 383.3,237" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="377.3,237 383.3,227 389.3,237" fill="#8F959E"/>
+<polyline points="600,227 600,243" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="594,243 600,253 606,243" fill="#8F959E"/>
+<polyline points="843.2,326 843.2,342" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="837.2,342 843.2,352 849.2,342" fill="#8F959E"/>
+<polyline points="843.2,425 843.2,441" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="837.2,441 843.2,451 849.2,441" fill="#8F959E"/>
+<rect x="40" y="158" width="147.2" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="113.6" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">1 改写</text>
+<text x="113.6" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">SERVER_REWRITE</text>
+<rect x="283.2" y="158" width="147.2" height="65" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">2 找 location</text>
+<text x="356.8" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">FIND_CONFIG</text>
+<rect x="526.4" y="158" width="147.2" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">3 改写</text>
+<text x="600" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">REWRITE</text>
+<rect x="526.4" y="257" width="147.2" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="284.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">4 改写后检查</text>
+<text x="600" y="304.7" font-size="12" fill="#646A73" text-anchor="middle">POST_REWRITE</text>
+<rect x="769.6" y="257" width="147.2" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="284.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">5-7 预访问</text>
+<text x="843.2" y="304.7" font-size="12" fill="#646A73" text-anchor="middle">PREACCESS</text>
+<rect x="769.6" y="356" width="147.2" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="383.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">8-10 访问控制</text>
+<text x="843.2" y="403.7" font-size="12" fill="#646A73" text-anchor="middle">ACCESS</text>
+<rect x="769.6" y="455" width="147.2" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="482.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">11 访问收口</text>
+<text x="843.2" y="502.7" font-size="12" fill="#646A73" text-anchor="middle">POST_ACCESS</text>
+<rect x="1012.8" y="405.5" width="147.2" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="433.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">12-17 内容</text>
+<text x="1086.4" y="453.2" font-size="12" fill="#646A73" text-anchor="middle">CONTENT 等</text>
+<text x="478.4" y="339" font-size="12" fill="#646A73" text-anchor="middle">next=2</text>
+<text x="969.8" y="417.2" font-size="12" fill="#646A73">any</text>
+<text x="40" y="564" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.9）</text>
+</svg>

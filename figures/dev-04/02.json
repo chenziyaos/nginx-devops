@@ -1,0 +1,39 @@
+{
+ "type": "table",
+ "title": "同名指令靠所在块唯一确定接收模块",
+ "subtitle": "每行是 server 出现在一种块里的情况；上下文位不同，指令表里匹配到的模块就不同",
+ "source": "来源：ngx_conf_file.c、ngx_http_core_module.c、ngx_http_upstream_module.c、ngx_stream_core_module.c（1.31.9）",
+ "aspect": "wide",
+ "columns": [
+  "所在块",
+  "上下文位",
+  "处理模块",
+  "含义"
+ ],
+ "rows": [
+  [
+   "http{}",
+   "NGX_HTTP_MAIN_CONF",
+   "ngx_http_core_module",
+   "虚拟主机"
+  ],
+  [
+   "upstream{}",
+   "NGX_HTTP_UPS_CONF",
+   "ngx_http_upstream_module",
+   "后端地址"
+  ],
+  [
+   "stream{}",
+   "NGX_STREAM_MAIN_CONF",
+   "ngx_stream_core_module",
+   "—"
+  ],
+  [
+   "stream 的 upstream{}",
+   "—",
+   "ngx_stream_upstream_module",
+   "—"
+  ]
+ ]
+}

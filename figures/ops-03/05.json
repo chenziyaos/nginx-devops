@@ -1,0 +1,71 @@
+{
+ "type": "graph",
+ "title": "二进制升级的回滚窗口：WINCH 后、QUIT 前用 HUP 恢复老 worker",
+ "subtitle": "从左到右是升级路径；WINCH 之后可反向回滚到重启老 worker",
+ "source": "来源：nginx 源码、labs/ops-03 实验",
+ "stages": [
+  {
+   "name": "初始",
+   "nodes": [
+    {
+     "id": "s1",
+     "title": "老 master + 老 worker",
+     "sub": "运行中"
+    }
+   ]
+  },
+  {
+   "name": "USR2",
+   "nodes": [
+    {
+     "id": "s2",
+     "title": "两套 master 和 worker",
+     "sub": "共享监听 socket"
+    }
+   ]
+  },
+  {
+   "name": "WINCH",
+   "nodes": [
+    {
+     "id": "s3",
+     "title": "老 master 无 worker + 新 master",
+     "sub": "回滚窗口",
+     "tone": "contrast"
+    }
+   ]
+  },
+  {
+   "name": "QUIT",
+   "nodes": [
+    {
+     "id": "s4",
+     "title": "只剩新 master + 新 worker",
+     "sub": "升级完成"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "s1",
+   "to": "s2",
+   "label": "USR2"
+  },
+  {
+   "from": "s2",
+   "to": "s3",
+   "label": "WINCH"
+  },
+  {
+   "from": "s3",
+   "to": "s4",
+   "label": "QUIT"
+  },
+  {
+   "from": "s3",
+   "to": "s2",
+   "label": "HUP（回滚）"
+  }
+ ]
+}

@@ -1,0 +1,115 @@
+{
+ "type": "graph",
+ "title": "阶段之间只有三种跳转：顺序、回 FIND_CONFIG、satisfy any 越级",
+ "subtitle": "从左到右按阶段编号执行；虚线是 uri 改了回到 2，跳过 11 的线是 satisfy any 放行",
+ "source": "来源：ngx_http_core_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "server",
+   "nodes": [
+    {
+     "id": "sr",
+     "title": "1 改写",
+     "sub": "SERVER_REWRITE"
+    }
+   ]
+  },
+  {
+   "name": "找 location",
+   "nodes": [
+    {
+     "id": "fc",
+     "title": "2 找 location",
+     "sub": "FIND_CONFIG",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "location 改写",
+   "nodes": [
+    {
+     "id": "lr",
+     "title": "3 改写",
+     "sub": "REWRITE"
+    },
+    {
+     "id": "pr",
+     "title": "4 改写后检查",
+     "sub": "POST_REWRITE"
+    }
+   ]
+  },
+  {
+   "name": "访问控制",
+   "nodes": [
+    {
+     "id": "pre",
+     "title": "5-7 预访问",
+     "sub": "PREACCESS"
+    },
+    {
+     "id": "acc",
+     "title": "8-10 访问控制",
+     "sub": "ACCESS"
+    },
+    {
+     "id": "pa",
+     "title": "11 访问收口",
+     "sub": "POST_ACCESS"
+    }
+   ]
+  },
+  {
+   "name": "内容",
+   "nodes": [
+    {
+     "id": "pc",
+     "title": "12-17 内容",
+     "sub": "CONTENT 等"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "sr",
+   "to": "fc"
+  },
+  {
+   "from": "fc",
+   "to": "lr"
+  },
+  {
+   "from": "lr",
+   "to": "pr"
+  },
+  {
+   "from": "pr",
+   "to": "fc",
+   "label": "next=2",
+   "dashed": true
+  },
+  {
+   "from": "pr",
+   "to": "pre"
+  },
+  {
+   "from": "pre",
+   "to": "acc"
+  },
+  {
+   "from": "acc",
+   "to": "pa"
+  },
+  {
+   "from": "pa",
+   "to": "pc"
+  },
+  {
+   "from": "acc",
+   "to": "pc",
+   "label": "any"
+  }
+ ]
+}

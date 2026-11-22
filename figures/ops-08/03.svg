@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">明文请求打到 ssl 端口收到 400，error_page 497 可改成跳转</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">ssl 端口用 MSG_PEEK 偷看第一个字节；不是 0x16 时按明文处理</text>
+<rect x="40" y="163.2" width="238" height="140" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">第一个字节</text>
+<text x="60" y="233.1" font-size="14" fill="#646A73">MSG_PEEK 偷看</text>
+<text x="60" y="255.1" font-size="14" fill="#646A73">是 0x16 就走 TLS 握手</text>
+<rect x="334" y="163.2" width="238" height="140" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="354" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">读明文请求头</text>
+<text x="354" y="233.1" font-size="14" fill="#646A73">不是 0x16</text>
+<rect x="628" y="163.2" width="238" height="140" rx="12" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="step"/>
+<text x="648" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">finalize 497</text>
+<rect x="922" y="163.2" width="238" height="140" rx="12" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="step"/>
+<text x="942" y="203.5" font-size="18" fill="#1F2329" font-weight="bold">回给客户端</text>
+<text x="942" y="233.1" font-size="14" fill="#646A73">默认：错误页，状态改成 400</text>
+<text x="942" y="255.1" font-size="14" fill="#646A73">配了 error_page 497：例如</text>
+<text x="942" y="277.1" font-size="14" fill="#646A73">301 到 https</text>
+<polyline points="284,233.2 318,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="318,227.2 328,233.2 318,239.2" fill="#8F959E"/>
+<polyline points="578,233.2 612,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,227.2 622,233.2 612,239.2" fill="#8F959E"/>
+<polyline points="872,233.2 906,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="906,227.2 916,233.2 906,239.2" fill="#8F959E"/>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.9）</text>
+</svg>

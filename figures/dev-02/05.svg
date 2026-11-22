@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 496" width="1200" height="496">
+<rect x="0" y="0" width="1200" height="496" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">ngx_hash_t 查找顺序固定：精确名、前缀通配、后缀通配、正则</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">按此顺序逐级查找，不按配置书写顺序；蓝色是本篇关注的 server_name</text>
+<rect x="40" y="128" width="238" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">小写后的 Host</text>
+<rect x="334" y="128" width="238" height="124" rx="12" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="step"/>
+<text x="354" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">精确表查找</text>
+<text x="354" y="197.9" font-size="14" fill="#646A73">ngx_hash_find</text>
+<rect x="628" y="128" width="238" height="124" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="648" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">命中返回 server</text>
+<rect x="922" y="128" width="238" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="942" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">前缀通配表查找</text>
+<text x="942" y="197.9" font-size="14" fill="#646A73">按标签从右往左逐级查</text>
+<rect x="40" y="308" width="238" height="124" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="60" y="348.3" font-size="18" fill="#1F2329" font-weight="bold">命中返回 server</text>
+<rect x="334" y="308" width="238" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="354" y="348.3" font-size="18" fill="#1F2329" font-weight="bold">后缀通配表查找</text>
+<text x="354" y="377.9" font-size="14" fill="#646A73">按标签从左往右逐级查</text>
+<rect x="628" y="308" width="238" height="124" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="648" y="348.3" font-size="18" fill="#1F2329" font-weight="bold">命中返回 server</text>
+<rect x="922" y="308" width="238" height="124" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="942" y="348.3" font-size="18" fill="#1F2329" font-weight="bold">正则</text>
+<text x="942" y="376.3" font-size="18" fill="#1F2329" font-weight="bold">server_name</text>
+<text x="942" y="405.9" font-size="14" fill="#646A73">按配置顺序逐一试</text>
+<polyline points="284,190 318,190" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="318,184 328,190 318,196" fill="#8F959E"/>
+<polyline points="578,190 612,190" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,184 622,190 612,196" fill="#8F959E"/>
+<polyline points="872,190 906,190" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="906,184 916,190 906,196" fill="#8F959E"/>
+<polyline points="1041,256 1041,280 159,280 159,294" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="153,294 159,304 165,294" fill="#8F959E"/>
+<polyline points="284,370 318,370" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="318,364 328,370 318,376" fill="#8F959E"/>
+<polyline points="578,370 612,370" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,364 622,370 612,376" fill="#8F959E"/>
+<polyline points="872,370 906,370" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="906,364 916,370 906,376" fill="#8F959E"/>
+<text x="40" y="472" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_hash.c（1.31.9）</text>
+</svg>

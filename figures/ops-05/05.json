@@ -1,0 +1,41 @@
+{
+ "type": "table",
+ "title": "到达三个上限之一就关闭连接",
+ "subtitle": "每个请求开始时依次检查；都没到才保持连接，空闲超过 keepalive_timeout 后关闭",
+ "source": "来源：ngx_http_core_module.c、ngx_http_request.c（1.31.9）",
+ "columns": [
+  "检查",
+  "指令（默认）",
+  "条件",
+  "到达后"
+ ],
+ "rows": [
+  [
+   "空闲超时",
+   "keepalive_timeout（75 秒）",
+   "设为 0",
+   {
+    "text": "Connection: close",
+    "tone": "risk"
+   }
+  ],
+  [
+   "请求数",
+   "keepalive_requests（1000）",
+   "已处理 ≥ 上限",
+   {
+    "text": "Connection: close",
+    "tone": "risk"
+   }
+  ],
+  [
+   "连接时长",
+   "keepalive_time（1 小时）",
+   "存在超过上限",
+   {
+    "text": "Connection: close",
+    "tone": "risk"
+   }
+  ]
+ ]
+}

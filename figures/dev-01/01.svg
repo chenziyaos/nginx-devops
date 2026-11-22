@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 480" width="1200" height="480">
+<rect x="0" y="0" width="1200" height="480" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">nginx 源码分基础层、事件层、协议层三层，HTTP 相关目录占 52.7%</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是依赖关系；基础层最底，不知道 HTTP 存在；协议层最顶，通过事件层拿连接</text>
+<rect x="40" y="128" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="178.3" font-size="18" fill="#646A73" font-weight="bold">协议层</text>
+<rect x="172" y="144" width="316" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="330" y="167" font-size="14" fill="#1F2329" text-anchor="middle">src/http</text>
+<text x="330" y="187" font-size="12" fill="#646A73" text-anchor="middle">18 个文件、modules/ 60 个、v2 / v3</text>
+<rect x="500" y="144" width="316" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="658" y="167" font-size="14" fill="#1F2329" text-anchor="middle">src/stream</text>
+<text x="658" y="187" font-size="12" fill="#646A73" text-anchor="middle">27 个文件</text>
+<rect x="828" y="144" width="316" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="986" y="167" font-size="14" fill="#1F2329" text-anchor="middle">src/mail</text>
+<text x="986" y="187" font-size="12" fill="#646A73" text-anchor="middle">14 个文件</text>
+<rect x="40" y="228" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="278.3" font-size="18" fill="#646A73" font-weight="bold">事件层</text>
+<rect x="172" y="244" width="972" height="56" rx="8" fill="#FFFFFF" stroke="#82A7FC" stroke-width="1" data-role="layer-chip"/>
+<text x="658" y="267" font-size="14" fill="#1F2329" text-anchor="middle">src/event</text>
+<text x="658" y="287" font-size="12" fill="#646A73" text-anchor="middle">accept、定时器、kqueue/epoll、quic</text>
+<rect x="40" y="328" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="378.3" font-size="18" fill="#646A73" font-weight="bold">基础层</text>
+<rect x="172" y="344" width="480" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="412" y="367" font-size="14" fill="#1F2329" text-anchor="middle">src/core</text>
+<text x="412" y="387" font-size="12" fill="#646A73" text-anchor="middle">pool、array、rbtree、conf、cycle、log、slab</text>
+<rect x="664" y="344" width="480" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="904" y="367" font-size="14" fill="#1F2329" text-anchor="middle">src/os/unix</text>
+<text x="904" y="387" font-size="12" fill="#646A73" text-anchor="middle">进程、信号、sendfile</text>
+<text x="40" y="456" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.9）</text>
+</svg>

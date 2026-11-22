@@ -1,0 +1,41 @@
+{
+ "type": "sequence",
+ "title": "zone 在 fork 之前就映射好，每个 worker 看到同一个地址",
+ "subtitle": "时间从上到下；master 在 fork 前完成所有映射和初始化",
+ "source": "来源：本文整理",
+ "actors": [
+  {
+   "title": "master"
+  },
+  {
+   "title": "worker"
+  }
+ ],
+ "messages": [
+  {
+   "from": "master",
+   "to": "master",
+   "label": "解析配置\nngx_shared_memory_add(name, size, tag)"
+  },
+  {
+   "from": "master",
+   "to": "master",
+   "label": "ngx_init_cycle\nmmap(MAP_ANON|MAP_SHARED)"
+  },
+  {
+   "from": "master",
+   "to": "master",
+   "label": "ngx_init_zone_pool\nslab_pool_t、锁、init 回调"
+  },
+  {
+   "from": "master",
+   "to": "worker",
+   "label": "fork，继承映射"
+  },
+  {
+   "from": "worker",
+   "to": "worker",
+   "label": "ngx_slab_alloc\nngx_shmtx_lock"
+  }
+ ]
+}

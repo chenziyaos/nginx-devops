@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 456" width="1200" height="456">
+<rect x="0" y="0" width="1200" height="456" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">一台后端失败后进摘除状态、fail_timeout 到期后试探、成功恢复</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从左上顺时针：初始可用 → 失败次数达到阈值 → 摘除期内不选 → 到期后试一次</text>
+<polyline points="536,176 654,176" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="654,170 664,176 654,182" fill="#8F959E"/>
+<polyline points="664,344 546,344" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="546,338 536,344 546,350" fill="#8F959E"/>
+<polyline points="790,230 790,280" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="784,280 790,290 796,280" fill="#8F959E"/>
+<polyline points="410,290 410,240" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="404,240 410,230 416,240" fill="#8F959E"/>
+<rect x="290" y="128" width="240" height="96" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="510" cy="150" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="510" y="154.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">1</text>
+<text x="306" y="169.9" font-size="14" fill="#1F2329" font-weight="bold">可用</text>
+<text x="306" y="192.6" font-size="13" fill="#646A73">正常参与选择</text>
+<rect x="670" y="128" width="240" height="96" rx="12" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="step"/>
+<circle cx="890" cy="150" r="13" fill="#FEF1F1" stroke="#F54A45" stroke-width="2"/>
+<text x="890" y="154.5" font-size="13" fill="#D83931" font-weight="bold" text-anchor="middle">2</text>
+<text x="686" y="169.9" font-size="14" fill="#1F2329" font-weight="bold">失败</text>
+<text x="686" y="192.6" font-size="13" fill="#646A73">计数 ＞= max_fails（默认 1）</text>
+<rect x="670" y="296" width="240" height="96" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="890" cy="318" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="890" y="322.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">3</text>
+<text x="686" y="327.9" font-size="14" fill="#1F2329" font-weight="bold">摘除期</text>
+<text x="686" y="350.6" font-size="13" fill="#646A73">fail_timeout（默认 10 秒）内</text>
+<text x="686" y="370.6" font-size="13" fill="#646A73">不选</text>
+<rect x="290" y="296" width="240" height="96" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="510" cy="318" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="510" y="322.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">4</text>
+<text x="306" y="337.9" font-size="14" fill="#1F2329" font-weight="bold">试探</text>
+<text x="306" y="360.6" font-size="13" fill="#646A73">10 秒后放一个请求测试</text>
+<text x="600" y="266.3" font-size="18" fill="#1F2329" font-weight="bold" text-anchor="middle">max_fails、fail_timeout</text>
+<text x="40" y="432" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）</text>
+</svg>

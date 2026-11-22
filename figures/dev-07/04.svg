@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 584" width="1200" height="584">
+<rect x="0" y="0" width="1200" height="584" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">替换串分两遍处理：先算长度、再拷贝，避免反复扩容</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是处理流程；蓝色是两个关键步骤</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">regex_start</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">算长度</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">分配与拷贝</text>
+<polyline points="294,289.5 387,289.5 387,240 476,240" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,234 486,240 476,246" fill="#8F959E"/>
+<polyline points="294,289.5 387,289.5 387,339 476,339" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,333 486,339 476,345" fill="#8F959E"/>
+<polyline points="714,240 807,240 807,289.5 896,289.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,283.5 906,289.5 896,295.5" fill="#8F959E"/>
+<polyline points="714,339 807,339 807,289.5 896,289.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,283.5 906,289.5 896,295.5" fill="#8F959E"/>
+<polyline points="180,227 180,243" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="174,243 180,253 186,243" fill="#8F959E"/>
+<polyline points="1020,326 1020,342" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1014,342 1020,352 1026,342" fill="#8F959E"/>
+<polyline points="1020,425 1020,441" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1014,441 1020,451 1026,441" fill="#8F959E"/>
+<rect x="70" y="158" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">匹配 r-＞uri</text>
+<rect x="70" y="257" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="294.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">有变量？</text>
+<rect x="490" y="207.5" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="235.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">code-＞size + 各捕获</text>
+<text x="600" y="255.2" font-size="12" fill="#646A73" text-anchor="middle">无变量</text>
+<rect x="490" y="306.5" width="220" height="65" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
+<text x="600" y="334.4" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">临时引擎跑 lengths</text>
+<text x="600" y="354.2" font-size="12" fill="#646A73" text-anchor="middle">有变量</text>
+<rect x="910" y="257" width="220" height="65" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
+<text x="1020" y="284.9" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">ngx_pnalloc 一次分配</text>
+<text x="1020" y="304.7" font-size="12" fill="#646A73" text-anchor="middle">+ 原参数长度</text>
+<rect x="910" y="356" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="383.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">copy / copy_capture</text>
+<text x="1020" y="403.7" font-size="12" fill="#646A73" text-anchor="middle">依次写入</text>
+<rect x="910" y="455" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="482.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">regex_end</text>
+<text x="1020" y="502.7" font-size="12" fill="#646A73" text-anchor="middle">写回 r-＞uri、r-＞args</text>
+<text x="40" y="560" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_script.c（1.31.9）</text>
+</svg>

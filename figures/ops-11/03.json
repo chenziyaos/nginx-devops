@@ -1,0 +1,34 @@
+{
+ "type": "table",
+ "title": "四个时间变量的起止点不同，能把慢请求分到不同环节",
+ "subtitle": "每行一个变量；高亮行只有 $request_time 包含客户端那一段",
+ "source": "来源：ngx_http_log_module.c、ngx_http_upstream.c（1.31.9）",
+ "columns": [
+  "变量",
+  "起点",
+  "终点"
+ ],
+ "rows": [
+  [
+   "$upstream_connect_time",
+   "开始连接后端 u->start_time",
+   "连接建立"
+  ],
+  [
+   "$upstream_header_time",
+   "开始连接后端 u->start_time",
+   "响应头解析完"
+  ],
+  [
+   "$upstream_response_time",
+   "开始连接后端 u->start_time",
+   "后端响应收完"
+  ],
+  [
+   "$request_time",
+   "读到请求的第一批数据 r->start_sec",
+   "最后一个字节发给客户端，写日志"
+  ]
+ ],
+ "highlight_row": 3
+}

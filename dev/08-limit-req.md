@@ -66,20 +66,7 @@ typedef struct {
 
 在 64 位系统上，两个 `offsetof` 分别是 32 和 48（用同样的结构定义编译一个小程序打印得到），所以 `$binary_remote_addr` 做 key 时（IPv4 4 字节）一个节点要 84 字节。slab 分配器按 2 的幂取整，实际占一个 128 字节的槽。红黑树的键是 key 的 crc32（[`ngx_crc32_short`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L244)），哈希相同再比 `data`。
 
-```mermaid
-flowchart LR
-    subgraph SHM["共享内存 zone（slab 池）"]
-        SH["shctx：rbtree + sentinel + queue"]
-        N1["节点 A：rbtree 头 32 B + key 状态 48 B + key"]
-        N2["节点 B"]
-        N3["节点 C"]
-    end
-    SH -- "按 crc32(key) 查找" --> N1
-    SH -- "按 crc32(key) 查找" --> N2
-    SH -- "按 crc32(key) 查找" --> N3
-    Q["LRU 队列：队头是最近用过的"] --> N2 --> N1 --> N3
-    N3 -. "队尾，淘汰从这里开始" .-> E["§7 expire"]
-```
+![每个 key 的红黑树节点和 LRU 队列共享同一块内存](../figures/dev-08/01.svg)
 
 **小结**：一个 key 的全部状态是 `last`、`excess`、`count` 三个整数加 key 本身，84 字节，落在 128 字节的 slab 槽里；红黑树按哈希查找，LRU 队列决定谁先被淘汰。要知道 `excess` 里那个“1000 代表一个请求”是怎么来的，得先看配置解析把 rate、burst、delay 换成了什么单位。
 
@@ -297,16 +284,7 @@ rc 是 `src/core/ngx_core.h` 里的常量：0 是 `NGX_OK`，-3 是 `NGX_BUSY`�
 | 7 | 5000 | ≈0 | 6000 | 拒绝 | 不写回 |
 | 8 | 5000 | ≈0 | 6000 | 拒绝 | 不写回 |
 
-```mermaid
-flowchart TD
-    A["找到节点，移到 LRU 队头"] --> B["ms = now - last"]
-    B --> C["excess = 旧值 - rate*ms/1000 + 1000，小于 0 取 0"]
-    C --> D{"excess > burst?"}
-    D -- "是" --> E["返回 NGX_BUSY，不写回"]
-    D -- "否" --> F{"account?（是最后一个 limit）"}
-    F -- "是" --> G["写回 excess；ms 不为 0 时 last = now；返回 NGX_OK"]
-    F -- "否" --> H["count++ 占位，不写回；返回 NGX_AGAIN"]
-```
+![excess 超过 burst 才拒绝，拒绝时不写回共享内存](../figures/dev-08/02.svg)
 
 **小结**：已有 key 的判决只看一个式子和一次比较；通过才写回，拒绝不写回，所以 503 不会累积。表的第一行有个例外：新节点的 excess 是 0 而不是 1000，它走的是 lookup 后半段的另一条路径。
 
@@ -477,22 +455,7 @@ limit_req[0]: 0 ~1
 
 `wide` 每次返回 -2（`NGX_AGAIN`），看到的 excess 一直是 1 而不是 1、2、3；之后 `/wide` 算出的也是 1，说明三个被 `narrow` 拒绝的请求没有记进 `wide`。
 
-```mermaid
-sequenceDiagram
-    participant H as handler
-    participant W as zone wide
-    participant N as zone narrow
-    H->>W: lookup(account=0)
-    W-->>H: NGX_AGAIN, count++
-    H->>N: lookup(account=1)
-    alt narrow 拒绝
-        N-->>H: NGX_BUSY
-        H->>W: unlock, count--，excess 不变
-    else narrow 通过
-        N-->>H: NGX_OK，已写回
-        H->>W: account，重算并写回 excess，count--
-    end
-```
+![只有最后一个 limit_req 写回，前面的 zone 拒绝时回滚不记账](../figures/dev-08/03.svg)
 
 **小结**：limit_req 每个主请求只判一次；多条 limit_req 里只有最后一条在 lookup 时记账，前面的先占位，拒绝时回滚、通过时由 account 补记。account 除了补记，还负责算出要延迟多久。
 
@@ -651,20 +614,7 @@ delaying request, excess: 2 3 4
 delay timers (s): 1 2 3
 ```
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant P as PREACCESS（limit_req）
-    participant T as 定时器红黑树
-    participant R as 后续阶段与 content
-    C->>P: 请求，excess = 3000
-    P->>P: account：delay = (3000 - 1000) * 1000 / 1000 = 2000 ms
-    P->>T: ngx_add_timer(write, 2000)，返回 NGX_AGAIN
-    Note over P: worker 继续处理其他连接
-    T-->>P: 2000 ms 后到期，ngx_http_limit_req_delay
-    P->>R: ngx_http_core_run_phases 从下一阶段继续
-    R-->>C: 200
-```
+![延迟用写事件定时器实现，不阻塞 worker 但占着连接](../figures/dev-08/04.svg)
 
 **小结**：延迟时间在 account 里一次算定，等于把超出 delay 的 excess 按 rate 漏完所需的毫秒数；实现是写事件定时器加 `NGX_AGAIN`，不阻塞 worker，但占着连接。到这里，判决和计时都讲完了，剩下的问题是节点本身：zone 写满时新 key 怎么办。
 
@@ -766,18 +716,7 @@ keys left besides victim: 760
 
 加上 `victim`，这个 zone 同时装下 761 个节点。推算：16 KB 的页切成 128 个 128 字节的槽，第一个槽放占用位图，每页 127 个；761 + 1（`shctx` 本身 88 字节，也落在 128 字节槽里）= 762 = 6 × 127，即 8 页里有 6 页用于节点。Linux 上页是 4 KB，同样 128k 的 zone 槽位数不同，这个数字只适用于本机。
 
-```mermaid
-flowchart TD
-    A["新 key：expire(ctx, 1)"] --> B{"队尾 count 为 0，闲置 >= 60 s，excess 漏光?"}
-    B -- "是，删掉，最多两个" --> C["slab 分配"]
-    B -- "否" --> C
-    C --> D{"分配成功?"}
-    D -- "是" --> OK["插入红黑树和队头"]
-    D -- "否" --> F["expire(ctx, 0)：强删队尾一个，再按 60 s 规则看两个"]
-    F --> G{"再分配成功?"}
-    G -- "是" --> OK
-    G -- "否（队尾被占位）" --> H["alert: could not allocate node，返回 500"]
-```
+![zone 满了：先清闲置 60 秒的，不够就强删队尾，日志无提示](../figures/dev-08/05.svg)
 
 **小结**：zone 写满后，新 key 照样通过，代价是 LRU 队尾的 key 被强制删除、状态清零，而且日志里没有任何提示；128k 的 zone 在本机装 761 个 key。key 的种类可能超过 zone 容量时（例如用 `$http_x_forwarded_for` 或带参数的 URI 做 key），限流会悄悄失效。节点的生命周期还剩最后一个场景：reload。
 

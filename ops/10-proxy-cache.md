@@ -19,20 +19,7 @@
 
 一次带缓存的请求，nginx 在两个时间点做决定：请求进来时，`ngx_http_upstream_cache` 根据键找到条目，决定是直接返回、等待还是回源；后端响应回来时，`ngx_http_upstream_send_response` 根据响应头和配置决定要不要存、存多久。本篇按这两个时间点组织：§1、§2、§5、§6 讲前一个，§3、§4 讲后一个，§7、§8 讲出错和清理。
 
-```mermaid
-flowchart LR
-    R[请求] --> M{方法在 proxy_cache_methods 里?<br/>proxy_cache_bypass 为真?}
-    M -- 不缓存 --> B[BYPASS 或直接回源]
-    M -- 继续 --> K[算键 → MD5 → 共享内存里找节点]
-    K --> S{条目状态}
-    S -- 新鲜 --> HIT[HIT]
-    S -- 不存在 --> MISS[MISS：回源]
-    S -- 过期 --> EXP[EXPIRED / STALE / UPDATING]
-    MISS --> V{响应能缓存吗?<br/>有效期取自哪一层}
-    EXP --> V
-    V -- 能 --> W[写临时文件，完成后改名为缓存文件]
-    V -- 不能 --> X[只返回，不存]
-```
+![只有 MISS 和过期的请求才回源，回来的响应再决定存不存](../figures/ops-10/01.svg)
 
 ## 1. 缓存键默认是发给后端的 URL；两个 location 转发到同一个 URI 就共用一条缓存
 
@@ -118,7 +105,7 @@ header: version=5 valid_sec-date=3, KEY: http://127.0.0.1:18201/b/plain?x=1
 ok - the file is named by the MD5 of the key, directories taken from the end of the name
 ```
 
-MD5 以 `...381` 结尾，所以目录是 `1/38/`。按键找缓存文件、或者手工删掉某个 URL 的缓存时，就用这个算法。
+MD5 的最后三个字符是 381，所以目录是 `1/38/`。按键找缓存文件、或者手工删掉某个 URL 的缓存时，就用这个算法。
 
 键用的是“发给后端的 URL”，带来一个容易忽略的结果。实验里 `/k1/` 和 `/k2/` 都 `proxy_pass http://127.0.0.1:18201/b/plain;`，`/k3/` 显式写了文档里的默认值 `$scheme$proxy_host$request_uri`：
 
@@ -132,14 +119,7 @@ ok - locations that proxy to the same URI share an entry; the documented key kee
 
 `/k2/k` 第一次访问就是 HIT，用的是 `/k1/k` 存下的那条，因为两者都被转成了 `/b/plaink`。显式写成 `$scheme$proxy_host$request_uri` 后，键里是客户端的 URI，`/k3/k` 单独一条；而且这个字符串没有 `://`（`$scheme` 是 `http`，后面直接接主机），和默认键不是同一个字符串。所以把默认键改成“看起来一样”的显式写法，已有的缓存会全部失效。
 
-```mermaid
-flowchart LR
-    A["key_start<br/>http://127.0.0.1:18201"] --> C[依次喂给 MD5]
-    B["发给后端的 URI<br/>/b/plain?x=1"] --> C
-    C --> D["0a84d3b2...a6363431b381"]
-    D --> E["levels=1:2<br/>末 1 位 → 1/<br/>再往前 2 位 → 38/"]
-    E --> F["out/run/cache/1/38/0a84...b381"]
-```
+![缓存键由 key_start 和后端 URI 两段拼成，MD5 的末尾几位决定目录](../figures/ops-10/02.svg)
 
 **小结**：多个 location 共用后端、但希望分开缓存（例如按设备类型改写了 URI 前缀）时，要显式写 `proxy_cache_key`；改键之前要接受一次全量回源。
 
@@ -181,17 +161,7 @@ proxy_cache_valid 200 2s: MISS HIT, after 3.1 s: EXPIRED HIT; backend requests: 
 ok - an expired entry goes to the backend once and is stored again
 ```
 
-```mermaid
-stateDiagram-v2
-    [*] --> 不存在
-    不存在 --> 新鲜: MISS，回源并存下
-    新鲜 --> 新鲜: HIT
-    新鲜 --> 过期: valid_sec 小于当前秒
-    过期 --> 新鲜: EXPIRED，同步回源并重写
-    过期 --> 新鲜: STALE，先给旧内容，后台更新
-    过期 --> 新鲜: REVALIDATED，后端回 304
-    新鲜 --> 不存在: inactive 内没人访问，manager 删除
-```
+![缓存经历新鲜、过期、删除三个阶段，状态由两个时间点决定](../figures/ops-10/03.svg)
 
 **小结**：access log 里记 `$upstream_cache_status`，就能把“缓存命中率”拆成 HIT、MISS、EXPIRED 等几类。EXPIRED 多说明有效期太短，MISS 多说明键太分散或者条目被提前清掉了。
 
@@ -284,21 +254,7 @@ ok - X-Accel-Expires, then s-maxage, then max-age, then proxy_cache_valid; priva
 
 这些规则都可以用 `proxy_ignore_headers` 关掉（例如忽略 `Set-Cookie` 或 `Cache-Control`），代价是可能把带用户身份的响应缓存给别人，本篇没有实验这个指令。
 
-```mermaid
-flowchart TD
-    A{X-Accel-Expires?} -- 0 --> N[不存]
-    A -- 大于 0 --> T1[有效期 = 它]
-    A -- 没有 --> B{Cache-Control 含<br/>private / no-cache / no-store<br/>或 max-age=0?}
-    B -- 是 --> N
-    B -- 否 --> C{s-maxage 或 max-age?}
-    C -- 有 --> T2[有效期 = s-maxage，没有就用 max-age]
-    C -- 没有 --> D{Expires 在未来?}
-    D -- 是 --> T3[有效期 = Expires]
-    D -- 否 --> E{proxy_cache_valid<br/>覆盖这个状态码?}
-    E -- 是 --> T4[有效期 = 配置值]
-    E -- 否 --> N
-    SC[Set-Cookie] --> N
-```
+![X-Accel-Expires 优先级最高，Set-Cookie 和 private 让响应不被缓存](../figures/ops-10/04.svg)
 
 **小结**：排查“为什么没缓存”，先看后端响应头里有没有 `Set-Cookie`、`private`、`max-age=0`；排查“为什么缓存这么久”，先看有没有 `X-Accel-Expires` 和 `s-maxage`。`proxy_cache_valid` 只是兜底。
 
@@ -407,22 +363,7 @@ ok - the expired entry is sent at once and refreshed by a background subrequest
 
 STALE 那次拿到的响应体和第一次一模一样，是旧内容；0.3 秒后的下一个请求已经是 HIT，响应体换了，说明后台子请求已经把新内容写进去。后台更新是 `ngx_http_upstream_cache_background_update` 用 `ngx_http_subrequest` 克隆出的一个子请求（带 `NGX_HTTP_SUBREQUEST_BACKGROUND` 标记，只要响应头，`header_only = 1`），它的响应不发给客户端，只用来重写缓存。
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as nginx
-    participant S as 后台子请求
-    participant U as 后端
-    C->>N: 条目已过期
-    N->>N: node.updating=1，状态 STALE
-    N-->>C: 立即返回旧内容
-    N->>S: ngx_http_subrequest，BACKGROUND
-    S->>U: 回源
-    U-->>S: 新响应
-    S->>N: 重写缓存文件，updating=0
-    C->>N: 下一个请求
-    N-->>C: HIT，新内容
-```
+![过期后，第一个请求拿旧内容并后台更新，其他请求也拿旧内容](../figures/ops-10/05.svg)
 
 **小结**：对能容忍短时间旧内容的场景，`proxy_cache_use_stale updating` 加 `proxy_cache_background_update on` 是默认就该开的组合：过期那一刻没有用户在等回源，后端也只收到一个更新请求。
 
@@ -454,21 +395,7 @@ ok - with the lock one request goes to the backend and the others wait for the f
 
 实验里有一个调参时踩到的现象：最初 `/lock/` 沿用了 3 秒的 `proxy_cache_valid`，等待的请求偶尔拿到 EXPIRED 并各自回源。原因是有效期从收到响应头的那一秒算起，响应体还要再传 2 到 3 秒，等待者每 500 毫秒才看一次，读到文件时这条缓存已经接近过期。慢响应要配比传输时间长得多的有效期，否则锁等来的是一条马上过期的缓存。
 
-```mermaid
-sequenceDiagram
-    participant A as 请求 1
-    participant B as 请求 2..5
-    participant N as nginx 共享内存节点
-    participant U as 后端
-    A->>N: 节点不存在，建节点，updating=1
-    B->>N: updating=1，等待
-    A->>U: 回源，响应 2 到 3 秒
-    loop 最多每 500 毫秒
-        B->>N: 锁还在吗?
-    end
-    U-->>A: 响应完成，写缓存文件，updating=0
-    B->>N: 锁已释放，读文件，HIT
-```
+![proxy_cache_lock 时，第一个请求去后端，其他请求等锁释放后读文件](../figures/ops-10/06.svg)
 
 **小结**：热点内容上线、缓存刚清空时，`proxy_cache_lock on` 防止后端被同一个 URL 打穿。等待时间受 `lock_timeout`（默认 5 秒）限制，后端很慢时要相应调大。
 
@@ -515,16 +442,7 @@ ok - the old copy is sent as STALE when the backend fails; without use_stale the
 
 配了 `error timeout http_500` 的 location 返回 200 加旧内容，状态是 STALE；没配的把 500 原样交给客户端。注意 `http_500` 这类状态码要写进 `proxy_cache_use_stale` 才算失败，和运维篇 07 里 `proxy_next_upstream` 的规则一样。
 
-```mermaid
-flowchart TD
-    E[EXPIRED，回源] --> R{后端结果}
-    R -- 正常 --> W[新内容，重写缓存]
-    R -- 连接失败、超时或 500 --> N{还能换下一台后端?}
-    N -- 能 --> E
-    N -- 不能 --> S{失败类型在 proxy_cache_use_stale 里<br/>或 stale-if-error 未到期?}
-    S -- 是 --> ST[发旧内容，状态 STALE]
-    S -- 否 --> ER[把错误交给客户端]
-```
+![后端出错时 use_stale 用旧内容兜底，后端回 304 时只续期](../figures/ops-10/07.svg)
 
 另一种续期方式是 `proxy_cache_revalidate on`：条目过期后，nginx 用缓存里存的 ETag 和 Last-Modified 发条件请求，后端回 304 就只更新文件头里的有效期，不重传响应体：
 
@@ -592,13 +510,7 @@ ok - a value other than empty or 0 skips the lookup, and the fresh response repl
 
 `proxy_cache_bypass $http_x_refresh` 在值非空且不是 `0` 时跳过读缓存，状态是 BYPASS；回源拿到的响应仍会按 §3 的规则写进缓存，替换掉原来的条目，之后不带这个头的请求拿到的就是这次的新内容。所以它可以用来“强制刷新某个 URL”，前提是这个头不能让外部随意带进来。`proxy_no_cache` 正好相反，决定响应写不写。两者常一起写，表示这类请求既不读也不写。
 
-```mermaid
-flowchart LR
-    A[最后一次访问] --> B[expire = 访问时间 + inactive<br/>默认 600 秒]
-    B --> C{manager 醒来<br/>间隔最长 10 秒}
-    C -- 未到 expire --> C
-    C -- 已到 expire --> D[删文件和共享内存节点<br/>不看 valid_sec]
-```
+![缓存条目按 inactive 删除，与有效期无关](../figures/ops-10/08.svg)
 
 **小结**：`inactive` 决定磁盘上留什么，有效期决定拿出来能不能直接用。按访问频率设 `inactive`，按内容变化频率设有效期。
 

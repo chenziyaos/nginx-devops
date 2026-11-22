@@ -1,0 +1,42 @@
+{
+ "type": "tree",
+ "title": "每个块只看自己的直接父级，子级 UNSET 时才继承",
+ "subtitle": "从左到右是 http → server → location 的嵌套；“设了”是本块写了值，UNSET 的块取直接父级合并后的值",
+ "source": "来源：ngx_http.c、ngx_http_core_module.c（1.31.9）",
+ "root": {
+  "label": "http{} loc_conf",
+  "sub": "2m（设了）",
+  "children": [
+   {
+    "label": "server a loc_conf",
+    "sub": "UNSET → 2m",
+    "children": [
+     {
+      "label": "location /a",
+      "sub": "5m（设了）",
+      "children": [
+       {
+        "label": "location /a/b",
+        "sub": "UNSET → 5m"
+       }
+      ]
+     },
+     {
+      "label": "/c、=/exact、~\\.php$",
+      "sub": "UNSET → 2m"
+     }
+    ]
+   },
+   {
+    "label": "server b loc_conf",
+    "sub": "1m（设了）",
+    "children": [
+     {
+      "label": "location /",
+      "sub": "UNSET → 1m"
+     }
+    ]
+   }
+  ]
+ }
+}

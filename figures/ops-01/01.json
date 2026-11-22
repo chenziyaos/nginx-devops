@@ -1,0 +1,25 @@
+{
+ "type": "graph",
+ "title": "stable 只收修复，mainline 每月带新功能",
+ "subtitle": "1.29.8 之后分成两条线；上面是 stable，下面是 mainline，虚线是下一次切 stable",
+ "source": "来源：本文整理（nginx changes.xml）",
+ "stages": [
+  {"name": "1.29.x mainline", "nodes": [
+    {"id": "b", "title": "1.29.8", "sub": "2026-04-07"}]},
+  {"name": "切出 stable", "nodes": [
+    {"id": "s0", "title": "1.30.0", "sub": "2026-04-14"},
+    {"id": "m0", "title": "1.31.0", "sub": "2026-05-13"}]},
+  {"name": "之后", "nodes": [
+    {"id": "s7", "title": "1.30.1 … 1.30.7", "sub": "只有修复", "tone": "contrast"},
+    {"id": "m9", "title": "1.31.1 … 1.31.9", "sub": "新功能 + 修复", "tone": "main", "emph": true}]},
+  {"name": "将来", "nodes": [
+    {"id": "n", "title": "下一个偶数次版本", "sub": "从 mainline 切出"}]}
+ ],
+ "edges": [
+  {"from": "b", "to": "s0", "label": "stable"},
+  {"from": "b", "to": "m0", "label": "mainline"},
+  {"from": "s0", "to": "s7"},
+  {"from": "m0", "to": "m9"},
+  {"from": "m9", "to": "n", "dashed": true}
+ ]
+}

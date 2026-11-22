@@ -1,0 +1,16 @@
+{
+ "type": "table",
+ "title": "指令能写在哪一层，由它的 type 位决定",
+ "subtitle": "每层一个只能写在这一层的例子；add_header 的 type 位覆盖了 http 以下的四层",
+ "source": "来源：ngx_http_core_module.c、ngx_http_headers_filter_module.c（1.31.9）",
+ "columns": ["块", "例子指令", "type 位", "add_header"],
+ "rows": [
+  ["main", "worker_processes", "NGX_MAIN_CONF", {"text": "不能", "tone": "risk"}],
+  ["http", "max_header_size", "NGX_HTTP_MAIN_CONF", "能"],
+  ["server", "listen", "NGX_HTTP_SRV_CONF", "能"],
+  ["location", "return", "NGX_HTTP_LOC_CONF", "能"],
+  ["location 里的 if", "return", "NGX_HTTP_LIF_CONF", "能"]
+ ],
+ "highlight_col": 2,
+ "tone": "main"
+}

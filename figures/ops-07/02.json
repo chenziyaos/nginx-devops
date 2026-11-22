@@ -1,0 +1,26 @@
+{
+  "type": "cycle",
+  "title": "一台后端失败后进摘除状态、fail_timeout 到期后试探、成功恢复",
+  "subtitle": "从左上顺时针：初始可用 → 失败次数达到阈值 → 摘除期内不选 → 到期后试一次",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "steps": [
+    {
+      "title": "可用",
+      "sub": "正常参与选择"
+    },
+    {
+      "title": "失败",
+      "sub": "计数 >= max_fails（默认 1）",
+      "tone": "risk"
+    },
+    {
+      "title": "摘除期",
+      "sub": "fail_timeout（默认 10 秒）内不选"
+    },
+    {
+      "title": "试探",
+      "sub": "10 秒后放一个请求测试"
+    }
+  ],
+  "center": "max_fails、fail_timeout"
+}

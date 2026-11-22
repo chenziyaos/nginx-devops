@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 600" width="1200" height="600">
+<rect x="0" y="0" width="1200" height="600" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="26" fill="#1F2329" font-weight="bold" data-role="title">算法、keepalive、sticky 是同一个函数指针的三层包装，状态机只认最外层</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从外到内四层：proxy handler 给状态机一个 u-＞peer.get，状态机不知道后面还包着几层</text>
+<rect x="40" y="128" width="1120" height="72" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="170.3" font-size="18" fill="#646A73" font-weight="bold">proxy handler</text>
+<rect x="271.9" y="144" width="872.1" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="708" y="169" font-size="14" fill="#1F2329" text-anchor="middle">ngx_http_upstream_init</text>
+<rect x="40" y="212" width="1120" height="72" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="254.3" font-size="18" fill="#646A73" font-weight="bold">upstream 状态机</text>
+<rect x="271.9" y="228" width="430" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="486.9" y="253" font-size="14" fill="#1F2329" text-anchor="middle">connect / send / process_header</text>
+<rect x="714" y="228" width="430" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="929" y="253" font-size="14" fill="#1F2329" text-anchor="middle">u-＞peer.get / free</text>
+<rect x="40" y="296" width="1120" height="72" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="338.3" font-size="18" fill="#646A73" font-weight="bold">keepalive 层</text>
+<rect x="271.9" y="312" width="872.1" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="708" y="337" font-size="14" fill="#1F2329" text-anchor="middle">缓存里找同地址连接</text>
+<rect x="40" y="380" width="1120" height="72" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="422.3" font-size="18" fill="#646A73" font-weight="bold">sticky 层</text>
+<rect x="271.9" y="396" width="872.1" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="708" y="421" font-size="14" fill="#1F2329" text-anchor="middle">把 cookie 换成 hint</text>
+<rect x="40" y="464" width="1120" height="72" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="506.3" font-size="18" fill="#646A73" font-weight="bold">算法层</text>
+<rect x="271.9" y="480" width="430" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="486.9" y="505" font-size="14" fill="#1F2329" text-anchor="middle">round_robin / least_conn</text>
+<rect x="714" y="480" width="430" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="929" y="505" font-size="14" fill="#1F2329" text-anchor="middle">current_weight / effective_weight</text>
+<text x="40" y="576" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.9）</text>
+</svg>

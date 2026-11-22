@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 446" width="1200" height="446">
+<rect x="0" y="0" width="1200" height="446" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">指令能写在哪一层，由它的 type 位决定</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">每层一个只能写在这一层的例子；add_header 的 type 位覆盖了 http 以下的四层</text>
+<rect x="40" y="128" width="1120" height="254" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="129" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="160" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="592.4" y="129" width="340.2" height="252" fill="#F0F4FF"/>
+<rect x="592.4" y="129" width="340.2" height="43" fill="#E1EAFF"/>
+<line x1="40" y1="172" x2="1160" y2="172" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="214" x2="1159" y2="214" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1159" y2="256" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="298" x2="1159" y2="298" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="340" x2="1159" y2="340" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="592.4" y1="129" x2="592.4" y2="381" stroke="#82A7FC" stroke-width="1"/>
+<line x1="932.7" y1="129" x2="932.7" y2="381" stroke="#82A7FC" stroke-width="1"/>
+<rect x="40" y="128" width="1120" height="254" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="155" font-size="14" fill="#1F2329" font-weight="bold">块</text>
+<text x="315.7" y="155" font-size="14" fill="#1F2329" font-weight="bold">例子指令</text>
+<text x="610.4" y="155" font-size="14" fill="#245BDB" font-weight="bold">type 位</text>
+<text x="950.7" y="155" font-size="14" fill="#1F2329" font-weight="bold">add_header</text>
+<text x="58" y="197.9" font-size="14" fill="#1F2329">main</text>
+<text x="315.7" y="197.9" font-size="14" fill="#1F2329">worker_processes</text>
+<text x="610.4" y="197.9" font-size="14" fill="#245BDB" font-weight="bold">NGX_MAIN_CONF</text>
+<text x="950.7" y="197.9" font-size="14" fill="#D83931" font-weight="bold">不能</text>
+<text x="58" y="239.9" font-size="14" fill="#1F2329">http</text>
+<text x="315.7" y="239.9" font-size="14" fill="#1F2329">max_header_size</text>
+<text x="610.4" y="239.9" font-size="14" fill="#245BDB" font-weight="bold">NGX_HTTP_MAIN_CONF</text>
+<text x="950.7" y="239.9" font-size="14" fill="#1F2329">能</text>
+<text x="58" y="281.9" font-size="14" fill="#1F2329">server</text>
+<text x="315.7" y="281.9" font-size="14" fill="#1F2329">listen</text>
+<text x="610.4" y="281.9" font-size="14" fill="#245BDB" font-weight="bold">NGX_HTTP_SRV_CONF</text>
+<text x="950.7" y="281.9" font-size="14" fill="#1F2329">能</text>
+<text x="58" y="323.9" font-size="14" fill="#1F2329">location</text>
+<text x="315.7" y="323.9" font-size="14" fill="#1F2329">return</text>
+<text x="610.4" y="323.9" font-size="14" fill="#245BDB" font-weight="bold">NGX_HTTP_LOC_CONF</text>
+<text x="950.7" y="323.9" font-size="14" fill="#1F2329">能</text>
+<text x="58" y="365.9" font-size="14" fill="#1F2329">location 里的 if</text>
+<text x="315.7" y="365.9" font-size="14" fill="#1F2329">return</text>
+<text x="610.4" y="365.9" font-size="14" fill="#245BDB" font-weight="bold">NGX_HTTP_LIF_CONF</text>
+<text x="950.7" y="365.9" font-size="14" fill="#1F2329">能</text>
+<text x="40" y="422" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c、ngx_http_headers_filter_module.c（1.31.9）</text>
+</svg>

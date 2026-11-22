@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 673" width="1200" height="673">
+<rect x="0" y="0" width="1200" height="673" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">control API PATCH 返回同步结果，省去翻 error.log 的步骤</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上向下；alt/else 分支代表配置是否加载成功，状态码区分失败（422）和成功（200）</text>
+<line x1="320" y1="186" x2="320" y2="609" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="220" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="320" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">发布脚本</text>
+<line x1="880" y1="186" x2="880" y2="609" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="780" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="880" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master</text>
+<text x="880" y="172" font-size="12" fill="#646A73" text-anchor="middle">-l 127.0.0.1:18079</text>
+<text x="330" y="220.6" font-size="13" fill="#1F2329">PATCH /1/control/config</text>
+<polyline points="320,229 868,229" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="868,223 878,229 868,235" fill="#8F959E"/>
+<text x="870" y="261.6" font-size="13" fill="#1F2329" text-anchor="end">ngx_init_cycle，日志同时写入收集器</text>
+<polyline points="880,270 854,270 854,288 866,288" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="866,282 876,288 866,294" fill="#8F959E"/>
+<rect x="40" y="312" width="47.4" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="63.7" y="328.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">失败</text>
+<line x1="95.4" y1="324" x2="1160" y2="324" stroke="#EFF0F1" stroke-width="1"/>
+<text x="870" y="362.6" font-size="13" fill="#1F2329" text-anchor="end">422 + 收集到的 emerg 行</text>
+<polyline points="880,371 332,371" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="332,365 322,371 332,377" fill="#8F959E"/>
+<rect x="40" y="387" width="47.4" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="63.7" y="403.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">成功</text>
+<line x1="95.4" y1="399" x2="1160" y2="399" stroke="#EFF0F1" stroke-width="1"/>
+<text x="870" y="437.6" font-size="13" fill="#1F2329" text-anchor="end">200 + 日志行</text>
+<polyline points="880,446 332,446" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="332,440 322,446 332,452" fill="#8F959E"/>
+<text x="870" y="478.6" font-size="13" fill="#1F2329" text-anchor="end">启动新 worker，老 worker 收到 QUIT</text>
+<polyline points="880,487 854,487 854,505 866,505" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="866,499 876,505 866,511" fill="#8F959E"/>
+<text x="330" y="545.5" font-size="13" fill="#1F2329">GET /1/control/processes</text>
+<polyline points="320,554 868,554" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="868,548 878,554 868,560" fill="#8F959E"/>
+<text x="870" y="586.5" font-size="13" fill="#1F2329" text-anchor="end">列出 exiting=true 的老 worker，直到它们退完</text>
+<polyline points="880,595 332,595" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="332,589 322,595 332,601" fill="#8F959E"/>
+<text x="40" y="649" font-size="12" fill="#646A73" data-role="source">来源：nginx 源码、labs/ops-03 实验（1.31.5 以上版本）</text>
+</svg>

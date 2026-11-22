@@ -1,0 +1,59 @@
+{
+  "type": "sequence",
+  "title": "延迟用写事件定时器实现，不阻塞 worker 但占着连接",
+  "subtitle": "时间从上到下；delay 毫秒后定时器到期，请求继续处理下一个阶段",
+  "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+  "actors": [
+    {
+      "name": "客户端"
+    },
+    {
+      "name": "PREACCESS"
+    },
+    {
+      "name": "定时器红黑树"
+    },
+    {
+      "name": "后续阶段"
+    }
+  ],
+  "messages": [
+    {
+      "from": "客户端",
+      "to": "PREACCESS",
+      "text": "请求，excess = 3000"
+    },
+    {
+      "from": "PREACCESS",
+      "to": "PREACCESS",
+      "text": "account：delay = 2000ms"
+    },
+    {
+      "from": "PREACCESS",
+      "to": "定时器红黑树",
+      "text": "ngx_add_timer(write, 2000)"
+    },
+    {
+      "from": "PREACCESS",
+      "to": "客户端",
+      "text": "NGX_AGAIN",
+      "reply": true
+    },
+    {
+      "from": "定时器红黑树",
+      "to": "PREACCESS",
+      "text": "2000 ms 后到期"
+    },
+    {
+      "from": "PREACCESS",
+      "to": "后续阶段",
+      "text": "ngx_http_core_run_phases"
+    },
+    {
+      "from": "后续阶段",
+      "to": "客户端",
+      "text": "200",
+      "reply": true
+    }
+  ]
+}

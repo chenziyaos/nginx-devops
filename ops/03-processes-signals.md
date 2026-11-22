@@ -55,15 +55,7 @@ master 已经脱离终端成为守护进程（父进程是 1），进程标题�
 
 下面这张图说明各进程的分工：只有 worker 和客户端打交道，master 和缓存进程都不碰请求。
 
-```mermaid
-flowchart TD
-    M["master：读配置、开监听端口、管日志、收信号"] --> W1["worker 1：accept 与处理请求"]
-    M --> W2["worker 2：accept 与处理请求"]
-    M --> CM["cache manager：按 max_size / inactive 清理缓存"]
-    M --> CL["cache loader：启动时载入已有缓存，完成后退出"]
-    C["客户端"] --> W1
-    C --> W2
-```
+![只有 worker 处理请求，master 只管进程](../figures/ops-03/01.svg)
 
 **小结**：worker 数量通常设成 CPU 数（或容器配额），连接上限看 `worker_connections` 和文件描述符上限。master 不处理请求，它的稳定性决定了 reload、升级、崩溃恢复能不能做。
 
@@ -194,23 +186,7 @@ reload 后 master 不变，新请求立即由新 worker 用新配置回答；两
 [notice] worker process N exited with code 0
 ```
 
-```mermaid
-sequenceDiagram
-    participant Op as 运维
-    participant M as master
-    participant O as 老 worker
-    participant N as 新 worker
-    Op->>M: HUP（nginx -s reload）
-    M->>M: ngx_init_cycle(新配置)
-    alt 新配置有错
-        M->>M: 记 emerg，继续用老 cycle
-    else 成功
-        M->>N: fork 新 worker（JUST_RESPAWN）
-        M->>O: QUIT
-        O->>O: 关监听和空闲连接，做完手上的请求
-        O-->>M: 退出（SIGCHLD）
-    end
-```
+![新配置成功才启动新 worker，失败时老 worker 照常工作](../figures/ops-03/02.svg)
 
 这个机制有两个推论。第一，reload 期间新老 worker 同时存在，内存和连接数会短暂翻倍；长连接（WebSocket、大文件下载、gRPC 流）多的服务，老 worker 可能存活很久，频繁 reload 会让多代老 worker 叠在一起。第二，共享内存区（`limit_req_zone`、`proxy_cache_path` 的 `keys_zone`）在名字、大小不变时被新 cycle 复用，状态不丢；改了大小就是一块新区域，开发篇 08 的实验演示过这一点。
 
@@ -241,16 +217,7 @@ ok - the signaller parses the config itself and does not send HUP
 
 两条路径的差别在于错误在哪个进程里被发现：
 
-```mermaid
-flowchart TD
-    A["nginx -s reload"] --> B{"信号发送者解析配置成功？"}
-    B -- "否：语法错误等" --> E1["stderr 打印 emerg，退出码 1，HUP 没有发出"]
-    B -- "是" --> H["向 master 发 HUP，退出码 0"]
-    K["kill -HUP master"] --> H
-    H --> C{"master 的 ngx_init_cycle 成功？"}
-    C -- "否：语法错误、端口占用、证书读不了" --> E2["error.log 记 emerg，老 worker 继续"]
-    C -- "是" --> OK["新 worker 接班"]
-```
+![nginx -s reload 会先自检配置，kill -HUP 的错误只记在 error.log](../figures/ops-03/03.svg)
 
 **小结**：reload 失败不会让服务中断，但也不会大声报错。`nginx -s reload` 的退出码只能说明信号发出去了，判断是否生效要看 error.log 或 worker pid。
 
@@ -309,14 +276,7 @@ QUIT during a download: 200 complete
 
 `000` 是 curl 连接被拒绝时的状态码。从负载均衡后面摘下一台 nginx 时，先让负载均衡停止转发，再发 QUIT，才能做到客户端无感。
 
-```mermaid
-flowchart TD
-    A["老 worker 收到 QUIT"] --> B["关闭监听 socket 和空闲 keepalive 连接"]
-    B --> C{"老 worker 的配置里有 worker_shutdown_timeout？"}
-    C -- "没有" --> D["等最后一个请求结束才退出"]
-    C -- "有" --> E["到期后关闭剩余连接并退出"]
-    F["TERM / INT"] --> G["立即关闭连接退出"]
-```
+![QUIT 等请求做完，worker_shutdown_timeout 给它设上限](../figures/ops-03/04.svg)
 
 **小结**：`worker_shutdown_timeout` 要提前上线一次，下次 reload 才对老 worker 生效。日常停机用 QUIT，紧急情况才用 TERM。
 
@@ -369,17 +329,7 @@ after QUIT: old master alive: 0, oldbin file left: no, answers: v1
 
 USR2 之后两套 master 和 worker 同时在线，共享同一组监听 socket，新连接可能被任意一边接走。WINCH 让老 worker 优雅退出，但老 master 保留：此时如果发现新版本有问题，给老 master 发 HUP，它会用老二进制重新启动 worker（§2 摘录里 `ngx_new_binary` 的分支），再对新 master 发 QUIT，就回到了升级前的状态。确认新版本没问题后，对老 master 发 QUIT，它退出并删除 `nginx.pid.oldbin`。
 
-```mermaid
-stateDiagram-v2
-    s1: 老 master + 老 worker
-    s2: 两套 master 和 worker 并存
-    s3: 老 master 无 worker，新 master + 新 worker
-    s4: 只剩新 master + 新 worker
-    s1 --> s2: USR2 老 master
-    s2 --> s3: WINCH 老 master
-    s3 --> s4: QUIT 老 master
-    s3 --> s2: HUP 老 master（回滚：重启老 worker）
-```
+![二进制升级的回滚窗口：WINCH 后、QUIT 前用 HUP 恢复老 worker](../figures/ops-03/05.svg)
 
 **小结**：二进制升级的回滚窗口在 WINCH 之后、QUIT 之前，这段时间老 master 还在。用 systemd 管理时，要确认服务单元允许主进程 pid 变化，否则 systemd 可能在老 master 退出时认为服务停止了。
 
@@ -445,21 +395,7 @@ GET /1/control/processes:
 
 control API 没有认证，拿到它就能替换配置，所以只能监听在 `127.0.0.1` 或权限受控的 unix socket 上，不能对外暴露。
 
-```mermaid
-sequenceDiagram
-    participant D as 发布脚本
-    participant M as master（-l 127.0.0.1:18079）
-    D->>M: PATCH /1/control/config
-    M->>M: ngx_init_cycle，日志同时写入收集器
-    alt 失败
-        M-->>D: 422 + 收集到的 emerg 行
-    else 成功
-        M-->>D: 200 + 日志行
-        M->>M: 启动新 worker，老 worker 收到 QUIT
-    end
-    D->>M: GET /1/control/processes
-    M-->>D: 列出 exiting=true 的老 worker，直到它们退完
-```
+![control API PATCH 返回同步结果，省去翻 error.log 的步骤](../figures/ops-03/06.svg)
 
 **小结**：有 1.31.5 以上版本时，发布脚本可以用 `PATCH /1/control/config` 替代“`-s reload` 再翻 error.log”，用状态码判断成败，用 `/1/control/processes` 观察老 worker 是否已经退完。
 

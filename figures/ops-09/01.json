@@ -1,0 +1,76 @@
+{
+ "type": "graph",
+ "title": "return 在 REWRITE 阶段就结束请求，限流没有机会运行",
+ "subtitle": "只画出和本篇有关的阶段；从左到右是请求经过的顺序，蓝色是限流模块所在的阶段",
+ "source": "来源：ngx_http_core_module.h、ngx_http_limit_req_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "SERVER_REWRITE / REWRITE",
+   "nodes": [
+    {
+     "id": "rw",
+     "title": "rewrite 模块",
+     "sub": "return 200 · rewrite · set"
+    }
+   ]
+  },
+  {
+   "name": "PREACCESS",
+   "nodes": [
+    {
+     "id": "ret",
+     "title": "直接生成响应",
+     "sub": "限流模块没有运行",
+     "tone": "risk"
+    },
+    {
+     "id": "pre",
+     "title": "限流",
+     "sub": "realip → limit_req → limit_conn",
+     "tone": "main",
+     "emph": true
+    }
+   ]
+  },
+  {
+   "name": "ACCESS",
+   "nodes": [
+    {
+     "id": "acc",
+     "title": "访问控制",
+     "sub": "allow / deny · auth_basic"
+    }
+   ]
+  },
+  {
+   "name": "CONTENT",
+   "nodes": [
+    {
+     "id": "cnt",
+     "title": "生成内容",
+     "sub": "静态文件 · proxy_pass"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "rw",
+   "to": "ret",
+   "label": "return"
+  },
+  {
+   "from": "rw",
+   "to": "pre",
+   "label": "无 return"
+  },
+  {
+   "from": "pre",
+   "to": "acc"
+  },
+  {
+   "from": "acc",
+   "to": "cnt"
+  }
+ ]
+}

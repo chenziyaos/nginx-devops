@@ -1,0 +1,38 @@
+{
+ "type": "flow",
+ "title": "模块不主动做任何事，所有代码都在框架回调时运行",
+ "subtitle": "从左到右是 nginx 启动和请求处理的顺序；蓝色是本篇的 hello 模块参与的回调",
+ "source": "来源：本文整理（1.31.9）",
+ "steps": [
+  {
+   "title": "load_module",
+   "lines": ["dlopen、ngx_add_module"],
+   "tone": "main"
+  },
+  {
+   "title": "preconfiguration",
+   "lines": ["登记变量"],
+   "tone": "main"
+  },
+  {
+   "title": "create_loc_conf",
+   "lines": ["每个 server、location 一份"],
+   "tone": "main"
+  },
+  {
+   "title": "merge_loc_conf",
+   "lines": ["子级没设的取父级"],
+   "tone": "main"
+  },
+  {
+   "title": "postconfiguration",
+   "lines": ["压入 header filter"],
+   "tone": "main"
+  },
+  {
+   "title": "请求处理",
+   "lines": ["content handler、filter、变量"],
+   "tone": "main"
+  }
+ ]
+}

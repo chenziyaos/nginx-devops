@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1300 488" width="1300" height="488">
+<rect x="0" y="0" width="1300" height="488" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">选数据结构先看什么时候建，再看地址稳不稳、按什么找</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">每行一种用法；第一列是要回答的问题，第二列是 nginx 给的结构</text>
+<rect x="40" y="128" width="1220" height="296" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="129" width="1218" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="160" width="1218" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="172" x2="1260" y2="172" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="214" x2="1259" y2="214" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1259" y2="256" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="298" x2="1259" y2="298" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="340" x2="1259" y2="340" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="382" x2="1259" y2="382" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="155" font-size="14" fill="#1F2329" font-weight="bold">怎么用</text>
+<text x="487.5" y="155" font-size="14" fill="#1F2329" font-weight="bold">选</text>
+<text x="823.2" y="155" font-size="14" fill="#1F2329" font-weight="bold">典型用途</text>
+<text x="58" y="197.9" font-size="14" fill="#1F2329">配置期建好，请求期只查</text>
+<text x="487.5" y="197.9" font-size="14" fill="#1F2329">ngx_hash_t</text>
+<text x="823.2" y="197.9" font-size="14" fill="#1F2329">server_name、变量、MIME 类型</text>
+<text x="58" y="239.9" font-size="14" fill="#1F2329">请求期追加，别处保存了元素指针</text>
+<text x="487.5" y="239.9" font-size="14" fill="#1F2329">ngx_list_t</text>
+<text x="823.2" y="239.9" font-size="14" fill="#1F2329">请求头、响应头</text>
+<text x="58" y="281.9" font-size="14" fill="#1F2329">请求期追加，地址可以变</text>
+<text x="487.5" y="281.9" font-size="14" fill="#1F2329">ngx_array_t</text>
+<text x="823.2" y="281.9" font-size="14" fill="#1F2329">配置数组、临时列表</text>
+<text x="58" y="323.9" font-size="14" fill="#1F2329">长期存在，按顺序或 LRU</text>
+<text x="487.5" y="323.9" font-size="14" fill="#1F2329">ngx_queue_t</text>
+<text x="823.2" y="323.9" font-size="14" fill="#1F2329">keepalive 连接、LRU 队列</text>
+<text x="58" y="365.9" font-size="14" fill="#1F2329">长期存在，按键或时间找</text>
+<text x="487.5" y="365.9" font-size="14" fill="#1F2329">ngx_rbtree_t</text>
+<text x="823.2" y="365.9" font-size="14" fill="#1F2329">定时器、limit_req、缓存索引</text>
+<text x="58" y="407.9" font-size="14" fill="#1F2329">长期存在，按 IP 前缀找</text>
+<text x="487.5" y="407.9" font-size="14" fill="#1F2329">ngx_radix_tree_t</text>
+<text x="823.2" y="407.9" font-size="14" fill="#1F2329">geo</text>
+<text x="40" y="464" font-size="12" fill="#646A73" data-role="source">来源：本文整理</text>
+</svg>

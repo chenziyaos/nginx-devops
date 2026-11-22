@@ -1,0 +1,49 @@
+{
+ "type": "sequence",
+ "title": "锁值存的是 pid，持有者死后只能由 master 清掉",
+ "subtitle": "时间从上到下；锁值在共享内存里，CAS 指令保证原子性",
+ "source": "来源：labs/dev-03 实验输出",
+ "actors": [
+  {
+   "title": "子进程"
+  },
+  {
+   "title": "锁值"
+  },
+  {
+   "title": "master"
+  }
+ ],
+ "messages": [
+  {
+   "from": "子进程",
+   "to": "锁值",
+   "label": "CAS 0 → 子 pid"
+  },
+  {
+   "from": "子进程",
+   "to": "子进程",
+   "label": "_exit（不解锁）"
+  },
+  {
+   "from": "master",
+   "to": "锁值",
+   "label": "trylock\nCAS 0 → 自 pid，失败"
+  },
+  {
+   "from": "master",
+   "to": "锁值",
+   "label": "force_unlock(pid+1)\n值不符，返回 0"
+  },
+  {
+   "from": "master",
+   "to": "锁值",
+   "label": "force_unlock(子 pid)\nCAS pid → 0，返回 1"
+  },
+  {
+   "from": "master",
+   "to": "锁值",
+   "label": "trylock 成功"
+  }
+ ]
+}

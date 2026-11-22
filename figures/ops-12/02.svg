@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 494" width="1200" height="494">
+<rect x="0" y="0" width="1200" height="494" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">TCP 代理中四个字节计数各自在哪一段累加，对得上说明转发完整</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">竖向是时间轴，$bytes_received 等于 $upstream_bytes_sent 时转发无损</text>
+<line x1="226.7" y1="168" x2="226.7" y2="430" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">客户端</text>
+<line x1="600" y1="168" x2="600" y2="430" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx :18240</text>
+<line x1="973.3" y1="168" x2="973.3" y2="430" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">后端 :18250</text>
+<text x="236.7" y="202.6" font-size="13" fill="#1F2329">18 字节（bytes_received）</text>
+<polyline points="226.7,211 588,211" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,205 598,211 588,217" fill="#8F959E"/>
+<text x="610" y="243.6" font-size="13" fill="#1F2329">18 字节（upstream_bytes_sent）</text>
+<polyline points="600,252 961.3,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,246 971.3,252 961.3,258" fill="#8F959E"/>
+<text x="963.3" y="284.6" font-size="13" fill="#1F2329" text-anchor="end">145 字节（upstream_bytes_received）</text>
+<polyline points="973.3,293 612,293" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,287 602,293 612,299" fill="#8F959E"/>
+<text x="590" y="325.6" font-size="13" fill="#1F2329" text-anchor="end">145 字节（bytes_sent）</text>
+<polyline points="600,334 238.7,334" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="238.7,328 228.7,334 238.7,340" fill="#8F959E"/>
+<text x="963.3" y="366.6" font-size="13" fill="#1F2329" text-anchor="end">关闭</text>
+<polyline points="973.3,375 612,375" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,369 602,375 612,381" fill="#8F959E"/>
+<text x="590" y="407.6" font-size="13" fill="#1F2329" text-anchor="end">关闭，写一行日志</text>
+<polyline points="600,416 238.7,416" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="238.7,410 228.7,416 238.7,422" fill="#8F959E"/>
+<text x="40" y="470" font-size="12" fill="#646A73" data-role="source">来源：labs/ops-12 实验输出</text>
+</svg>

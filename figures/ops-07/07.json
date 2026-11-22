@@ -1,0 +1,45 @@
+{
+  "type": "sequence",
+  "title": "sticky cookie：第一个请求分配 cookie，之后的请求一直去同一台",
+  "subtitle": "从上到下：浏览器 → nginx → 后端的三方交互；后端地址的 MD5 值作为 cookie",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "actors": [
+    "浏览器",
+    "nginx（sticky）",
+    "后端 A"
+  ],
+  "messages": [
+    {
+      "from": "浏览器",
+      "to": "nginx（sticky）",
+      "text": "第一个请求（无 cookie）"
+    },
+    {
+      "from": "nginx（sticky）",
+      "to": "后端 A",
+      "text": "按轮询选中"
+    },
+    {
+      "from": "nginx（sticky）",
+      "to": "浏览器",
+      "text": "Set-Cookie: md5(127.0.0.1:18141)",
+      "reply": true
+    },
+    {
+      "from": "浏览器",
+      "to": "nginx（sticky）",
+      "text": "之后的请求（带 cookie）"
+    },
+    {
+      "from": "nginx（sticky）",
+      "to": "后端 A",
+      "text": "按 SID 匹配，直接选"
+    },
+    {
+      "from": "nginx（sticky）",
+      "to": "浏览器",
+      "text": "A 摘除时另选，写回新 cookie",
+      "reply": true
+    }
+  ]
+}

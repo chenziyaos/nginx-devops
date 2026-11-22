@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 440" width="1200" height="440">
+<rect x="0" y="0" width="1200" height="440" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">nginx -t 创建 *_temp 目录和空 pid 文件，像真正启动一样走初始化</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是执行顺序；蓝色圆圈是关键副作用</text>
+<rect x="40" y="128" width="336" height="96" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="352" cy="154" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="352" y="158.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">1</text>
+<text x="60" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">解析 -g 指令</text>
+<rect x="432" y="128" width="336" height="96" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="744" cy="154" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="744" y="158.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">2</text>
+<text x="452" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">解析配置文件</text>
+<text x="452" y="197.9" font-size="14" fill="#646A73">syntax is ok</text>
+<rect x="824" y="128" width="336" height="96" rx="12" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="step"/>
+<circle cx="1136" cy="154" r="13" fill="#E1EAFF" stroke="#3370FF" stroke-width="2"/>
+<text x="1136" y="158.5" font-size="13" fill="#245BDB" font-weight="bold" text-anchor="middle">3</text>
+<text x="844" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">打开 pid 文件</text>
+<text x="844" y="197.9" font-size="14" fill="#646A73">不写内容</text>
+<rect x="40" y="280" width="336" height="96" rx="12" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="step"/>
+<circle cx="352" cy="306" r="13" fill="#E1EAFF" stroke="#3370FF" stroke-width="2"/>
+<text x="352" y="310.5" font-size="13" fill="#245BDB" font-weight="bold" text-anchor="middle">4</text>
+<text x="60" y="320.3" font-size="18" fill="#1F2329" font-weight="bold">创建 *_temp 目录</text>
+<text x="60" y="349.9" font-size="14" fill="#646A73">client_body_temp 等</text>
+<rect x="432" y="280" width="336" height="96" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="744" cy="306" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="744" y="310.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">5</text>
+<text x="452" y="320.3" font-size="18" fill="#1F2329" font-weight="bold">打开日志和检查监听</text>
+<text x="452" y="349.9" font-size="14" fill="#646A73">address already in use</text>
+<rect x="824" y="280" width="336" height="96" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="1136" cy="306" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="1136" y="310.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">6</text>
+<text x="844" y="320.3" font-size="18" fill="#1F2329" font-weight="bold">退出，不启动 worker</text>
+<polyline points="382,176 416,176" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="416,170 426,176 416,182" fill="#8F959E"/>
+<polyline points="774,176 808,176" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="808,170 818,176 808,182" fill="#8F959E"/>
+<polyline points="992,228 992,252 208,252 208,266" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="202,266 208,276 214,266" fill="#8F959E"/>
+<polyline points="382,328 416,328" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="416,322 426,328 416,334" fill="#8F959E"/>
+<polyline points="774,328 808,328" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="808,322 818,328 808,334" fill="#8F959E"/>
+<text x="40" y="416" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_cycle.c（1.31.9）</text>
+</svg>

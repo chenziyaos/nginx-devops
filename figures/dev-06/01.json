@@ -1,0 +1,38 @@
+{
+  "type": "flow",
+  "title": "读请求、跑阶段、发响应、count 归零才释放",
+  "subtitle": "从左到右；绿色是事件驱动的读写，蓝色是同步的阶段遍历",
+  "source": "来源：本文整理",
+  "steps": [
+    {
+      "title": "accept",
+      "lines": ["ngx_http_init_connection"]
+    },
+    {
+      "title": "读请求行/头",
+      "lines": ["状态机换三次处理函数"],
+      "tone": "good"
+    },
+    {
+      "title": "整体校验",
+      "lines": ["ngx_http_process_request_header"]
+    },
+    {
+      "title": "阶段数组",
+      "lines": ["ngx_http_core_run_phases"],
+      "tone": "main"
+    },
+    {
+      "title": "header / body 过滤",
+      "lines": ["模块链从后往前执行"]
+    },
+    {
+      "title": "finalize_request",
+      "lines": ["count 归零，释放请求"]
+    },
+    {
+      "title": "连接处理",
+      "lines": ["keepalive / 延迟关闭 / 关闭"]
+    }
+  ]
+}

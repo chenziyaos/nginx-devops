@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1300 658" width="1300" height="658">
+<rect x="0" y="0" width="1300" height="658" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="27" fill="#1F2329" font-weight="bold" data-role="title">11 个 HTTP 阶段被拍平成数组；POST_REWRITE 可以回跳到 FIND_CONFIG</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从左到右、从上到下是数组顺序；POST_REWRITE 发现 URI 被改，就跳回 FIND_CONFIG 重新找 location</text>
+<rect x="40" y="128" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">POST_READ</text>
+<text x="60" y="197.9" font-size="14" fill="#646A73">realip</text>
+<rect x="359" y="128" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="379" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">SERVER_REWRITE</text>
+<text x="379" y="197.9" font-size="14" fill="#646A73">rewrite</text>
+<rect x="678" y="128" width="263" height="118" rx="12" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="step"/>
+<text x="698" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">FIND_CONFIG</text>
+<text x="698" y="197.9" font-size="14" fill="#646A73">匹配 location</text>
+<rect x="997" y="128" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="1017" y="168.3" font-size="18" fill="#1F2329" font-weight="bold">REWRITE</text>
+<text x="1017" y="197.9" font-size="14" fill="#646A73">rewrite</text>
+<rect x="40" y="302" width="263" height="118" rx="12" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="step"/>
+<text x="60" y="342.3" font-size="18" fill="#1F2329" font-weight="bold">POST_REWRITE</text>
+<text x="60" y="371.9" font-size="14" fill="#646A73">URI 被改则回到 FIND_CONFIG</text>
+<rect x="359" y="302" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="379" y="342.3" font-size="18" fill="#1F2329" font-weight="bold">PREACCESS</text>
+<text x="379" y="371.9" font-size="14" fill="#646A73">realip、limit_req、limit_conn</text>
+<rect x="678" y="302" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="698" y="342.3" font-size="18" fill="#1F2329" font-weight="bold">ACCESS</text>
+<text x="698" y="371.9" font-size="14" fill="#646A73">access、auth_basic、</text>
+<text x="698" y="393.9" font-size="14" fill="#646A73">auth_request</text>
+<rect x="997" y="302" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="1017" y="342.3" font-size="18" fill="#1F2329" font-weight="bold">POST_ACCESS</text>
+<text x="1017" y="371.9" font-size="14" fill="#646A73">检查 access 结果</text>
+<rect x="40" y="476" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="516.3" font-size="18" fill="#1F2329" font-weight="bold">PRECONTENT</text>
+<text x="60" y="545.9" font-size="14" fill="#646A73">try_files、mirror</text>
+<rect x="359" y="476" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="379" y="516.3" font-size="18" fill="#1F2329" font-weight="bold">CONTENT</text>
+<text x="379" y="545.9" font-size="14" fill="#646A73">index、autoindex、</text>
+<text x="379" y="567.9" font-size="14" fill="#646A73">gzip_static、static</text>
+<rect x="678" y="476" width="263" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="698" y="516.3" font-size="18" fill="#1F2329" font-weight="bold">LOG</text>
+<text x="698" y="545.9" font-size="14" fill="#646A73">日志在请求结束时单独调用</text>
+<polyline points="309,187 343,187" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="343,181 353,187 343,193" fill="#8F959E"/>
+<polyline points="628,187 662,187" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="662,181 672,187 662,193" fill="#8F959E"/>
+<polyline points="947,187 981,187" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="981,181 991,187 981,193" fill="#8F959E"/>
+<polyline points="1128.5,250 1128.5,274 171.5,274 171.5,288" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="165.5,288 171.5,298 177.5,288" fill="#8F959E"/>
+<polyline points="309,361 343,361" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="343,355 353,361 343,367" fill="#8F959E"/>
+<polyline points="628,361 662,361" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="662,355 672,361 662,367" fill="#8F959E"/>
+<polyline points="947,361 981,361" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="981,355 991,361 981,367" fill="#8F959E"/>
+<polyline points="1128.5,424 1128.5,448 171.5,448 171.5,462" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="165.5,462 171.5,472 177.5,462" fill="#8F959E"/>
+<polyline points="309,535 343,535" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="343,529 353,535 343,541" fill="#8F959E"/>
+<polyline points="628,535 662,535" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="662,529 672,535 662,541" fill="#8F959E"/>
+<text x="40" y="634" font-size="12" fill="#646A73" data-role="source">来源：src/http/ngx_http.c、src/http/ngx_http_core_module.h（1.31.9）</text>
+</svg>

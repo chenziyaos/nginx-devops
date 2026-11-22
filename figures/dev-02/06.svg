@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 455" width="1200" height="455">
+<rect x="0" y="0" width="1200" height="455" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">定时器用差值比较容忍溢出；普通比较给出错的先后顺序</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">对同一对键：a=2^64-16，b=16（回绕后）；绿色是定时器正确的做法</text>
+<rect x="40" y="128" width="548" height="263" rx="12" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="520.6" y="148" width="47.4" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="544.3" y="164.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">错误</text>
+<circle cx="71" cy="157" r="11" fill="#FFFFFF" stroke="#BBBFC4" stroke-width="2" data-role="card-id"/>
+<text x="71" y="162" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">v1</text>
+<text x="90" y="168.5" font-size="20" fill="#646A73" font-weight="bold" data-role="card-title">insert_value</text>
+<text x="90" y="191.6" font-size="13" fill="#646A73">普通比较</text>
+<line x1="60" y1="213" x2="568" y2="213" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="247" font-size="14" fill="#646A73">a 值</text>
+<text x="568" y="247" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">2^64 - 16</text>
+<line x1="60" y1="261" x2="568" y2="261" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="285" font-size="14" fill="#646A73">b 值</text>
+<text x="568" y="285" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">16</text>
+<line x1="60" y1="299" x2="568" y2="299" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="323" font-size="14" fill="#646A73">比较</text>
+<text x="568" y="323" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">a ＜ b ？否</text>
+<line x1="60" y1="337" x2="568" y2="337" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="361" font-size="14" fill="#646A73">最小</text>
+<text x="568" y="361" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">b</text>
+<rect x="612" y="128" width="548" height="263" rx="12" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="624" y="127" width="524" height="3" rx="1.5" fill="#BBBFC4" data-role="colorline"/>
+<rect x="1092.6" y="148" width="47.4" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="1116.3" y="164.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">正确</text>
+<circle cx="643" cy="157" r="11" fill="#FFFFFF" stroke="#BBBFC4" stroke-width="2" data-role="card-id"/>
+<text x="643" y="162" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">v2</text>
+<text x="662" y="168.5" font-size="20" fill="#646A73" font-weight="bold" data-role="card-title">insert_timer_value</text>
+<text x="662" y="191.6" font-size="13" fill="#646A73">差值比较</text>
+<line x1="632" y1="213" x2="1140" y2="213" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="247" font-size="14" fill="#646A73">a 值</text>
+<text x="1140" y="247" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">2^64 - 16</text>
+<line x1="632" y1="261" x2="1140" y2="261" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="285" font-size="14" fill="#646A73">b 值</text>
+<text x="1140" y="285" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">16</text>
+<line x1="632" y1="299" x2="1140" y2="299" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="323" font-size="14" fill="#646A73">比较</text>
+<text x="1140" y="323" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">(a-b)＜0 ？是</text>
+<line x1="632" y1="337" x2="1140" y2="337" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="361" font-size="14" fill="#646A73">最小</text>
+<text x="1140" y="361" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">a</text>
+<text x="40" y="431" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_rbtree.c（1.31.9）、labs/dev-02 实验输出</text>
+</svg>

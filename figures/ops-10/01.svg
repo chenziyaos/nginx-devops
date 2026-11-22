@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 514" width="1200" height="514">
+<rect x="0" y="0" width="1200" height="514" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">只有 MISS 和过期的请求才回源，回来的响应再决定存不存</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">一个请求经过 proxy_cache 的路径；绿色是不用回源或写进缓存的出口</text>
+<text x="113.6" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">预检</text>
+<text x="356.8" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">查缓存</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">条目状态</text>
+<text x="843.2" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">响应</text>
+<text x="1086.4" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结果</text>
+<polyline points="191.2,252 232.2,252 232.2,200 269.2,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,194 279.2,200 269.2,206" fill="#8F959E"/>
+<polyline points="191.2,252 232.2,252 232.2,304 269.2,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,298 279.2,304 269.2,310" fill="#8F959E"/>
+<polyline points="434.4,304 475.4,304 475.4,200 512.4,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,194 522.4,200 512.4,206" fill="#8F959E"/>
+<polyline points="434.4,304 512.4,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,298 522.4,304 512.4,310" fill="#8F959E"/>
+<polyline points="434.4,304 475.4,304 475.4,408 512.4,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,402 522.4,408 512.4,414" fill="#8F959E"/>
+<polyline points="677.6,304 718.6,304 718.6,356 755.6,356" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,350 765.6,356 755.6,362" fill="#8F959E"/>
+<polyline points="677.6,408 718.6,408 718.6,356 755.6,356" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,350 765.6,356 755.6,362" fill="#8F959E"/>
+<polyline points="920.8,356 961.8,356 961.8,304 998.8,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,298 1008.8,304 998.8,310" fill="#8F959E"/>
+<polyline points="920.8,356 961.8,356 961.8,408 998.8,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,402 1008.8,408 998.8,414" fill="#8F959E"/>
+<rect x="40" y="210" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="113.6" y="237.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">能用缓存吗？</text>
+<text x="113.6" y="257.7" font-size="12" fill="#646A73" text-anchor="middle">看请求方法和</text>
+<text x="113.6" y="276.7" font-size="12" fill="#646A73" text-anchor="middle">bypass 条件</text>
+<rect x="283.2" y="158" width="147.2" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">BYPASS</text>
+<text x="356.8" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">或直接回源</text>
+<rect x="283.2" y="262" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="289.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">找节点</text>
+<text x="356.8" y="309.7" font-size="12" fill="#646A73" text-anchor="middle">算键 → MD5 → 共享</text>
+<text x="356.8" y="328.7" font-size="12" fill="#646A73" text-anchor="middle">内存</text>
+<rect x="526.4" y="158" width="147.2" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="600" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">HIT</text>
+<text x="600" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">新鲜</text>
+<rect x="526.4" y="262" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">MISS</text>
+<text x="600" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">不存在：回源</text>
+<rect x="526.4" y="366" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="393.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">过期</text>
+<text x="600" y="413.7" font-size="12" fill="#646A73" text-anchor="middle">EXPIRED / STALE</text>
+<text x="600" y="432.7" font-size="12" fill="#646A73" text-anchor="middle">/ UPDATING</text>
+<rect x="769.6" y="314" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="341.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">能缓存吗？</text>
+<text x="843.2" y="361.7" font-size="12" fill="#646A73" text-anchor="middle">有效期取自哪一层</text>
+<text x="843.2" y="380.7" font-size="12" fill="#646A73" text-anchor="middle">（§3）</text>
+<rect x="1012.8" y="262" width="147.2" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="289.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">写缓存</text>
+<text x="1086.4" y="309.7" font-size="12" fill="#646A73" text-anchor="middle">写临时文件，完成后</text>
+<text x="1086.4" y="328.7" font-size="12" fill="#646A73" text-anchor="middle">改名</text>
+<rect x="1012.8" y="366" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="412.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">只返回，不存</text>
+<text x="250.7" y="191" font-size="12" fill="#646A73" text-anchor="middle">不缓存</text>
+<text x="240.2" y="282" font-size="12" fill="#646A73">继续</text>
+<text x="969.8" y="334" font-size="12" fill="#646A73">能</text>
+<text x="969.8" y="386" font-size="12" fill="#646A73">不能</text>
+<text x="40" y="490" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_file_cache.c（1.31.9）</text>
+</svg>

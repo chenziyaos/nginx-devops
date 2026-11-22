@@ -1,0 +1,41 @@
+{
+ "type": "table",
+ "title": "ngx_module_t 的 type 字段决定了 ctx 指向哪种回调表",
+ "subtitle": "每行一种模块类型；高亮的 HTTP 模块回调最多，配置要分 main、srv、loc 三级创建和合并",
+ "source": "来源：src/core/ngx_module.h（1.31.9）",
+ "columns": [
+  "type",
+  "ctx 指向",
+  "主要回调"
+ ],
+ "rows": [
+  [
+   "NGX_CORE_MODULE",
+   "ngx_core_module_t",
+   "create_conf / init_conf"
+  ],
+  [
+   "NGX_EVENT_MODULE",
+   "ngx_event_module_t",
+   "create_conf / init_conf / actions"
+  ],
+  [
+   "NGX_HTTP_MODULE",
+   "ngx_http_module_t",
+   "preconfiguration / postconfiguration / create_*_conf / merge_*"
+  ],
+  [
+   "NGX_STREAM_MODULE",
+   "ngx_stream_module_t",
+   "—"
+  ],
+  [
+   "NGX_CONF_MODULE",
+   "ngx_conf_module",
+   "只处理 include"
+  ]
+ ],
+ "highlight_row": 2,
+ "tone": "main",
+ "aspect": "wide"
+}

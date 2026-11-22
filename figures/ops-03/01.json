@@ -1,0 +1,12 @@
+{
+ "type": "tree",
+ "title": "只有 worker 处理请求，master 只管进程",
+ "subtitle": "master 派生的四个子进程；客户端只连到 worker，蓝色是处理请求的进程",
+ "source": "来源：labs/ops-03 实验（1.31.9）",
+ "root": {"label": "master", "sub": "读配置、开监听端口、管日志、收信号", "children": [
+  {"label": "worker 1", "sub": "accept 与处理请求", "tone": "main"},
+  {"label": "worker 2", "sub": "accept 与处理请求", "tone": "main"},
+  {"label": "cache manager", "sub": "按 max_size / inactive 清理缓存"},
+  {"label": "cache loader", "sub": "启动时载入已有缓存，完成后退出"}
+ ]}
+}

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">excess 超过 burst 才拒绝，拒绝时不写回共享内存</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">找到节点、移到 LRU 队头后，先算 excess = 旧值 − rate×ms/1000 + 1000（小于 0 取 0），再按下表判决</text>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="152.2" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="183.2" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="195.2" x2="1160" y2="195.2" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="237.2" x2="1159" y2="237.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="279.2" x2="1159" y2="279.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">条件</text>
+<text x="431.7" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">返回</text>
+<text x="726.2" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">共享内存</text>
+<text x="58" y="221.1" font-size="14" fill="#1F2329">excess ＞ burst</text>
+<text x="431.7" y="221.1" font-size="14" fill="#D83931" font-weight="bold">NGX_BUSY（拒绝）</text>
+<text x="726.2" y="221.1" font-size="14" fill="#1F2329">不写回</text>
+<text x="58" y="263.1" font-size="14" fill="#1F2329">不超，且是最后一个 limit_req</text>
+<text x="431.7" y="263.1" font-size="14" fill="#2EA121" font-weight="bold">NGX_OK</text>
+<text x="726.2" y="263.1" font-size="14" fill="#1F2329">写回 excess；ms 不为 0 时 last = now</text>
+<text x="58" y="305.1" font-size="14" fill="#1F2329">不超，后面还有 limit_req</text>
+<text x="431.7" y="305.1" font-size="14" fill="#1F2329">NGX_AGAIN</text>
+<text x="726.2" y="305.1" font-size="14" fill="#1F2329">不写回，count++ 占位</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+</svg>

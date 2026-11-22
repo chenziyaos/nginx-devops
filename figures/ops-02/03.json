@@ -1,0 +1,67 @@
+{
+ "type": "graph",
+ "title": "数组指令一旦在子级出现一条，整组覆盖父级的所有元素",
+ "subtitle": "从上往下是配置块嵌套；红色代表覆盖行为和数据丢失",
+ "source": "来源：ngx_http_headers_filter_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "解析",
+   "nodes": [
+    {
+     "id": "parse",
+     "title": "配置解析时",
+     "sub": "merge 检查"
+    }
+   ]
+  },
+  {
+   "name": "server 块",
+   "nodes": [
+    {
+     "id": "parent",
+     "title": "add_header X-Parent",
+     "sub": "父级"
+    }
+   ]
+  },
+  {
+   "name": "子级检查",
+   "nodes": [
+    {
+     "id": "has",
+     "title": "子级有 add_header",
+     "sub": "任意一条"
+    },
+    {
+     "id": "none",
+     "title": "子级无 add_header",
+     "sub": "null"
+    }
+   ]
+  },
+  {
+   "name": "结果",
+   "nodes": [
+    {
+     "id": "override",
+     "title": "整组覆盖",
+     "sub": "只用子级的，父级全部丢弃",
+     "tone": "risk"
+    },
+    {
+     "id": "inherit",
+     "title": "继承父级",
+     "sub": "使用 X-Parent",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {"from": "parse", "to": "parent"},
+  {"from": "parent", "to": "has"},
+  {"from": "parent", "to": "none"},
+  {"from": "has", "to": "override"},
+  {"from": "none", "to": "inherit"}
+ ]
+}

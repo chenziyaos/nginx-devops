@@ -19,17 +19,7 @@
 
 整篇按一次 TLS 连接的时间顺序展开：nginx 先看第一个字节判断是不是 TLS，握手开始后按 SNI 换配置、挑证书、处理 ticket，握手末尾用 ALPN 决定 HTTP 版本。每个配置项在哪一步生效，基本决定了它的行为和限制。
 
-```mermaid
-flowchart LR
-    A[连接建立] --> B{第一个字节<br/>0x16 或最高位为 1?}
-    B -- 否 --> P[按明文 HTTP 读请求<br/>ssl 端口上返回 497/400]
-    B -- 是 --> C[ClientHello]
-    C --> D[SNI 回调<br/>找 server，换 SSL_CTX]
-    D --> E[证书回调<br/>路径带变量时这里读文件]
-    E --> F[ticket 回调<br/>加密或解密会话]
-    F --> G[ALPN 回调<br/>h2 / http/1.1 / h3]
-    G --> H[握手完成，读 HTTP 请求]
-```
+![证书选择在握手中途完成，SNI 到 ALPN 回调依次触发](../figures/ops-08/01.svg)
 
 ## 1. 默认协议是 TLSv1.2 和 TLSv1.3，更老的客户端在握手阶段就被拒绝
 
@@ -160,16 +150,7 @@ ok - an unknown name gets the default server's certificate, or nothing with ssl_
 
 `other.test` 在 18160 上拿到的是 `a.test` 的证书。实验客户端用 `-CAfile` 信任了自签 CA，但 `s_client` 默认不校验主机名，所以 `Verify return code` 还是 0；浏览器会报证书和域名不匹配。在 18161 上，同一个名字收到编号 112 的 alert（unrecognized_name），握手结束，服务端一张证书都没有发出去。这就是 `ssl_reject_handshake`（1.19.4）的用途：用 IP 直接扫描端口、或者带着随便什么名字来的连接，看不到这台机器上任何站点的证书。
 
-```mermaid
-flowchart TD
-    S[ClientHello 里的 SNI] --> F{ngx_http_find_virtual_server<br/>找到 server?}
-    F -- 找到 --> X[换成这个 server 的 SSL_CTX 和证书]
-    F -- 没找到或没有 SNI --> D[留在端口的默认 server]
-    X --> R{该 server 设置了<br/>ssl_reject_handshake?}
-    D --> R
-    R -- 否 --> OK[继续握手]
-    R -- 是 --> A[alert 112 unrecognized_name<br/>握手失败]
-```
+![SNI 不认识时落到默认 server，ssl_reject_handshake 决定握手能否继续](../figures/ops-08/02.svg)
 
 **小结**：每个 HTTPS 端口都应该想清楚默认 `server` 是谁。放一个 `ssl_reject_handshake on` 的空 `server` 做默认，是不想暴露证书时最省事的写法。
 
@@ -243,16 +224,7 @@ ok - error_page 497 turns the same request into a redirect to https
 
 查询串 `?y=1` 原样带过去了。生产上更常见的写法是在 80 端口单独放一个 `server` 做 `return 301 https://$host$request_uri;`；`error_page 497` 只用于 HTTP 和 HTTPS 共用一个端口、或者有人手误把 `http://` 打到 443 的情况。
 
-```mermaid
-flowchart LR
-    A[ssl 端口收到连接] --> B{MSG_PEEK 第一个字节<br/>是 0x16?}
-    B -- 是 --> T[TLS 握手]
-    B -- 否 --> H[按明文读完请求头]
-    H --> E[finalize: 497]
-    E --> Q{配置了 error_page 497?}
-    Q -- 否 --> R400[默认错误页<br/>状态改成 400]
-    Q -- 是 --> R301[按 error_page 处理<br/>例如 301 到 https]
-```
+![明文请求打到 ssl 端口收到 400，error_page 497 可改成跳转](../figures/ops-08/03.svg)
 
 **小结**：日志里的 “client sent plain HTTP request to HTTPS port” 是 info 级别，对应客户端看到的 400。想让这类请求自动纠正，就用 `error_page 497`，不用改端口布局。
 
@@ -334,22 +306,7 @@ ok - without a cache every handshake reads the file; ssl_certificate_cache keeps
 
 和它相关的另一个改动是 1.27.2 的 “SSL certificates, secret keys, and CRLs are now cached on start or during reconfiguration”：静态写死路径的证书在启动和 reload 时也会走同一套缓存，多个 `server` 引用同一个文件只解析一次。这条只读了源码和 changes，没有单独实验。
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as 18167 无缓存
-    participant K as 18168 有缓存
-    participant F as dyn/a.test.crt
-    C->>N: 握手，SNI a.test
-    N->>F: 读文件
-    C->>K: 握手，SNI a.test
-    K->>F: 读文件，放进缓存
-    Note over F: 文件换成 b.test 的证书
-    C->>N: 再握手
-    N->>F: 再读一次，拿到 CN=b.test
-    C->>K: 再握手
-    K-->>C: 缓存未满 valid=60 秒，仍发 CN=a.test
-```
+![证书缓存在 valid 秒内信任，之后比较 mtime 再决定加载](../figures/ops-08/04.svg)
 
 **小结**：动态证书适合“证书多、按域名命名文件”的场景，代价是每次握手要读文件。证书多、握手频繁时加 `ssl_certificate_cache`，并接受换证书后最长有 `valid` 秒的延迟。
 
@@ -402,20 +359,7 @@ ok - ticket keys of a shared session cache survive a reload, the SSL_CTX ones do
 
 没有共享缓存的 18162，reload 前能复用，reload 后变成完整握手（New）；18163 前后都能复用。经常 reload 的机器，如果没配 `ssl_session_cache shared:`，每次 reload 后的一段时间里所有回头客都要重新做完整握手，CPU 和首包延迟都会有一个台阶。
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant O as 旧配置 SSL_CTX
-    participant N as 新配置 SSL_CTX
-    participant Z as 共享内存 SSL 区
-    C->>O: 第一次握手
-    O-->>C: ticket（无共享缓存时用 SSL_CTX 自己的密钥）
-    Note over O,N: reload：重新创建 SSL_CTX<br/>同名同大小的共享内存区原样交给新配置
-    C->>N: 带着 ticket 重连
-    N-->>C: 无共享缓存：解不开，完整握手（New）
-    N->>Z: 有共享缓存：从 Z 取密钥
-    N-->>C: 解开 ticket，复用（Reused）
-```
+![reload 后会话能否复用，取决于 ticket 密钥的存储位置](../figures/ops-08/05.svg)
 
 几个推论（来自源码，没有单独实验）：改了 `shared:SSL:` 的大小，共享内存区不能复用，密钥随之重新生成；多台机器之间要共享 ticket，只能用 `ssl_session_ticket_key` 指定同一份密钥文件，而这时轮换要自己做。
 
@@ -526,16 +470,7 @@ SETTINGS 帧里的 4 个参数和 `ngx_http_v2_send_settings` 的写法一一对
 
 参数 9 是 1.31.7 那条 change 的落地：“the ngx_http_v2_module now uses the RFC 9218 prioritization scheme, and RFC 7540 priority signals are ignored”。客户端在 HEADERS 帧里带的旧式依赖树和权重不再起作用，改看 RFC 9218 的 `priority` 头（`u=` 紧急度和 `i` 增量标记）。本篇只验证了 nginx 发出了这个声明，没有构造多个流去测调度顺序。
 
-```mermaid
-flowchart TD
-    T{连接类型} -- TLS --> AL[ALPN 回调]
-    AL --> Q{当前 server http2 on<br/>或端口 listen ... http2?}
-    Q -- 是 --> H2[列表首位 h2]
-    Q -- 否 --> H1[只有 http/1.x]
-    T -- 明文 --> PF{前 24 字节是<br/>HTTP/2 连接前言?}
-    PF -- 是，且开了 http2 --> H2C[h2c：发 SETTINGS<br/>和 WINDOW_UPDATE]
-    PF -- 否，或没开 http2 --> H1P[按 HTTP/1 解析<br/>前言会得到 400]
-```
+![HTTP/2 由 ALPN 或连接前言触发，http2 on 决定能否使用](../figures/ops-08/06.svg)
 
 **小结**：新配置统一写 `http2 on`，把 `listen` 上的 `http2` 删掉，`nginx -t` 的告警就会消失。升级到 1.31.7 之后，依赖 RFC 7540 优先级做资源调度的客户端行为会变；需要按资源分优先级时，看客户端是否发 RFC 9218 的 `priority` 头。
 
@@ -566,17 +501,7 @@ ok - the QUIC listener negotiates h3; Alt-Svc comes from add_header
 - `ssl_certificate_compression`（1.29.1）。同一个版本把 TLSv1.3 证书压缩改成默认关闭，这个指令用来打开。开了之后，OpenSSL 在握手时发压缩过的证书链，链越长省得越多。源码里它和 `ssl_stapling` 互斥，同时配置时 `nginx -t` 报 “"ssl_stapling" is incompatible with "ssl_certificate_compression"”。
 - `ssl_ech_file`（1.29.4），Encrypted ClientHello：把 ClientHello 里包括 SNI 在内的敏感字段加密。changes 里写明需要 “OpenSSL ECH feature branch”，源码里整段功能包在 `#ifdef SSL_OP_ECH_GREASE` 里，用正式发布版的 OpenSSL 3.6.3 构建时不可用。
 
-```mermaid
-sequenceDiagram
-    participant B as 浏览器
-    participant T as nginx TCP 18160
-    participant U as nginx UDP 18160
-    B->>T: 第一次访问：TLS + h2
-    T-->>B: 响应头 alt-svc，h3 在 18160，ma=86400
-    Note over B: 记住 86400 秒
-    B->>U: 之后的访问：QUIC 握手，ALPN h3
-    U-->>B: HTTP/3 响应
-```
+![浏览器从 Alt-Svc 头学到 HTTP/3，下一次访问时用 QUIC](../figures/ops-08/07.svg)
 
 **小结**：开 HTTP/3 是三件事一起做：UDP 端口在防火墙上放行、`listen ... quic` 加 `http3 on`、`add_header Alt-Svc`。少了 Alt-Svc，配置完全正确，浏览器也不会去用。
 

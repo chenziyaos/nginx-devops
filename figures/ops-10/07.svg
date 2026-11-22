@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 769.5" width="1200" height="769.5">
+<rect x="0" y="0" width="1200" height="769.5" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">后端出错时 use_stale 用旧内容兜底，后端回 304 时只续期</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">过期条目回源后的几条路；虚线是还能换下一台后端时重试</text>
+<text x="113.6" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">回源</text>
+<text x="356.8" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">后端结果</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">换后端</text>
+<text x="843.2" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">兜底</text>
+<text x="1086.4" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结果</text>
+<polyline points="191.2,389.5 232.2,389.5 232.2,228.5 269.2,228.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,222.5 279.2,228.5 269.2,234.5" fill="#8F959E"/>
+<polyline points="191.2,389.5 269.2,389.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,383.5 279.2,389.5 269.2,395.5" fill="#8F959E"/>
+<polyline points="191.2,389.5 232.2,389.5 232.2,550.5 269.2,550.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,544.5 279.2,550.5 269.2,556.5" fill="#8F959E"/>
+<polyline points="434.4,550.5 512.4,550.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,544.5 522.4,550.5 512.4,556.5" fill="#8F959E"/>
+<polyline points="677.6,550.5 755.6,550.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,544.5 765.6,550.5 755.6,556.5" fill="#8F959E"/>
+<polyline points="920.8,550.5 961.8,550.5 961.8,470 998.8,470" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,464 1008.8,470 998.8,476" fill="#8F959E"/>
+<polyline points="920.8,550.5 961.8,550.5 961.8,631 998.8,631" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,625 1008.8,631 998.8,637" fill="#8F959E"/>
+<polyline points="573.5,625 573.5,647 140.1,647 140.1,474" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="134.1,474 140.1,464 146.1,474" fill="#8F959E"/>
+<rect x="40" y="319" width="147.2" height="141" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="113.6" y="383.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">EXPIRED，</text>
+<text x="113.6" y="405.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">回源</text>
+<rect x="283.2" y="158" width="147.2" height="141" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="223.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">正常</text>
+<text x="356.8" y="243.7" font-size="12" fill="#646A73" text-anchor="middle">新内容，重写缓存</text>
+<rect x="283.2" y="319" width="147.2" height="141" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="375.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">304</text>
+<text x="356.8" y="395.2" font-size="12" fill="#646A73" text-anchor="middle">只更新有效期，状态</text>
+<text x="356.8" y="414.2" font-size="12" fill="#646A73" text-anchor="middle">REVALIDATED</text>
+<rect x="283.2" y="480" width="147.2" height="141" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="536.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">失败</text>
+<text x="356.8" y="556.2" font-size="12" fill="#646A73" text-anchor="middle">连接失败、超时</text>
+<text x="356.8" y="575.2" font-size="12" fill="#646A73" text-anchor="middle">或 500</text>
+<rect x="526.4" y="480" width="147.2" height="141" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="555.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">还能换下一台？</text>
+<rect x="769.6" y="480" width="147.2" height="141" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="507.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">能用旧内容吗？</text>
+<text x="843.2" y="527.7" font-size="12" fill="#646A73" text-anchor="middle">失败类型在</text>
+<text x="843.2" y="546.7" font-size="12" fill="#646A73" text-anchor="middle">proxy_cache_use_s</text>
+<text x="843.2" y="565.7" font-size="12" fill="#646A73" text-anchor="middle">tale 里，或</text>
+<text x="843.2" y="584.7" font-size="12" fill="#646A73" text-anchor="middle">stale-if-error 未</text>
+<text x="843.2" y="603.7" font-size="12" fill="#646A73" text-anchor="middle">到期</text>
+<rect x="1012.8" y="399.5" width="147.2" height="141" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="465.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">发旧内容</text>
+<text x="1086.4" y="485.2" font-size="12" fill="#646A73" text-anchor="middle">状态 STALE</text>
+<rect x="1012.8" y="560.5" width="147.2" height="141" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="626.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">交给客户端</text>
+<text x="1086.4" y="646.2" font-size="12" fill="#646A73" text-anchor="middle">把错误原样返回</text>
+<text x="356.8" y="638" font-size="12" fill="#646A73" text-anchor="middle">能</text>
+<text x="716.6" y="541.5" font-size="12" fill="#646A73" text-anchor="middle">不能</text>
+<text x="969.8" y="514.2" font-size="12" fill="#646A73">是</text>
+<text x="969.8" y="594.8" font-size="12" fill="#646A73">否</text>
+<text x="40" y="745.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c（1.31.9）</text>
+</svg>

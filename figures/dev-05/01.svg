@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 760" width="1200" height="760">
+<rect x="0" y="0" width="1200" height="760" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">master 和 worker 各自睡在一个系统调用上，只被信号或事件唤醒</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">上面是 master 循环（信号驱动），下面是 worker 循环（事件驱动）；虚线是进程间通道</text>
+<rect x="40" y="131" width="4" height="14" rx="2" fill="#BBBFC4"/>
+<text x="52" y="143" font-size="13" fill="#646A73" font-weight="bold">master 循环</text>
+<polyline points="536,196 654,196" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="654,190 664,196 654,202" fill="#8F959E"/>
+<polyline points="790,240 790,336 736,336" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="736,330 726,336 736,342" fill="#8F959E"/>
+<polyline points="474,336 410,336 410,250" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="404,250 410,240 416,250" fill="#8F959E"/>
+<rect x="290" y="158" width="240" height="76" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="510" cy="180" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="510" y="184.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">1</text>
+<text x="306" y="189.9" font-size="14" fill="#1F2329" font-weight="bold">信号处理函数</text>
+<text x="306" y="212.6" font-size="13" fill="#646A73">只置标志</text>
+<rect x="670" y="158" width="240" height="76" rx="12" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="step"/>
+<circle cx="890" cy="180" r="13" fill="#E1EAFF" stroke="#3370FF" stroke-width="2"/>
+<text x="890" y="184.5" font-size="13" fill="#245BDB" font-weight="bold" text-anchor="middle">2</text>
+<text x="686" y="189.9" font-size="14" fill="#1F2329" font-weight="bold">sigsuspend 返回</text>
+<text x="686" y="212.6" font-size="13" fill="#646A73">被信号唤醒</text>
+<rect x="480" y="298" width="240" height="76" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="700" cy="320" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="700" y="324.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">3</text>
+<text x="496" y="329.9" font-size="14" fill="#1F2329" font-weight="bold">按标志处理</text>
+<text x="496" y="352.6" font-size="13" fill="#646A73">reload / 退出 / 回收子进程</text>
+<rect x="40" y="409" width="4" height="14" rx="2" fill="#BBBFC4"/>
+<text x="52" y="421" font-size="13" fill="#646A73" font-weight="bold">worker 循环</text>
+<polyline points="536,485 654,485" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="654,479 664,485 654,491" fill="#8F959E"/>
+<polyline points="790,540 790,647 736,647" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="736,641 726,647 736,653" fill="#8F959E"/>
+<polyline points="474,647 410,647 410,550" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="404,550 410,540 416,550" fill="#8F959E"/>
+<rect x="290" y="436" width="240" height="98" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="510" cy="458" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="510" y="462.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">1</text>
+<text x="306" y="478.9" font-size="14" fill="#1F2329" font-weight="bold">找最近的定时器</text>
+<text x="306" y="501.6" font-size="13" fill="#646A73">红黑树最小值</text>
+<rect x="670" y="436" width="240" height="98" rx="12" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="step"/>
+<circle cx="890" cy="458" r="13" fill="#E1EAFF" stroke="#3370FF" stroke-width="2"/>
+<text x="890" y="462.5" font-size="13" fill="#245BDB" font-weight="bold" text-anchor="middle">2</text>
+<text x="686" y="467.9" font-size="14" fill="#1F2329" font-weight="bold">kevent /</text>
+<text x="686" y="489.9" font-size="14" fill="#1F2329" font-weight="bold">epoll_wait</text>
+<text x="686" y="512.5" font-size="13" fill="#646A73">被事件唤醒</text>
+<rect x="480" y="598" width="240" height="98" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<circle cx="700" cy="620" r="13" fill="#F5F6F7" stroke="#BBBFC4" stroke-width="2"/>
+<text x="700" y="624.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">3</text>
+<text x="496" y="640.9" font-size="14" fill="#1F2329" font-weight="bold">处理事件</text>
+<text x="496" y="663.5" font-size="13" fill="#646A73">accept → 定时器 → 投递队列</text>
+<text x="40" y="736" font-size="12" fill="#646A73" data-role="source">来源：src/os/unix/ngx_process_cycle.c（1.31.9）</text>
+</svg>

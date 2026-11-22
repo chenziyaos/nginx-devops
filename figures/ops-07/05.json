@@ -1,0 +1,44 @@
+{
+ "type": "compare",
+ "title": "一致性哈希摘掉一台只影响那台的 key；普通哈希会影响其他机器",
+ "subtitle": "同一组 60 个 key，去掉后端 C 之前和之后各算一次落点",
+ "source": "来源：ngx_http_upstream_hash_module.c、labs/ops-07 实验（1.31.9）",
+ "cards": [
+  {
+   "id": "①",
+   "title": "普通 hash",
+   "subtitle": "crc32(key) % 总权重",
+   "rows": [
+    [
+     "去掉 C 后",
+     "模数变了"
+    ],
+    {
+     "k": "不在 C 上的 42 个 key",
+     "v": "21 个换了机器",
+     "tone": "risk"
+    }
+   ],
+   "verdict": "影响其他机器"
+  },
+  {
+   "id": "②",
+   "title": "hash consistent",
+   "subtitle": "每台 160 × 权重 个点",
+   "rows": [
+    [
+     "去掉 C 后",
+     "只删 C 的 160 个点"
+    ],
+    {
+     "k": "不在 C 上的 42 个 key",
+     "v": "0 个换了机器",
+     "tone": "good"
+    }
+   ],
+   "verdict": "仅影响 C 的 key",
+   "primary": true,
+   "tone": "main"
+  }
+ ]
+}

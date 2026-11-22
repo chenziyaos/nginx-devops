@@ -1,0 +1,85 @@
+{
+ "type": "graph",
+ "title": "四个条件任一成立就结束请求，否则换机器重试",
+ "subtitle": "从左到右：出错 → 记一次失败 → 查四个停止条件，任一成立就结束，全不成立就换下一台",
+ "source": "来源：ngx_http_upstream_next、ngx_http_upstream.c（1.31.9）",
+ "stages": [
+  {
+   "name": "出错",
+   "nodes": [
+    {
+     "id": "err",
+     "title": "后端出错",
+     "sub": "连接失败 / 超时 / 匹配的状态码"
+    }
+   ]
+  },
+  {
+   "name": "记失败",
+   "nodes": [
+    {
+     "id": "next",
+     "title": "分类错误",
+     "sub": "upstream_next(ft_type)"
+    },
+    {
+     "id": "free",
+     "title": "记一次失败",
+     "sub": "peer.free：fails++、tries--",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "停止条件",
+   "nodes": [
+    {
+     "id": "q",
+     "title": "四个停止条件",
+     "sub": "tries 用完 / ft_type 不在列表 / 请求体已发且不缓冲 / 超过 next_upstream_timeout"
+    }
+   ]
+  },
+  {
+   "name": "结果",
+   "nodes": [
+    {
+     "id": "end",
+     "title": "结束请求",
+     "sub": "502 / 504 / 原状态码",
+     "tone": "risk"
+    },
+    {
+     "id": "retry",
+     "title": "换下一台",
+     "sub": "关闭连接，connect → get",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "err",
+   "to": "next"
+  },
+  {
+   "from": "next",
+   "to": "free"
+  },
+  {
+   "from": "free",
+   "to": "q"
+  },
+  {
+   "from": "q",
+   "to": "end",
+   "label": "任意成立"
+  },
+  {
+   "from": "q",
+   "to": "retry",
+   "label": "全不成立"
+  }
+ ]
+}

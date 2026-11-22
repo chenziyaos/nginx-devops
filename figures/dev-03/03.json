@@ -1,0 +1,56 @@
+{
+ "type": "sequence",
+ "title": "keepalive 空闲连接只保留连接池，请求池和头缓冲整个释放",
+ "subtitle": "时间从上到下；nginx 一侧的自环标出该时刻分配或释放的内存",
+ "source": "来源：labs/dev-03 实验输出",
+ "actors": [
+  {
+   "title": "客户端"
+  },
+  {
+   "title": "nginx"
+  }
+ ],
+ "messages": [
+  {
+   "from": "客户端",
+   "to": "nginx",
+   "label": "建立连接"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "label": "连接池 512 B（A）"
+  },
+  {
+   "from": "客户端",
+   "to": "nginx",
+   "label": "GET /"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "label": "头缓冲 1 KB（B）\n请求池 4 KB × 2（C、D）"
+  },
+  {
+   "from": "nginx",
+   "to": "客户端",
+   "label": "200 OK"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "label": "释放 C、D、ngx_pfree(B)\n只留连接池 A"
+  },
+  {
+   "from": "客户端",
+   "to": "nginx",
+   "label": "关闭连接"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "label": "释放 A"
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+{
+ "type": "sequence",
+ "title": "-s reload 读 pid 文件找 master，立即退出不等 reload 完成",
+ "subtitle": "从上到下是执行顺序；空 pid 文件时报 invalid PID number",
+ "source": "来源：src/core/nginx.c（1.31.9）",
+ "actors": [
+  {
+   "name": "nginx -s reload",
+   "tone": "main"
+  },
+  {
+   "name": "logs/nginx.pid"
+  },
+  {
+   "name": "master"
+  }
+ ],
+ "messages": [
+  {
+   "from": "nginx -s reload",
+   "to": "nginx -s reload",
+   "text": "解析配置得 pid 路径"
+  },
+  {
+   "from": "nginx -s reload",
+   "to": "logs/nginx.pid",
+   "text": "读 pid 文件"
+  },
+  {
+   "from": "logs/nginx.pid",
+   "to": "nginx -s reload",
+   "text": "返回 master pid",
+   "reply": true
+  },
+  {
+   "from": "nginx -s reload",
+   "to": "master",
+   "text": "kill(pid, SIGHUP)"
+  },
+  {
+   "from": "nginx -s reload",
+   "to": "nginx -s reload",
+   "text": "立即退出"
+  }
+ ]
+}

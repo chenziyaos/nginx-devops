@@ -1,0 +1,105 @@
+{
+ "type": "graph",
+ "title": "日志是否写出取决于 if= 条件和缓冲配置",
+ "subtitle": "从上到下是请求结束时的日志处理逻辑；蓝色是关键决策点，绿色是最终动作",
+ "source": "来源：ngx_http_log_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "检查条件",
+   "nodes": [
+    {
+     "id": "req_end",
+     "title": "请求结束",
+     "sub": "进入 log 阶段"
+    }
+   ]
+  },
+  {
+   "name": "条件判断",
+   "nodes": [
+    {
+     "id": "if_check",
+     "title": "if= 的值",
+     "sub": "为空或等于 0？",
+     "tone": "main",
+     "emph": true
+    }
+   ]
+  },
+  {
+   "name": "日志处理",
+   "nodes": [
+    {
+     "id": "skip",
+     "title": "跳过",
+     "sub": "这个 access_log 不写",
+     "tone": "contrast"
+    },
+    {
+     "id": "eval",
+     "title": "按 log_format 求值",
+     "sub": "默认转义 / json / none"
+    }
+   ]
+  },
+  {
+   "name": "缓冲决策",
+   "nodes": [
+    {
+     "id": "buf_check",
+     "title": "buffer= 配置",
+     "sub": "是否开启缓冲？",
+     "tone": "main",
+     "emph": true
+    }
+   ]
+  },
+  {
+   "name": "最终写出",
+   "nodes": [
+    {
+     "id": "direct",
+     "title": "直接写",
+     "sub": "即刻落盘",
+     "tone": "good"
+    },
+    {
+     "id": "buffered",
+     "title": "内存缓冲",
+     "sub": "满或 flush 时写",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "req_end",
+   "to": "if_check"
+  },
+  {
+   "from": "if_check",
+   "to": "skip",
+   "label": "是"
+  },
+  {
+   "from": "if_check",
+   "to": "eval",
+   "label": "否"
+  },
+  {
+   "from": "eval",
+   "to": "buf_check"
+  },
+  {
+   "from": "buf_check",
+   "to": "direct",
+   "label": "否"
+  },
+  {
+   "from": "buf_check",
+   "to": "buffered",
+   "label": "是"
+  }
+ ]
+}

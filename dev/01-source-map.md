@@ -49,27 +49,7 @@ ok - http and its modules are the largest part
 - `src/http`：HTTP 框架本身，包括请求解析、阶段引擎、upstream 框架、核心的几个过滤器；`modules/` 下 60 个文件是挂在框架上的功能模块，`proxy`、`static`、`limit_req` 都在这里。
 - `src/stream`、`src/mail`：TCP/UDP 代理和邮件代理，结构和 `src/http` 平行。`src/stream` 是 27 个 `.c` 文件、24747 行，约为 HTTP 四个目录的五分之一。
 
-```mermaid
-flowchart TB
-    subgraph proto["协议层"]
-        http["src/http 18 个文件<br/>src/http/modules 60 个文件<br/>v2 / v3"]
-        stream["src/stream 27 个文件"]
-        mail["src/mail 14 个文件<br/>（--with-mail 才编译）"]
-    end
-    subgraph ev["事件层"]
-        event["src/event<br/>accept、定时器、kqueue/epoll、quic"]
-    end
-    subgraph base["基础层"]
-        core["src/core<br/>pool、array、rbtree、conf、cycle、log、slab"]
-        os["src/os/unix<br/>进程、信号、sendfile"]
-    end
-    http --> event
-    stream --> event
-    mail --> event
-    event --> core
-    event --> os
-    http --> core
-```
+![nginx 源码分基础层、事件层、协议层三层，HTTP 相关目录占 52.7%](../figures/dev-01/01.svg)
 
 第一次读源码，建议的顺序是 `src/core/nginx.c` 的 `main()`（§5），然后是 `src/core/ngx_module.h`（§3），然后是 `src/http/ngx_http.c` 和 `ngx_http_core_module.c` 里与阶段相关的函数（§6）。这三处读懂了，`src/http/modules` 下任何一个模块都能按“它在哪个阶段注册了什么 handler、挂了哪个过滤器”去读。
 
@@ -98,19 +78,7 @@ ok - --with-debug becomes NGX_DEBUG in ngx_auto_config.h
 - `ngx_modules.c`：模块数组和名字数组，§4 专门讲。
 - `autoconf.err`：每个探测的测试程序和编译器输出。`configure` 说某个特性“not found”时，原因在这个文件里。
 
-```mermaid
-flowchart LR
-    opt["./auto/configure<br/>--with-debug --with-http_v2_module ..."] --> probe["auto/cc、auto/os、auto/feature<br/>编译小程序探测系统"]
-    opt --> sel["auto/modules<br/>按选项挑模块"]
-    probe --> h["objs/ngx_auto_config.h<br/>NGX_DEBUG、NGX_HAVE_KQUEUE"]
-    probe --> err["objs/autoconf.err"]
-    sel --> mc["objs/ngx_modules.c<br/>92 个模块"]
-    sel --> mk["objs/Makefile"]
-    h --> make["make"]
-    mc --> make
-    mk --> make
-    make --> bin["objs/nginx"]
-```
+![configure 生成 Makefile、ngx_auto_config.h、ngx_modules.c 三样](../figures/dev-01/02.svg)
 
 改了 `configure` 参数就要重新跑 `configure`；只改了 `.c` 文件时直接 `make` 即可。本仓库的 `tools/build.sh` 把源码 clone 到 `.nginx-src/release-1.31.9`，安装到 `.nginx/`，`modules/` 下的教程模块以 `--add-dynamic-module` 编成 `.so`（开发篇 10 用）。
 
@@ -192,14 +160,7 @@ ok - five types are built; mail modules exist in src/mail but need --with-mail
 
 这次构建一共 92 个模块，分属五种类型。我在动手前写的假设是六种，漏算了 `src/mail` 默认不编译，要加 `--with-mail` 才会出现 `NGX_MAIL_MODULE`（记录在实验的 `HYPOTHESES.md` 第 4 条）。2 个事件模块是 `ngx_event_core_module` 和 `ngx_kqueue_module`；`ngx_events_module` 负责解析 `events {}` 块，它的类型是 `NGX_CORE_MODULE`。HTTP 也一样：`ngx_http_module` 是解析 `http {}` 的核心模块，`ngx_http_core_module` 及以下才是 `NGX_HTTP_MODULE`。
 
-```mermaid
-flowchart LR
-    m["ngx_module_t<br/>type + ctx"] -->|NGX_CORE_MODULE| c["ngx_core_module_t<br/>create_conf / init_conf"]
-    m -->|NGX_EVENT_MODULE| e["ngx_event_module_t<br/>create_conf / init_conf / actions"]
-    m -->|NGX_HTTP_MODULE| h["ngx_http_module_t<br/>preconfiguration / postconfiguration<br/>create_main/srv/loc_conf / merge_*"]
-    m -->|NGX_STREAM_MODULE| s["ngx_stream_module_t"]
-    m -->|NGX_CONF_MODULE| f["ngx_conf_module<br/>只处理 include"]
-```
+![ngx_module_t 的 type 字段决定了 ctx 指向哪种回调表](../figures/dev-01/03.svg)
 
 **小结**：读一个模块，先在文件开头找到它的 `ngx_module_t` 定义，看 `type`、`ctx` 和 `commands`；`ctx` 里非空的回调就是它介入框架的全部入口。
 
@@ -305,18 +266,7 @@ ngx_http_header_filter_init(ngx_conf_t *cf)
     return NGX_OK;
 ```
 
-```mermaid
-flowchart LR
-    subgraph reg["注册顺序 = ngx_modules[] 顺序"]
-        direction LR
-        w1["write"] --> h1["header"] --> c1["chunked"] --> g1["gzip"] --> p1["postpone"] --> hd1["headers"] --> cp1["copy"] --> nm1["not_modified"]
-    end
-    subgraph run["执行顺序：后注册的在链表头"]
-        direction LR
-        nm2["not_modified"] --> cp2["copy"] --> hd2["headers"] --> p2["postpone"] --> g2["gzip"] --> c2["chunked"] --> h2["header / write"]
-    end
-    reg -.-> run
-```
+![过滤器在 ngx_modules[] 里越靠后，执行时越早](../figures/dev-01/04.svg)
 
 图里省略了 v2、v3、range、ssi、charset、gunzip、userid 几个过滤器。响应头链和响应体链是两条独立的链表，同一个模块可以只挂其中一条：`copy_filter` 只处理响应体，`not_modified_filter` 只处理响应头。
 
@@ -405,22 +355,7 @@ flowchart LR
     return 0;
 ```
 
-```mermaid
-flowchart TB
-    a["main()"] --> b["ngx_get_options<br/>-p -c -g -s -t"]
-    b --> c["ngx_os_init<br/>ngx_add_inherited_sockets"]
-    c --> d["ngx_preinit_modules<br/>index = 数组下标"]
-    d --> e["ngx_init_cycle"]
-    e --> e1["核心模块 create_conf"]
-    e1 --> e2["ngx_conf_parse<br/>http{} 内建阶段引擎和过滤器链"]
-    e2 --> e3["核心模块 init_conf<br/>监听 socket、共享内存、init_module"]
-    e3 --> f{"-t 或 -s ?"}
-    f -->|"-t"| t["打印结果后退出"]
-    f -->|"-s"| s["ngx_signal_process 发信号后退出"]
-    f -->|否| g{"master_process"}
-    g -->|on| m["ngx_master_process_cycle<br/>fork worker，worker 调 init_process"]
-    g -->|off| sp["ngx_single_process_cycle<br/>本进程调 init_process 后直接处理请求"]
-```
+![main() 先解析命令行、加载配置，最后才决定进程模式](../figures/dev-01/05.svg)
 
 reload 时 master 会再调一次 `ngx_init_cycle`，传入的是当前的 cycle，这就是运维篇 03 里“新配置先在 master 里初始化，成功后才启动新 worker”在源码里的位置。
 
@@ -543,12 +478,7 @@ ngx_http_core_run_phases(ngx_http_request_t *r)
 }
 ```
 
-```mermaid
-flowchart LR
-    s0["0 POST_READ<br/>realip"] --> s1["1 SERVER_REWRITE<br/>rewrite"] --> s2["2 FIND_CONFIG"] --> s3["3 REWRITE<br/>rewrite"] --> s4["4 POST_REWRITE"]
-    s4 -->|URI 被改| s2
-    s4 --> s5["5-7 PREACCESS<br/>realip limit_req limit_conn"] --> s8["8-10 ACCESS<br/>access auth_basic auth_request"] --> s11["11 POST_ACCESS"] --> s12["12-13 PRECONTENT<br/>try_files mirror"] --> s14["14-17 CONTENT<br/>index autoindex gzip_static static"]
-```
+![11 个 HTTP 阶段被拍平成数组；POST_REWRITE 可以回跳到 FIND_CONFIG](../figures/dev-01/06.svg)
 
 还有一个例外：location 里配置了 `proxy_pass`、`fastcgi_pass`、`stub_status` 这类指令时，它们把处理函数存进 location 配置的 `clcf->handler`；location 匹配完成后，`ngx_http_update_location_config`（第 1432 行）把它复制到 `r->content_handler`，CONTENT 阶段的 checker 一进来就直接调用它，下标 14 到 17 的 handler 都不会运行：
 
@@ -654,26 +584,7 @@ ok - the debug log shows every handler index of the rebuilt engine except find-c
 - 响应体从 `http output filter` 进入，依次经过 copy filter、postpone filter（§4 的执行顺序），最后到 write filter：`l:1`，`s:241`，正好是 234 字节的头加 7 字节的体。这一次带着 last 标记，write filter 才把头和体一起写出去。
 - `finalize request: -4` 里的 -4 是 `NGX_DONE`，然后连接进入 keepalive，等待下一个请求。
 
-```mermaid
-sequenceDiagram
-    participant C as curl
-    participant E as 阶段引擎
-    participant I as index (14)
-    participant S as static (17)
-    participant F as 过滤器链
-    participant W as write filter
-    C->>E: GET /
-    E->>E: 0 → 1 → 3 … 13
-    E->>I: CONTENT 阶段，下标 14
-    I->>E: internal redirect /index.html，从下标 1 重新开始
-    E->>E: 1 → 3 … 13，14 15 16 返回 DECLINED
-    E->>S: CONTENT 阶段，下标 17
-    S->>F: 响应头
-    F->>W: 234 字节，l:0，小于 1460，暂存
-    S->>F: 响应体 7 字节，last_buf
-    F->>W: 241 字节，l:1
-    W->>C: 头和体一起写出
-```
+![GET / 走两遍阶段引擎，第一次触发内部跳转，第二次才到 static](../figures/dev-01/07.svg)
 
 **小结**：读 debug 日志时，把 “phase: N” 的 N 当作阶段引擎数组的下标，就能确定每一行是哪个模块打的；出现 `internal redirect` 就说明阶段要从 1 再走一遍。写过滤器时要记得，响应头在 write filter 里可能被暂存，直到响应体到达或攒够 `postpone_output`。
 
@@ -745,12 +656,7 @@ ok - master_process off: one process serves requests, nothing is forked
 
 这样启动后，可以在调试器里直接运行 nginx，或附着这一个进程，在 `ngx_http_core_run_phases`、`ngx_http_static_handler` 之类的函数上设断点。single 模式只用于开发：它不支持 reload 时的 worker 交接，1.31.9 里 control API 在这个模式下也不可用（`nginx.c` 会打一条 `control API unavailable in single process mode` 的 warn）。
 
-```mermaid
-flowchart TB
-    q{"要看什么"} -->|一个请求在模块间怎么流转| a["--with-debug + error_log debug<br/>或 debug_connection 限定客户端"]
-    q -->|某个函数里的变量| b["-O0 -g 编译<br/>master_process off + daemon off<br/>调试器附着单进程"]
-    q -->|生产环境的偶发问题| c["不开 debug<br/>info 级 error_log + access_log 变量<br/>见运维篇 13"]
-```
+![debug 由编译期宏控制，可用 debug_connection 限定客户端](../figures/dev-01/08.svg)
 
 **小结**：debug 日志靠编译期宏和连接级的 `log_level` 两道开关控制，调试器靠单进程模式降低附着成本。两者都只适合开发和复现，不要带到生产配置里。
 

@@ -1,0 +1,50 @@
+{
+ "type": "sequence",
+ "title": "缓存只在选出地址之后起作用，它不会让请求偏向已有连接的后端",
+ "subtitle": "从上到下：upstream 状态机与 keepalive、算法三方的 get / free 调用序列。keepalive get 先调算法选地址，再在缓存里找同地址连接",
+ "source": "来源：ngx_http_upstream_keepalive_module.c（1.31.9）",
+ "actors": [
+  "upstream 状态机",
+  "keepalive get/free",
+  "算法 get/free"
+ ],
+ "messages": [
+  {
+   "from": "upstream 状态机",
+   "to": "keepalive get/free",
+   "text": "get"
+  },
+  {
+   "from": "keepalive get/free",
+   "to": "算法 get/free",
+   "text": "original_get_peer"
+  },
+  {
+   "from": "算法 get/free",
+   "to": "keepalive get/free",
+   "text": "sockaddr（19181）",
+   "reply": true
+  },
+  {
+   "from": "keepalive get/free",
+   "to": "upstream 状态机",
+   "text": "缓存有同地址：NGX_DONE；无：NGX_OK",
+   "reply": true
+  },
+  {
+   "from": "upstream 状态机",
+   "to": "keepalive get/free",
+   "text": "free(state)"
+  },
+  {
+   "from": "keepalive get/free",
+   "to": "keepalive get/free",
+   "text": "满足条件就放回 cache 队列"
+  },
+  {
+   "from": "keepalive get/free",
+   "to": "算法 get/free",
+   "text": "original_free_peer(state)"
+  }
+ ]
+}

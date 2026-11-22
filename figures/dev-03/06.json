@@ -1,0 +1,83 @@
+{
+ "type": "graph",
+ "title": "slab 先按大小选档、再在半满页链上找空位、找不到才拿新页",
+ "subtitle": "从左到右：大块按页数整页分配；小块先在同档的半满页上找空位，没有才拿新页",
+ "source": "来源：本文整理",
+ "stages": [
+  {
+   "name": "分配",
+   "nodes": [
+    {
+     "id": "alloc",
+     "title": "ngx_slab_alloc(size)"
+    }
+   ]
+  },
+  {
+   "name": "按大小",
+   "nodes": [
+    {
+     "id": "big",
+     "title": "大块",
+     "sub": "size > pagesize / 2：按页数，8193 → 1 页，40000 → 3 页"
+    },
+    {
+     "id": "small",
+     "title": "小块",
+     "sub": "取 2 的幂，最小 8，slot = shift - 3",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "slots[slot]",
+   "nodes": [
+    {
+     "id": "half",
+     "title": "有半满页"
+    },
+    {
+     "id": "none",
+     "title": "没有半满页",
+     "sub": "拿一张新页，初始化位图",
+     "tone": "contrast"
+    }
+   ]
+  },
+  {
+   "name": "找位置",
+   "nodes": [
+    {
+     "id": "bitmap",
+     "title": "在位图里找空位"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "alloc",
+   "to": "big"
+  },
+  {
+   "from": "alloc",
+   "to": "small"
+  },
+  {
+   "from": "small",
+   "to": "half"
+  },
+  {
+   "from": "small",
+   "to": "none"
+  },
+  {
+   "from": "half",
+   "to": "bitmap"
+  },
+  {
+   "from": "none",
+   "to": "bitmap"
+  }
+ ]
+}

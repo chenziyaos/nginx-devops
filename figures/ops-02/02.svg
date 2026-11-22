@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">标量指令在子级没写时才继承父级的值</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">merge 函数检查子级值是否 UNSET；未设则继承父级，已设则使用自己的值</text>
+<text x="144" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">解析</text>
+<text x="448" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">server 块</text>
+<text x="752" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">location 值检查</text>
+<text x="1056" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结果</text>
+<polyline points="252,256 330,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,250 340,256 330,262" fill="#8F959E"/>
+<polyline points="556,256 597,256 597,204 634,204" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,198 644,204 634,210" fill="#8F959E"/>
+<polyline points="556,256 597,256 597,308 634,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,302 644,308 634,314" fill="#8F959E"/>
+<polyline points="860,204 938,204" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,198 948,204 938,210" fill="#8F959E"/>
+<polyline points="860,308 938,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,302 948,308 938,314" fill="#8F959E"/>
+<rect x="40" y="214" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="241.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">配置解析</text>
+<text x="144" y="261.7" font-size="12" fill="#646A73" text-anchor="middle">从上到下读 server</text>
+<text x="144" y="280.7" font-size="12" fill="#646A73" text-anchor="middle">和 location 块</text>
+<rect x="344" y="214" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="251.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">server 块</text>
+<text x="448" y="271.2" font-size="12" fill="#646A73" text-anchor="middle">proxy_connect_timeout 5s</text>
+<rect x="648" y="162" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="199.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">location 值为 UNSET</text>
+<text x="752" y="219.2" font-size="12" fill="#646A73" text-anchor="middle">未设置</text>
+<rect x="648" y="266" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">location 值非 UNSET</text>
+<text x="752" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">已设置 10s</text>
+<rect x="952" y="162" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="199.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">继承 server 值</text>
+<text x="1056" y="219.2" font-size="12" fill="#646A73" text-anchor="middle">5s</text>
+<rect x="952" y="266" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">使用 location 值</text>
+<text x="1056" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">10s</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.h（1.31.9）</text>
+</svg>

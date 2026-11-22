@@ -1,0 +1,122 @@
+{
+ "type": "graph",
+ "title": "只有 MISS 和过期的请求才回源，回来的响应再决定存不存",
+ "subtitle": "一个请求经过 proxy_cache 的路径；绿色是不用回源或写进缓存的出口",
+ "source": "来源：ngx_http_upstream.c、ngx_http_file_cache.c（1.31.9）",
+ "stages": [
+  {
+   "name": "预检",
+   "nodes": [
+    {
+     "id": "m",
+     "title": "能用缓存吗？",
+     "sub": "看请求方法和 bypass 条件"
+    }
+   ]
+  },
+  {
+   "name": "查缓存",
+   "nodes": [
+    {
+     "id": "b",
+     "title": "BYPASS",
+     "sub": "或直接回源",
+     "tone": "contrast"
+    },
+    {
+     "id": "k",
+     "title": "找节点",
+     "sub": "算键 → MD5 → 共享内存"
+    }
+   ]
+  },
+  {
+   "name": "条目状态",
+   "nodes": [
+    {
+     "id": "hit",
+     "title": "HIT",
+     "sub": "新鲜",
+     "tone": "good"
+    },
+    {
+     "id": "miss",
+     "title": "MISS",
+     "sub": "不存在：回源"
+    },
+    {
+     "id": "exp",
+     "title": "过期",
+     "sub": "EXPIRED / STALE / UPDATING"
+    }
+   ]
+  },
+  {
+   "name": "响应",
+   "nodes": [
+    {
+     "id": "v",
+     "title": "能缓存吗？",
+     "sub": "有效期取自哪一层（§3）"
+    }
+   ]
+  },
+  {
+   "name": "结果",
+   "nodes": [
+    {
+     "id": "w",
+     "title": "写缓存",
+     "sub": "写临时文件，完成后改名",
+     "tone": "good"
+    },
+    {
+     "id": "x",
+     "title": "只返回，不存"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "m",
+   "to": "b",
+   "label": "不缓存"
+  },
+  {
+   "from": "m",
+   "to": "k",
+   "label": "继续"
+  },
+  {
+   "from": "k",
+   "to": "hit"
+  },
+  {
+   "from": "k",
+   "to": "miss"
+  },
+  {
+   "from": "k",
+   "to": "exp"
+  },
+  {
+   "from": "miss",
+   "to": "v"
+  },
+  {
+   "from": "exp",
+   "to": "v"
+  },
+  {
+   "from": "v",
+   "to": "w",
+   "label": "能"
+  },
+  {
+   "from": "v",
+   "to": "x",
+   "label": "不能"
+  }
+ ]
+}

@@ -1,0 +1,28 @@
+{
+  "type": "compare",
+  "title": "rewrite last 只重新选 location，内部跳转重新执行 server 级",
+  "subtitle": "都消耗 uri_changes（上限 10）；区别是清空上下文和跳转位置",
+  "source": "来源：ngx_http_core_module.c（1.31.9）",
+  "cards": [
+    {
+      "title": "rewrite ... last",
+      "verdict": "uri_changes--",
+      "rows": [
+        ["处理", "POST_REWRITE checker"],
+        ["跳转位置", "2 (FIND_CONFIG)"],
+        ["重新匹配", "location"],
+        ["r->ctx", "保留"]
+      ]
+    },
+    {
+      "title": "error_page / try_files / index",
+      "verdict": "uri_changes--，count++",
+      "rows": [
+        ["处理", "ngx_http_internal_redirect"],
+        ["跳转位置", "1 (SERVER_REWRITE)"],
+        ["重新执行", "server 级 rewrite"],
+        ["r->ctx", "清空，r->internal=1"]
+      ]
+    }
+  ]
+}

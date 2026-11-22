@@ -1,0 +1,12 @@
+{
+ "type": "flow",
+ "title": "明文请求打到 ssl 端口收到 400，error_page 497 可改成跳转",
+ "subtitle": "ssl 端口用 MSG_PEEK 偷看第一个字节；不是 0x16 时按明文处理",
+ "source": "来源：ngx_http_request.c（1.31.9）",
+ "steps": [
+  {"title": "第一个字节", "lines": ["MSG_PEEK 偷看", "是 0x16 就走 TLS 握手"]},
+  {"title": "读明文请求头", "lines": ["不是 0x16"]},
+  {"title": "finalize 497", "tone": "contrast"},
+  {"title": "回给客户端", "lines": ["默认：错误页，状态改成 400", "配了 error_page 497：例如 301 到 https"], "tone": "main", "emph": true}
+ ]
+}

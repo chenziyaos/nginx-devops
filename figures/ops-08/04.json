@@ -1,0 +1,29 @@
+{
+ "type": "sequence",
+ "title": "证书缓存在 valid 秒内信任，之后比较 mtime 再决定加载",
+ "subtitle": "两个端口同时读 dyn/a.test.crt：左边无缓存，右边 ssl_certificate_cache max=10",
+ "source": "来源：ngx_http_request.c、ngx_event_openssl_cache.c（1.31.9）",
+ "actors": [
+  {"name": "客户端"},
+  {"name": "18167 无缓存", "tone": "contrast"},
+  {"name": "18168 有缓存", "tone": "main"},
+  {"name": "dyn/a.test.crt", "sub": "文件"}
+ ],
+ "messages": [
+  {"from": "客户端", "to": "18167 无缓存", "text": "握手，SNI a.test"},
+  {"from": "18167 无缓存", "to": "dyn/a.test.crt", "text": "读文件"},
+  {"from": "18167 无缓存", "to": "客户端", "text": "回 CN=a.test", "reply": true},
+  {"from": "客户端", "to": "18168 有缓存", "text": "握手，SNI a.test"},
+  {"from": "18168 有缓存", "to": "dyn/a.test.crt", "text": "读文件，放进缓存"},
+  {"from": "18168 有缓存", "to": "客户端", "text": "回 CN=a.test", "reply": true},
+  {"from": "dyn/a.test.crt", "to": "dyn/a.test.crt", "text": "文件换成 b.test 的证书"},
+  {"from": "客户端", "to": "18167 无缓存", "text": "再握手"},
+  {"from": "18167 无缓存", "to": "dyn/a.test.crt", "text": "再读一次"},
+  {"from": "18167 无缓存", "to": "客户端", "text": "回 CN=b.test", "reply": true},
+  {"from": "客户端", "to": "18168 有缓存", "text": "再握手"},
+  {"from": "18168 有缓存", "to": "客户端", "text": "缓存未满 valid=60s，仍发 CN=a.test", "reply": true}
+ ],
+ "sections": [
+  {"at": 7, "label": "文件替换"}
+ ]
+}

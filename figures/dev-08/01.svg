@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 480" width="1200" height="480">
+<rect x="0" y="0" width="1200" height="480" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">每个 key 的红黑树节点和 LRU 队列共享同一块内存</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是内存布局；红黑树按 crc32(key) 查找，LRU 队列按访问时间排序</text>
+<rect x="40" y="128" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="178.3" font-size="18" fill="#646A73" font-weight="bold">共享内存 zone</text>
+<rect x="239.2" y="144" width="904.8" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="691.6" y="167" font-size="14" fill="#1F2329" text-anchor="middle">shctx</text>
+<text x="691.6" y="187" font-size="12" fill="#646A73" text-anchor="middle">红黑树根 + 哨兵 + 队列根</text>
+<rect x="40" y="228" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="278.3" font-size="18" fill="#646A73" font-weight="bold">节点（红黑树）</text>
+<rect x="239.2" y="244" width="293.6" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="386" y="267" font-size="14" fill="#1F2329" text-anchor="middle">节点 A</text>
+<text x="386" y="287" font-size="12" fill="#646A73" text-anchor="middle">32 B 树头 + 48 B 状态 + key</text>
+<rect x="544.8" y="244" width="293.6" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="691.6" y="277" font-size="14" fill="#1F2329" text-anchor="middle">节点 B</text>
+<rect x="850.4" y="244" width="293.6" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="997.2" y="277" font-size="14" fill="#1F2329" text-anchor="middle">节点 C</text>
+<rect x="40" y="328" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="378.3" font-size="18" fill="#646A73" font-weight="bold">LRU 队列</text>
+<rect x="239.2" y="344" width="446.4" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="462.4" y="367" font-size="14" fill="#1F2329" text-anchor="middle">队头：最近用过</text>
+<text x="462.4" y="387" font-size="12" fill="#646A73" text-anchor="middle">节点 B 节点 A 节点 C</text>
+<rect x="697.6" y="344" width="446.4" height="56" rx="8" fill="#FFFFFF" stroke="#F98E8B" stroke-width="1" data-role="layer-chip"/>
+<text x="920.8" y="367" font-size="14" fill="#1F2329" text-anchor="middle">队尾：最久未用</text>
+<text x="920.8" y="387" font-size="12" fill="#646A73" text-anchor="middle">§7 淘汰从这里开始</text>
+<text x="40" y="456" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+</svg>

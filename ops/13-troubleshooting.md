@@ -19,14 +19,7 @@
 
 一个异常请求在 nginx 里只会在一个地方被判定失败。下图把本篇复现的状态码按“在请求处理的哪一步失败”排开，判断是：失败的位置决定了 error.log 原文里的 `while ...` 后缀，也决定了该改哪类配置：
 
-```mermaid
-flowchart LR
-    A["读请求行和请求头<br/>400 414 408"] --> B["选 location、查请求体大小<br/>413"]
-    B --> C["preaccess / access<br/>503 403"]
-    C --> D["content<br/>404 403 500"]
-    D --> E["连接后端<br/>502 504"]
-    E --> F["读后端响应头<br/>502 504 499"]
-```
+![异常请求在处理的某一步失败，位置决定了 error.log 原文的后缀](../figures/ops-13/01.svg)
 
 本篇的实验日志格式是 `$status $request_method $uri up=$upstream_status`，error.log 的引用去掉了时间、pid、连接号 `*N` 和 `client:`、`server:`、`host:` 这几个固定字段。真实的 error.log 一行通常是这样的结构：`时间 [级别] pid#tid: *连接号 原文 while 正在做的事, client: ..., server: ..., request: "...", upstream: "...", host: "..."`。用 `*连接号` 可以把同一个连接上的多行（包括 debug 行）串起来。
 
@@ -228,13 +221,7 @@ URI 太长是标准的 414。头行太长时，代码里 finalize 的是 nginx �
 
 下图是请求行和请求头的缓冲顺序，判断是：一行（请求行或任意一个头）必须整体放进一个缓冲，放不下时按“是不是请求行”分成 414 和 494：
 
-```mermaid
-flowchart LR
-    A["client_header_buffer_size<br/>默认 1k"] -- 放不下 --> B["large_client_header_buffers<br/>默认 4 个 8k"]
-    B -- "请求行放不进一个缓冲" --> C["414"]
-    B -- "某个头行放不进一个缓冲" --> D["494，对外 400<br/>too long header line"]
-    B -- "缓冲用完" --> E["494，对外 400<br/>too large request"]
-```
+![请求行放不下回 414，头放不下对外都是 400](../figures/ops-13/02.svg)
 
 请求体的上限在选定 location 时按 Content-Length 检查（chunked 请求体在读取过程中检查，见[运维篇 05](05-static-transfer.md)），这条原文是 error 级的：
 
@@ -320,21 +307,7 @@ nginx 在等后端响应时也在监视客户端连接（`proxy_ignore_client_ab
 
 下图把 408、499、504 放在同一条时间线上比较，判断是：三个码分别对应“客户端慢”“后端慢、客户端先放弃”“后端慢、nginx 先放弃”：
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as nginx
-    participant B as 后端
-    C->>N: 请求头没发完
-    Note over N: client_header_timeout 到期，关闭，记 408
-    C->>N: 完整请求
-    N->>B: 转发
-    Note over C: 客户端超时更短，先断开
-    Note over N: 发现客户端断开，关后端，记 499
-    C->>N: 完整请求
-    N->>B: 转发
-    Note over N: proxy_read_timeout 到期，回 504
-```
+![408 和 499 分别对应超时的两个方向，504 是等后端超时](../figures/ops-13/03.svg)
 
 **小结**：408 看客户端和网络，499 和 504 都看后端；二者的区别只是谁的超时更短，调大 nginx 的超时不能消除 499。
 
@@ -413,17 +386,7 @@ ok - six requests, six 502
 
 下图是按原文给 502 分类的顺序，判断是：先看 `while` 后缀确定失败的阶段，再看前半句确定原因：
 
-```mermaid
-flowchart LR
-    A["502"] --> B{"while ..."}
-    B -- "connecting to upstream" --> C{"前半句"}
-    C -- "connect() failed" --> C1["后端端口不通"]
-    C -- "no live upstreams" --> C2["整组被摘除<br/>往前找最初的失败"]
-    B -- "reading response header" --> D{"前半句"}
-    D -- "prematurely closed" --> D1["后端不回响应就关闭"]
-    D -- "reset by peer" --> D3["后端或中间设备发 RST"]
-    D -- "too big header" --> D2["调大 proxy_buffer_size"]
-```
+![502 有五种来源，先看 while 后缀，再看前半句](../figures/ops-13/04.svg)
 
 **小结**：502 不是一个原因而是一类，按 `while` 后缀和前半句两级分类；`no live upstreams` 是结果，根因在它之前的日志里。
 
@@ -560,13 +523,7 @@ ok - the request line, the phases and the finalize call are all there
 
 下图是用 debug 日志定位问题时的读法，判断是：先用连接号把行串起来，再按“解析、选 location、阶段、结束”四段找异常：
 
-```mermaid
-flowchart LR
-    A["按 *连接号 过滤"] --> B["http request line<br/>http uri / args"]
-    B --> C["test location<br/>using configuration"]
-    C --> D["各阶段<br/>phase: N"]
-    D --> E["http finalize request: 状态"]
-```
+![debug 日志用 *连接号 串行，按四段读找出异常](../figures/ops-13/05.svg)
 
 **小结**：`-T` 回答“配置是什么”，debug 日志回答“这个请求实际怎么走的”；生产上 debug 日志只对单个 server 或单个客户端地址打开，用完就关。
 
@@ -591,14 +548,7 @@ flowchart LR
 
 这些误区的共同点是：配置语法正确，nginx 按自己的规则执行了，只是规则和直觉不同。下图把排障的顺序收成一条线，判断是：从状态码出发，日志原文能定位到大多数问题，剩下的靠 `-T` 和 debug 日志确认规则：
 
-```mermaid
-flowchart LR
-    A["access log 的状态码<br/>和 $upstream_status"] --> B["error.log 原文<br/>必要时调到 info"]
-    B --> C{"原文能解释吗？"}
-    C -- 能 --> D["改对应指令"]
-    C -- 不能 --> E["nginx -T 确认配置<br/>debug 日志看请求路径"]
-    E --> F["对照上表的规则"]
-```
+![排障顺序是状态码、原文、配置、规则，能解释就提前停](../figures/ops-13/06.svg)
 
 **小结**：排障的顺序是状态码、原文、配置、规则；上表里的每一条都是“规则和直觉不同”，排障到最后一步时逐条对照。
 

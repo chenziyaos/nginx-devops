@@ -1,0 +1,42 @@
+{
+ "type": "flow",
+ "title": "越晚发现的错误，离出错的那一行越远",
+ "subtitle": "从左到右是配置解析和初始化的时间线；红色错误没有文件和行号",
+ "source": "来源：ngx_conf_file.c、ngx_http_variables.c、ngx_cycle.c（1.31.9）",
+ "steps": [
+  {
+   "title": "读文件、切词",
+   "lines": [
+    "unexpected …"
+   ]
+  },
+  {
+   "title": "分派",
+   "lines": [
+    "unknown / not allowed / invalid number"
+   ]
+  },
+  {
+   "title": "set 函数",
+   "lines": [
+    "is duplicate / invalid value"
+   ]
+  },
+  {
+   "title": "http{} 解析完",
+   "lines": [
+    "unknown variable（无行号）"
+   ],
+   "tone": "risk"
+  },
+  {
+   "title": "初始化后半",
+   "lines": [
+    "ngx_init_cycle",
+    "shared memory size=0 / bind() failed（无行号）"
+   ],
+   "tone": "risk"
+  }
+ ],
+ "aspect": "wide"
+}

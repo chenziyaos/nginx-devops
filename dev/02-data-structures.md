@@ -19,18 +19,7 @@
 
 [开发篇 01](01-source-map.md) 讲了源码的分层和模块的组织，这一篇往下走一层，看所有模块共用的几种基础结构。它们有一个共同的前提：内存几乎都从 `ngx_pool_t` 分配（池的实现见开发篇 03），一个请求或一轮配置结束时整池释放。下图的判断是：选哪种结构，先看它的生命周期是“配置期建一次”还是“请求期随用随加”：
 
-```mermaid
-flowchart LR
-    A["要存一组数据"] --> B{"什么时候建？"}
-    B -- "配置期建好，请求期只查" --> C["ngx_hash_t<br/>server_name、变量、MIME 类型"]
-    B -- "请求期追加" --> D{"元素地址要不要稳定？"}
-    D -- "要（别处保存了指针）" --> E["ngx_list_t<br/>请求头、响应头"]
-    D -- "不要" --> F["ngx_array_t<br/>配置数组、临时列表"]
-    B -- "长期存在、要增删" --> G{"按什么找？"}
-    G -- "按顺序或 LRU" --> H["ngx_queue_t<br/>keepalive 连接、LRU 队列"]
-    G -- "按键或时间" --> I["ngx_rbtree_t<br/>定时器、limit_req、缓存索引"]
-    G -- "按 IP 前缀" --> J["ngx_radix_tree_t<br/>geo"]
-```
+![选数据结构先看什么时候建，再看地址稳不稳、按什么找](../figures/dev-02/01.svg)
 
 ## 1. ngx_str_t 是长度加指针：切片不复制，也没有结尾的 NUL
 
@@ -144,16 +133,7 @@ ok - 2, 2, 3, 4, 5 in place; after another allocation 5 -> 10 with a copy
 
 下图是 push 时的判断顺序，判断是：是否搬家取决于数组在池里的位置，而不只是容量：
 
-```mermaid
-flowchart LR
-    A["ngx_array_push"] --> B{"nelts == nalloc？"}
-    B -- 否 --> E["直接返回下一格"]
-    B -- 是 --> C{"元素区在池尾<br/>且块内还有一格？"}
-    C -- 是 --> D["d.last 后移一格<br/>nalloc + 1，不搬家"]
-    C -- 否 --> F["palloc 2 倍并 memcpy<br/>nalloc × 2，旧空间留在池里"]
-    D --> E
-    F --> E
-```
+![ngx_array_push 是否搬家取决于数组在池里的位置](../figures/dev-02/02.svg)
 
 **小结**：`ngx_array_t` 适合“配置期一次性填好”或“元素少、生命周期短”的场景；需要长期保存元素地址时不要用它，用下一节的 `ngx_list_t`。
 
@@ -227,13 +207,7 @@ ok - 10 elements in parts of 4: 4 + 4 + 2
 
 10 个元素、每段 4 个，分成 4、4、2 三段，第 3 个元素（下标 2）在全部推完之后地址没变。下图是这次实验结束时链表的形状，判断是：新元素只会进 `last` 指向的段，前面的段一旦写满就不再动：
 
-```mermaid
-flowchart LR
-    L["ngx_list_t<br/>nalloc = 4"] --> P0["part（内嵌）<br/>元素 0–3"]
-    P0 -- next --> P1["part<br/>元素 4–7"]
-    P1 -- next --> P2["part<br/>元素 8–9，还剩 2 格"]
-    L -. last .-> P2
-```
+![ngx_list_t 追加新段不搬家](../figures/dev-02/03.svg)
 这正是请求头选它的原因：`ngx_http_process_request_headers` 每解析出一行头，就往 `r->headers_in.headers`（每段 20 个）里推一个 `ngx_table_elt_t`，同时把 Host、Cookie 这类常用头的指针存进 `r->headers_in.host` 等字段；如果用数组，扩容搬家会让这些指针失效。代价是遍历要两层循环（先段后元素），按名字查找是线性的，所以常用头才要单独存指针。
 
 ```c
@@ -338,18 +312,7 @@ ok - a stable merge sort: equal keys keep their insertion order
 
 下图是侵入式链表的内存布局，判断是：链表只连接成员，外层结构靠固定偏移量找回：
 
-```mermaid
-flowchart LR
-    H["head<br/>prev / next"] --> A1
-    subgraph A["item_t a"]
-        A0["key, tag"] --- A1["link（偏移 16）"]
-    end
-    A1 --> B1
-    subgraph B["item_t b"]
-        B0["key, tag"] --- B1["link（偏移 16）"]
-    end
-    B1 --> H
-```
+![ngx_queue_t 侵入式链表靠偏移量找回](../figures/dev-02/04.svg)
 
 **小结**：`ngx_queue_t` 不分配内存、不拥有数据，适合 LRU、空闲连接池这类频繁摘挂的场景；需要排序时它是稳定的归并排序。
 
@@ -563,16 +526,7 @@ ok - alone, any length passes; next to another server, 110 bytes fit a 128-byte 
 
 下图是组合哈希的查找顺序，判断是：精确名永远优先，通配名按“前缀、后缀”的固定顺序，和配置里的书写顺序无关：
 
-```mermaid
-flowchart LR
-    A["小写后的 Host"] --> B["精确表<br/>ngx_hash_find"]
-    B -- 命中 --> Z["返回 server"]
-    B -- 未命中 --> C["前缀通配表<br/>按标签从右往左逐级查"]
-    C -- 命中 --> Z
-    C -- 未命中 --> D["后缀通配表<br/>按标签从左往右逐级查"]
-    D -- 命中 --> Z
-    D -- 未命中 --> E["正则 server_name<br/>（不在哈希里，按顺序试）"]
-```
+![ngx_hash_t 查找顺序固定：精确名、前缀通配、后缀通配、正则](../figures/dev-02/05.svg)
 
 **小结**：`ngx_hash_t` 用“建表慢、只读”换“查找快、内存紧凑”；遇到 `could not build ... hash` 的 emerg，是某个键单独放不进一个桶，要调 `_bucket_size`；`could not build optimal` 的 warn 是桶数不够，调 `_max_size`。
 
@@ -689,15 +643,7 @@ ngx_rbtree_insert_timer_value(ngx_rbtree_node_t *temp, ngx_rbtree_node_t *node,
 
 注释说得很清楚：定时器的值集中在几分钟的范围内，用差值比较可以容忍计数器溢出。下图是两种比较对同一对键的判断，判断是：差值比较只看两个键离得多近，不看绝对大小：
 
-```mermaid
-flowchart LR
-    A["a = 2^64 - 16"] --> C1{"insert_value<br/>a < b ？"}
-    B["b = 16（回绕后）"] --> C1
-    C1 -- "否：最小是 b" --> W["回绕后的定时器先到期 ✗"]
-    A --> C2{"insert_timer_value<br/>(int)(a - b) < 0 ？"}
-    B --> C2
-    C2 -- "是：a - b = -32" --> R["回绕前的定时器先到期 ✓"]
-```
+![定时器用差值比较容忍溢出；普通比较给出错的先后顺序](../figures/dev-02/06.svg)
 
 实验插入两个键，一个在 2^64 回绕前 16，一个在回绕后 16：
 
@@ -762,13 +708,7 @@ ok - longest prefix wins; an existing prefix is not replaced
 
 下图是两次插入之后树上的路径，判断是：查找沿地址位一直走到底，答案是路上最后一个有值的节点，而不是第一个：
 
-```mermaid
-flowchart LR
-    R["根"] --> A["前 8 位 = 10<br/>值 1（10.0.0.0/8）"]
-    R --> X["前 8 位 = 11<br/>无值"]
-    A --> B["前 16 位 = 10.1<br/>值 2（10.1.0.0/16）"]
-    A --> C["前 16 位 = 10.2<br/>无节点，停在 /8"]
-```
+![radix 树返回查找路上最后一个有值的节点，即最长前缀匹配](../figures/dev-02/07.svg)
 
 `10.1.x.x` 都走到 /16 的节点，取到 2；`10.2.0.1` 只经过 /8 的节点，取到 1；`11.0.0.1` 一路没有遇到有值的节点。重复插入同一个前缀返回 `NGX_BUSY`，不覆盖原值；geo 模块收到 `NGX_BUSY` 后记一条 warn（`duplicate network ..., old value: ...`），删掉旧节点再插入新值，所以配置里同一网段写两次，后写的生效。查找最多走 32 步（IPv6 是 128 步），步数和条目数量无关。
 

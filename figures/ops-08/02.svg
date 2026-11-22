@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="26" fill="#1F2329" font-weight="bold" data-role="title">SNI 不认识时落到默认 server，ssl_reject_handshake 决定握手能否继续</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">先按 SNI 选 server，再看选中的 server 有没有设置 ssl_reject_handshake</text>
+<text x="144" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">ClientHello</text>
+<text x="448" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">选 server</text>
+<text x="752" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">ssl_reject_handshake</text>
+<text x="1056" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结果</text>
+<polyline points="252,256 293,256 293,204 330,204" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,198 340,204 330,210" fill="#8F959E"/>
+<polyline points="252,256 293,256 293,308 330,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,302 340,308 330,314" fill="#8F959E"/>
+<polyline points="556,204 597,204 597,256 634,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,250 644,256 634,262" fill="#8F959E"/>
+<polyline points="556,308 597,308 597,256 634,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,250 644,256 634,262" fill="#8F959E"/>
+<polyline points="860,256 901,256 901,204 938,204" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,198 948,204 938,210" fill="#8F959E"/>
+<polyline points="860,256 901,256 901,308 938,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,302 948,308 938,314" fill="#8F959E"/>
+<rect x="40" y="214" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="241.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">SNI</text>
+<text x="144" y="261.7" font-size="12" fill="#646A73" text-anchor="middle">ngx_http_find_virtual_serve</text>
+<text x="144" y="280.7" font-size="12" fill="#646A73" text-anchor="middle">r</text>
+<rect x="344" y="162" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="189.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">找到</text>
+<text x="448" y="209.7" font-size="12" fill="#646A73" text-anchor="middle">换成这个 server 的 SSL_CTX</text>
+<text x="448" y="228.7" font-size="12" fill="#646A73" text-anchor="middle">和证书</text>
+<rect x="344" y="266" width="208" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="448" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">没找到或没有 SNI</text>
+<text x="448" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">留在端口的默认 server</text>
+<rect x="648" y="214" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="260.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">该 server 设置了吗？</text>
+<rect x="952" y="162" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="208.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">继续握手</text>
+<rect x="952" y="266" width="208" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="293.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">alert 112</text>
+<text x="1056" y="313.7" font-size="12" fill="#646A73" text-anchor="middle">unrecognized_name，握手</text>
+<text x="1056" y="332.7" font-size="12" fill="#646A73" text-anchor="middle">失败</text>
+<text x="909" y="234" font-size="12" fill="#646A73">否</text>
+<text x="909" y="286" font-size="12" fill="#646A73">是</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）</text>
+</svg>

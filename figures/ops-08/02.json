@@ -1,0 +1,26 @@
+{
+ "type": "graph",
+ "title": "SNI 不认识时落到默认 server，ssl_reject_handshake 决定握手能否继续",
+ "subtitle": "先按 SNI 选 server，再看选中的 server 有没有设置 ssl_reject_handshake",
+ "source": "来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）",
+ "stages": [
+  {"name": "ClientHello", "nodes": [
+    {"id": "s", "title": "SNI", "sub": "ngx_http_find_virtual_server"}]},
+  {"name": "选 server", "nodes": [
+    {"id": "x", "title": "找到", "sub": "换成这个 server 的 SSL_CTX 和证书"},
+    {"id": "d", "title": "没找到或没有 SNI", "sub": "留在端口的默认 server", "tone": "contrast"}]},
+  {"name": "ssl_reject_handshake", "nodes": [
+    {"id": "r", "title": "该 server 设置了吗？"}]},
+  {"name": "结果", "nodes": [
+    {"id": "ok", "title": "继续握手", "tone": "good"},
+    {"id": "a", "title": "alert 112", "sub": "unrecognized_name，握手失败", "tone": "risk"}]}
+ ],
+ "edges": [
+  {"from": "s", "to": "x"},
+  {"from": "s", "to": "d"},
+  {"from": "x", "to": "r"},
+  {"from": "d", "to": "r"},
+  {"from": "r", "to": "ok", "label": "否"},
+  {"from": "r", "to": "a", "label": "是"}
+ ]
+}

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 509.5" width="1200" height="509.5">
+<rect x="0" y="0" width="1200" height="509.5" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="27" fill="#1F2329" font-weight="bold" data-role="title">realip 从 X-Forwarded-For 右边取地址，recursive 时跳过信任的代理</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">例子：X-Forwarded-For: 203.0.113.7, 10.0.0.2，连接来自 127.0.0.1；绿色是 recursive on 的结果</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">连接来源</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">real_ip_recursive</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">remote_addr</text>
+<polyline points="294,271 387,271 387,209.5 476,209.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,203.5 486,209.5 476,215.5" fill="#8F959E"/>
+<polyline points="294,271 387,271 387,332.5 476,332.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,326.5 486,332.5 476,338.5" fill="#8F959E"/>
+<polyline points="714,332.5 807,332.5 807,271 896,271" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,265 906,271 896,277" fill="#8F959E"/>
+<polyline points="714,332.5 807,332.5 807,394 896,394" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,388 906,394 896,400" fill="#8F959E"/>
+<rect x="70" y="219.5" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="266.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">127.0.0.1 受信任？</text>
+<text x="180" y="286.2" font-size="12" fill="#646A73" text-anchor="middle">在 set_real_ip_from 里</text>
+<rect x="490" y="158" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="204.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">不替换</text>
+<text x="600" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">remote_addr=127.0.0.1</text>
+<rect x="490" y="281" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="337.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">看 recursive</text>
+<rect x="910" y="219.5" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="266.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">off：取最右边</text>
+<text x="1020" y="286.2" font-size="12" fill="#646A73" text-anchor="middle">remote_addr=10.0.0.2</text>
+<rect x="910" y="342.5" width="220" height="103" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="370.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">on：向左跳过受信任的</text>
+<text x="1020" y="390.2" font-size="12" fill="#646A73" text-anchor="middle">10.0.0.2 受信任，继续；</text>
+<text x="1020" y="409.2" font-size="12" fill="#646A73" text-anchor="middle">203.0.113.7 不受信任，停下：</text>
+<text x="1020" y="428.2" font-size="12" fill="#646A73" text-anchor="middle">remote_addr=203.0.113.7</text>
+<text x="340.5" y="262" font-size="12" fill="#646A73" text-anchor="middle">否</text>
+<text x="340.5" y="289" font-size="12" fill="#646A73" text-anchor="middle">是</text>
+<text x="760.5" y="323.5" font-size="12" fill="#646A73" text-anchor="middle">off</text>
+<text x="760.5" y="350.5" font-size="12" fill="#646A73" text-anchor="middle">on</text>
+<text x="40" y="485.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_realip_module.c（1.31.9）</text>
+</svg>

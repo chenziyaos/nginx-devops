@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 494" width="1200" height="494">
+<rect x="0" y="0" width="1200" height="494" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">sticky cookie：第一个请求分配 cookie，之后的请求一直去同一台</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下：浏览器 → nginx → 后端的三方交互；后端地址的 MD5 值作为 cookie</text>
+<line x1="226.7" y1="168" x2="226.7" y2="430" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">浏览器</text>
+<line x1="600" y1="168" x2="600" y2="430" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx（sticky）</text>
+<line x1="973.3" y1="168" x2="973.3" y2="430" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">后端 A</text>
+<text x="236.7" y="202.6" font-size="13" fill="#1F2329">第一个请求（无 cookie）</text>
+<polyline points="226.7,211 588,211" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,205 598,211 588,217" fill="#8F959E"/>
+<text x="610" y="243.6" font-size="13" fill="#1F2329">按轮询选中</text>
+<polyline points="600,252 961.3,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,246 971.3,252 961.3,258" fill="#8F959E"/>
+<text x="590" y="284.6" font-size="13" fill="#1F2329" text-anchor="end">Set-Cookie: md5(127.0.0.1:18141)</text>
+<polyline points="600,293 238.7,293" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,287 228.7,293 238.7,299" fill="#8F959E"/>
+<text x="236.7" y="325.6" font-size="13" fill="#1F2329">之后的请求（带 cookie）</text>
+<polyline points="226.7,334 588,334" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,328 598,334 588,340" fill="#8F959E"/>
+<text x="610" y="366.6" font-size="13" fill="#1F2329">按 SID 匹配，直接选</text>
+<polyline points="600,375 961.3,375" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,369 971.3,375 961.3,381" fill="#8F959E"/>
+<text x="590" y="407.6" font-size="13" fill="#1F2329" text-anchor="end">A 摘除时另选，写回新 cookie</text>
+<polyline points="600,416 238.7,416" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,410 228.7,416 238.7,422" fill="#8F959E"/>
+<text x="40" y="470" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）</text>
+</svg>

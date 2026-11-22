@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 611" width="1200" height="611">
+<rect x="0" y="0" width="1200" height="611" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">缓冲决定的是后端连接能多早释放，代价是磁盘写入</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从左到右：先看要不要升级，再看要不要缓冲；只有缓冲路径能在后端读完后马上放回连接</text>
+<text x="113.6" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">send_response</text>
+<text x="356.8" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">升级判断</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">缓冲判断</text>
+<text x="843.2" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">响应体路径</text>
+<text x="1086.4" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">释放</text>
+<polyline points="191.2,308 269.2,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,302 279.2,308 269.2,314" fill="#8F959E"/>
+<polyline points="434.4,308 512.4,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,302 522.4,308 512.4,314" fill="#8F959E"/>
+<polyline points="677.6,308 718.6,308 718.6,219 755.6,219" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,213 765.6,219 755.6,225" fill="#8F959E"/>
+<polyline points="677.6,308 718.6,308 718.6,397 755.6,397" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,391 765.6,397 755.6,403" fill="#8F959E"/>
+<polyline points="920.8,397 998.8,397" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,391 1008.8,397 998.8,403" fill="#8F959E"/>
+<polyline points="356.8,373 356.8,411" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="350.8,411 356.8,421 362.8,411" fill="#8F959E"/>
+<rect x="40" y="247" width="147.2" height="122" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="113.6" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">响应头已发出</text>
+<text x="113.6" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">send_response</text>
+<rect x="283.2" y="247" width="147.2" height="122" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">要升级吗</text>
+<text x="356.8" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">u-＞upgrade</text>
+<rect x="283.2" y="425" width="147.2" height="122" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="471.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">双向转发</text>
+<text x="356.8" y="491.7" font-size="12" fill="#646A73" text-anchor="middle">upstream_upgrade</text>
+<text x="356.8" y="510.7" font-size="12" fill="#646A73" text-anchor="middle">（WebSocket）</text>
+<rect x="526.4" y="247" width="147.2" height="122" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="293.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">要缓冲吗</text>
+<text x="600" y="313.7" font-size="12" fill="#646A73" text-anchor="middle">proxy_buffering /</text>
+<text x="600" y="332.7" font-size="12" fill="#646A73" text-anchor="middle">X-Accel-Buffering</text>
+<rect x="769.6" y="158" width="147.2" height="122" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">不缓冲直转</text>
+<text x="843.2" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">只用一块</text>
+<text x="843.2" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">proxy_buffer_size</text>
+<text x="843.2" y="243.7" font-size="12" fill="#646A73" text-anchor="middle">，客户端慢则后端</text>
+<text x="843.2" y="262.7" font-size="12" fill="#646A73" text-anchor="middle">也等</text>
+<rect x="769.6" y="336" width="147.2" height="122" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="363.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">缓冲转发</text>
+<text x="843.2" y="383.7" font-size="12" fill="#646A73" text-anchor="middle">event pipe：</text>
+<text x="843.2" y="402.7" font-size="12" fill="#646A73" text-anchor="middle">proxy_buffers 4</text>
+<text x="843.2" y="421.7" font-size="12" fill="#646A73" text-anchor="middle">8k = 32 KB，不够写</text>
+<text x="843.2" y="440.7" font-size="12" fill="#646A73" text-anchor="middle">临时文件</text>
+<rect x="1012.8" y="336" width="147.2" height="122" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="382.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">读完即放回</text>
+<text x="1086.4" y="402.7" font-size="12" fill="#646A73" text-anchor="middle">后端读完即 free，</text>
+<text x="1086.4" y="421.7" font-size="12" fill="#646A73" text-anchor="middle">连接放回缓存</text>
+<text x="364.8" y="396" font-size="12" fill="#646A73">是</text>
+<text x="473.4" y="299" font-size="12" fill="#646A73" text-anchor="middle">否</text>
+<text x="40" y="587" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_send_response、ngx_http_upstream.c（1.31.9）</text>
+</svg>

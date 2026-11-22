@@ -1,0 +1,50 @@
+{
+  "type": "stack",
+  "title": "master 和 worker 各自睡在一个系统调用上，只被信号或事件唤醒",
+  "subtitle": "上面是 master 循环（信号驱动），下面是 worker 循环（事件驱动）；虚线是进程间通道",
+  "source": "来源：src/os/unix/ngx_process_cycle.c（1.31.9）",
+  "parts": [
+    {
+      "label": "master 循环",
+      "type": "cycle",
+      "steps": [
+        {
+          "title": "信号处理函数",
+          "sub": "只置标志",
+          "tone": "base"
+        },
+        {
+          "title": "sigsuspend 返回",
+          "sub": "被信号唤醒",
+          "tone": "main"
+        },
+        {
+          "title": "按标志处理",
+          "sub": "reload / 退出 / 回收子进程",
+          "tone": "base"
+        }
+      ]
+    },
+    {
+      "label": "worker 循环",
+      "type": "cycle",
+      "steps": [
+        {
+          "title": "找最近的定时器",
+          "sub": "红黑树最小值",
+          "tone": "base"
+        },
+        {
+          "title": "kevent / epoll_wait",
+          "sub": "被事件唤醒",
+          "tone": "main"
+        },
+        {
+          "title": "处理事件",
+          "sub": "accept → 定时器 → 投递队列",
+          "tone": "base"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+ "type": "sequence",
+ "title": "PROXY 协议头只加在 nginx 到后端这一段，后端要配置读取它",
+ "subtitle": "竖向是时间轴；PROXY 头只出现在 nginx 发往后端的连接上",
+ "source": "来源：ngx_stream_proxy_module.c（1.31.9）",
+ "actors": [
+  "客户端",
+  "nginx :18249",
+  "后端 :18253"
+ ],
+ "messages": [
+  {
+   "from": "客户端",
+   "to": "nginx :18249",
+   "label": "TCP 连接（客户端端口）"
+  },
+  {
+   "from": "nginx :18249",
+   "to": "后端 :18253",
+   "label": "新 TCP 连接（nginx 端口）"
+  },
+  {
+   "from": "nginx :18249",
+   "to": "后端 :18253",
+   "label": "PROXY 头（客户端地址和端口）"
+  },
+  {
+   "from": "nginx :18249",
+   "to": "后端 :18253",
+   "label": "客户端的数据"
+  },
+  {
+   "from": "后端 :18253",
+   "to": "nginx :18249",
+   "label": "回显 pp=客户端端口 remote=nginx 端口"
+  },
+  {
+   "from": "nginx :18249",
+   "to": "客户端",
+   "label": "原样转发"
+  }
+ ]
+}

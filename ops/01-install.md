@@ -38,15 +38,7 @@ nginx 同时维护两条线。偶数次版本号是 stable：1.30.0 在 2026-04-
 
 选择的标准因此很简单：配置里要用上表的功能，就只能上 mainline；否则 stable 的变化更少，升级时要读的 changes 也更短。mainline 并不意味着不稳定，nginx 的开发者一直建议普通用户也用 mainline，但 stable 的价值在于“没有行为变化”：1.29.7 把到后端的连接默认改成 keepalive（运维篇 06），这类变化只会在你从 1.28 跳到 1.30 时一次性到来，而不会在某个小版本里悄悄发生。
 
-```mermaid
-flowchart LR
-    A["1.29.x mainline"] --> B["1.29.8（2026-04-07）"]
-    B -- "切出 stable" --> S0["1.30.0（2026-04-14）"]
-    S0 --> S7["1.30.1 … 1.30.7：只有修复"]
-    B --> M0["1.31.0（2026-05-13）"]
-    M0 --> M9["1.31.1 … 1.31.9：新功能 + 修复"]
-    M9 -. "下一次切 stable" .-> N["下一个偶数次版本"]
-```
+![stable 只收修复，mainline 每月带新功能](../figures/ops-01/01.svg)
 
 **小结**：先列出配置要用的指令，查它们是哪个版本加的（`python3 tools/since.py <关键词>`），全部早于 1.29.8 就可以用 1.30.x；用到 1.31 的功能就跟 mainline，并把每个版本的 changes 当作升级检查单。
 
@@ -86,20 +78,7 @@ flowchart LR
 
 `--prefix` 指向仓库里的 `.nginx`，不需要 root；`--with-debug` 让 `error_log ... debug` 生效（开发篇用它看阶段轨迹）；`--with-compat` 让后面单独编译的动态模块能装进这个二进制（§4）；`--with-cc-opt` 里的 `-O0 -g` 关掉优化、保留调试符号，方便用 lldb 或 gdb 挂上 worker，生产编译不要这样设。`extra` 是 `modules/` 目录下本仓库自己的模块，以 `--add-dynamic-module` 加入。
 
-```mermaid
-flowchart TD
-    A["需要的功能"] --> B{"要 1.31 才有的功能？"}
-    B -- "是" --> M["mainline：nginx.org 包或自己编译"]
-    B -- "否" --> C{"需要第三方模块、debug 或特殊参数？"}
-    C -- "是" --> SRC["自己编译（可配 --with-compat 单独编模块）"]
-    C -- "否" --> D{"能接受发行版冻结的版本？"}
-    D -- "能" --> DIST["发行版包，安全修复由发行版回合"]
-    D -- "不能" --> ORG["nginx.org stable 包"]
-    M --> V["装好后：nginx -V 核对参数"]
-    SRC --> V
-    DIST --> V
-    ORG --> V
-```
+![三种方式选的是谁负责编译参数和安全更新](../figures/ops-01/02.svg)
 
 **小结**：三种方式都可以用于生产，选的是“谁负责编译参数和安全更新”。无论哪种，装好后的第一件事都是 `nginx -V`，把输出存进运维记录。
 
@@ -288,20 +267,7 @@ GET / -> hello from a dynamic module
 
 因此，给一个已经装好的、带 `--with-compat` 的 nginx 加第三方模块时，只需要拿同版本的源码、用 `--with-compat --add-dynamic-module=...` 编出 `.so`，不必和原二进制的其他参数一致；`tools/build_modules.sh` 在本仓库里做的就是这件事。原二进制没有 `--with-compat` 时，只能用和它完全相同的 configure 参数编译模块。
 
-```mermaid
-flowchart TD
-    A["配置里出现指令 X"] --> B{"X 所属模块在 ngx_modules[] 里？"}
-    B -- "在" --> OK["正常解析"]
-    B -- "不在" --> C{"有 load_module 加载它？"}
-    C -- "没有" --> U["unknown directive"]
-    C -- "有" --> D{"dlopen 成功？"}
-    D -- "否" --> E["dlopen() ... failed"]
-    D -- "是" --> F{"版本号相同？"}
-    F -- "否" --> G["version N instead of M"]
-    F -- "是" --> H{"签名相同？"}
-    H -- "否" --> I["is not binary compatible"]
-    H -- "是" --> OK
-```
+![内置模块查不到就尝试用 load_module 加载](../figures/ops-01/03.svg)
 
 **小结**：`unknown directive` 的排查顺序是拼写、`nginx -V` 里的模块参数、`load_module`、版本。动态模块必须和 nginx 同版本编译，原二进制带 `--with-compat` 时其他参数可以不同。
 
@@ -435,15 +401,7 @@ nginx: [error] invalid PID number "" in "$LAB/out/run/p/logs/nginx.pid"
 
 看到 `invalid PID number ""`，说明 master 根本没在运行（或者 pid 文件路径和运行中的实例不一致），应该启动它，而不是 reload。
 
-```mermaid
-flowchart TD
-    A["nginx -t"] --> B["ngx_conf_param：-g 的指令"]
-    B --> C["ngx_conf_parse：配置文件，成功打印 syntax is ok"]
-    C --> D["打开 pid 文件：不存在就创建，不写内容"]
-    D --> E["ngx_create_paths：创建 *_temp 目录"]
-    E --> F["打开日志文件、检查监听地址等"]
-    F --> G["打印 test is successful 并退出，不启动 worker"]
-```
+![nginx -t 创建 *_temp 目录和空 pid 文件，像真正启动一样走初始化](../figures/ops-01/04.svg)
 
 **小结**：把 `nginx -t` 当作“以运行用户的身份走一遍启动”，而不是纯语法检查。它会创建目录和空 pid 文件；`invalid PID number ""` 指向的是“没有在运行的 master”。
 
@@ -461,17 +419,7 @@ master gone after -s stop: yes, pid file left: no
 
 `-s stop` 之后 master 退出并删除了自己的 pid 文件。由于 `-s` 依赖 pid 文件，它有两个前提：执行 `-s` 时用的 `-p`、`-c`、`-g` 要和启动时一致，否则会找到另一个 pid 文件；pid 文件所在目录不能被清理工具删掉。用 systemd 管理时，通常把 `reload` 写成 `nginx -s reload` 或直接 `kill -HUP $MAINPID`，后者不经过 pid 文件。各个信号在 master 和 worker 里具体做什么，reload 失败时老 worker 怎么办，是运维篇 03 的内容。
 
-```mermaid
-sequenceDiagram
-    participant S as nginx -s reload
-    participant F as logs/nginx.pid
-    participant M as master
-    S->>S: 按 -p、-c、-g 解析配置，得到 pid 文件路径
-    S->>F: 读取 pid
-    F-->>S: master 的 pid（空文件时报 invalid PID number）
-    S->>M: kill(pid, SIGHUP)
-    S->>S: 立即退出，不等 reload 完成
-```
+![-s reload 读 pid 文件找 master，立即退出不等 reload 完成](../figures/ops-01/05.svg)
 
 **小结**：`nginx -s` 不会“找到正在运行的 nginx”，它只读 pid 文件。多实例部署时，每个实例的 `-p`/`-c` 和 pid 路径要固定写进启动脚本，`-s` 用同一组参数。
 

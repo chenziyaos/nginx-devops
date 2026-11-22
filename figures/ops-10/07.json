@@ -1,0 +1,31 @@
+{
+ "type": "graph",
+ "title": "后端出错时 use_stale 用旧内容兜底，后端回 304 时只续期",
+ "subtitle": "过期条目回源后的几条路；虚线是还能换下一台后端时重试",
+ "source": "来源：ngx_http_upstream.c（1.31.9）",
+ "stages": [
+  {"name": "回源", "nodes": [
+    {"id": "e", "title": "EXPIRED，回源"}]},
+  {"name": "后端结果", "nodes": [
+    {"id": "w", "title": "正常", "sub": "新内容，重写缓存", "tone": "good"},
+    {"id": "r", "title": "304", "sub": "只更新有效期，状态 REVALIDATED", "tone": "good"},
+    {"id": "f", "title": "失败", "sub": "连接失败、超时或 500", "tone": "risk"}]},
+  {"name": "换后端", "nodes": [
+    {"id": "n", "title": "还能换下一台？"}]},
+  {"name": "兜底", "nodes": [
+    {"id": "s", "title": "能用旧内容吗？", "sub": "失败类型在 proxy_cache_use_stale 里，或 stale-if-error 未到期"}]},
+  {"name": "结果", "nodes": [
+    {"id": "st", "title": "发旧内容", "sub": "状态 STALE", "tone": "main"},
+    {"id": "er", "title": "交给客户端", "sub": "把错误原样返回", "tone": "risk"}]}
+ ],
+ "edges": [
+  {"from": "e", "to": "w"},
+  {"from": "e", "to": "r"},
+  {"from": "e", "to": "f"},
+  {"from": "f", "to": "n"},
+  {"from": "n", "to": "e", "label": "能"},
+  {"from": "n", "to": "s", "label": "不能"},
+  {"from": "s", "to": "st", "label": "是"},
+  {"from": "s", "to": "er", "label": "否"}
+ ]
+}

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 452" width="1200" height="452">
+<rect x="0" y="0" width="1200" height="452" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">变量名字在配置时用，请求时只用下标</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">分为配置阶段（上）和请求（下）两部分；配置里按名字找变量定义，请求里按下标存值</text>
+<text x="390" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">配置阶段</text>
+<text x="810" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">请求</text>
+<polyline points="504,344.5 686,344.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,338.5 696,344.5 686,350.5" fill="#8F959E"/>
+<polyline points="390,249 390,287" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="384,287 390,297 396,287" fill="#8F959E"/>
+<rect x="280" y="158" width="220" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="390" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">variables_keys /</text>
+<text x="390" y="207.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">variables_hash</text>
+<text x="390" y="227.7" font-size="12" fill="#646A73" text-anchor="middle">所有定义</text>
+<rect x="280" y="301" width="220" height="87" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
+<text x="390" y="339.9" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">cmcf-＞variables</text>
+<text x="390" y="359.7" font-size="12" fill="#646A73" text-anchor="middle">用到的 20 个，下标 0–19</text>
+<rect x="700" y="301" width="220" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="810" y="339.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">r-＞variables[20]</text>
+<text x="810" y="359.7" font-size="12" fill="#646A73" text-anchor="middle">值 + valid / not_found</text>
+<text x="398" y="272" font-size="12" fill="#646A73">init_vars 配对</text>
+<text x="595" y="335.5" font-size="12" fill="#646A73" text-anchor="middle">下标</text>
+<text x="40" y="428" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_variables.c、ngx_http_variables.h（1.31.9）</text>
+</svg>

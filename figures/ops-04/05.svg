@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">return 在 REWRITE 阶段结束请求，限流和访问控制来不及运行</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从左到右是阶段顺序；rewrite ... last 回到 FIND_CONFIG 重新选 location</text>
+<text x="144" y="145.4" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">SERVER_REWRITE</text>
+<text x="448" y="145.4" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">FIND_CONFIG</text>
+<text x="752" y="145.4" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">REWRITE</text>
+<text x="1056" y="145.4" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">PREACCESS 到 CONTENT</text>
+<polyline points="252,254.4 330,254.4" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,248.4 340,254.4 330,260.4" fill="#8F959E"/>
+<polyline points="556,254.4 634,254.4" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,248.4 644,254.4 634,260.4" fill="#8F959E"/>
+<polyline points="860,254.4 901,254.4 901,202.4 938,202.4" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,196.4 948,202.4 938,208.4" fill="#8F959E"/>
+<polyline points="860,254.4 901,254.4 901,306.4 938,306.4" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,300.4 948,306.4 938,312.4" fill="#8F959E"/>
+<polyline points="714.6,300.4 714.6,322.4 485.4,322.4 485.4,310.4" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="479.4,310.4 485.4,300.4 491.4,310.4" fill="#8F959E"/>
+<rect x="40" y="212.4" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="259.3" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">server 级指令</text>
+<rect x="344" y="212.4" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="249.8" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">选 location</text>
+<text x="448" y="269.6" font-size="12" fill="#646A73" text-anchor="middle">§3–§5</text>
+<rect x="648" y="212.4" width="208" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="752" y="249.8" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">location 级指令</text>
+<text x="752" y="269.6" font-size="12" fill="#646A73" text-anchor="middle">rewrite / return / set</text>
+<rect x="952" y="160.4" width="208" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="197.8" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">直接响应</text>
+<text x="1056" y="217.6" font-size="12" fill="#646A73" text-anchor="middle">后面的阶段全部跳过</text>
+<rect x="952" y="264.4" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="292.3" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">后面的阶段</text>
+<text x="1056" y="312.1" font-size="12" fill="#646A73" text-anchor="middle">limit_req、allow/deny、</text>
+<text x="1056" y="331.1" font-size="12" fill="#646A73" text-anchor="middle">try_files（§6）、proxy_pass</text>
+<text x="919.5" y="193.4" font-size="12" fill="#646A73" text-anchor="middle">return</text>
+<text x="909" y="284.4" font-size="12" fill="#646A73">继续</text>
+<text x="600" y="313.4" font-size="12" fill="#646A73" text-anchor="middle">rewrite last</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.h（1.31.9）</text>
+</svg>

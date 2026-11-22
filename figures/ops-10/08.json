@@ -1,0 +1,34 @@
+{
+ "type": "flow",
+ "title": "缓存条目按 inactive 删除，与有效期无关",
+ "subtitle": "从左到右：最后访问时刻开始计时，默认 inactive = 600 秒后 manager 检查一次就删除",
+ "source": "来源：本文整理",
+ "steps": [
+  {
+   "title": "最后访问"
+  },
+  {
+   "title": "算 expire",
+   "lines": [
+    "访问时间 + inactive",
+    "默认 600 秒"
+   ]
+  },
+  {
+   "title": "manager 检查",
+   "lines": [
+    "间隔最长 10 秒",
+    "未到 expire 就继续等"
+   ]
+  },
+  {
+   "title": "删除",
+   "lines": [
+    "删文件和共享内存节点",
+    "不看 valid_sec"
+   ],
+   "tone": "risk",
+   "emph": true
+  }
+ ]
+}

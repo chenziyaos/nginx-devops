@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 462" width="1200" height="462">
+<rect x="0" y="0" width="1200" height="462" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">超过 burst 才拒绝，超过 delay 只是排队</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">一个请求在 limit_req 里经过两次比较；红色是唯一返回错误的出口</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">算超出量</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">和 burst 比</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">和 delay 比</text>
+<polyline points="294,252 387,252 387,200 476,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,194 486,200 476,206" fill="#8F959E"/>
+<polyline points="294,252 387,252 387,304 476,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,298 486,304 476,310" fill="#8F959E"/>
+<polyline points="714,304 807,304 807,252 896,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,246 906,252 896,258" fill="#8F959E"/>
+<polyline points="714,304 807,304 807,356 896,356" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,350 906,356 896,362" fill="#8F959E"/>
+<rect x="70" y="210" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="237.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">按 key 找节点</text>
+<text x="180" y="257.7" font-size="12" fill="#646A73" text-anchor="middle">excess = 旧值 − rate × 经过时</text>
+<text x="180" y="276.7" font-size="12" fill="#646A73" text-anchor="middle">间 + 1</text>
+<rect x="490" y="158" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">拒绝</text>
+<text x="600" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">返回 limit_req_status（默认</text>
+<text x="600" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">503），不写回 excess</text>
+<rect x="490" y="262" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="289.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">不超过 burst</text>
+<text x="600" y="309.7" font-size="12" fill="#646A73" text-anchor="middle">delay 不写时为 0，nodelay 时为</text>
+<text x="600" y="328.7" font-size="12" fill="#646A73" text-anchor="middle">极大值</text>
+<rect x="910" y="210" width="220" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="247.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">立即放行</text>
+<text x="1020" y="267.2" font-size="12" fill="#646A73" text-anchor="middle">$limit_req_status = PASSED</text>
+<rect x="910" y="314" width="220" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="341.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">排队等待</text>
+<text x="1020" y="361.7" font-size="12" fill="#646A73" text-anchor="middle">(excess − delay) / rate 秒，</text>
+<text x="1020" y="380.7" font-size="12" fill="#646A73" text-anchor="middle">DELAYED</text>
+<text x="340.5" y="243" font-size="12" fill="#646A73" text-anchor="middle">＞ burst</text>
+<text x="340.5" y="270" font-size="12" fill="#646A73" text-anchor="middle">≤ burst</text>
+<text x="760.5" y="295" font-size="12" fill="#646A73" text-anchor="middle">≤ delay</text>
+<text x="760.5" y="322" font-size="12" fill="#646A73" text-anchor="middle">＞ delay</text>
+<text x="40" y="438" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+</svg>

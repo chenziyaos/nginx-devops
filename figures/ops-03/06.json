@@ -1,0 +1,66 @@
+{
+ "type": "sequence",
+ "title": "control API PATCH 返回同步结果，省去翻 error.log 的步骤",
+ "subtitle": "时间从上向下；alt/else 分支代表配置是否加载成功，状态码区分失败（422）和成功（200）",
+ "source": "来源：nginx 源码、labs/ops-03 实验（1.31.5 以上版本）",
+ "actors": [
+  {
+   "name": "发布脚本",
+   "sub": ""
+  },
+  {
+   "name": "master",
+   "sub": "-l 127.0.0.1:18079"
+  }
+ ],
+ "messages": [
+  {
+   "from": "发布脚本",
+   "to": "master",
+   "text": "PATCH /1/control/config"
+  },
+  {
+   "from": "master",
+   "to": "master",
+   "text": "ngx_init_cycle，日志同时写入收集器"
+  },
+  {
+   "from": "master",
+   "to": "发布脚本",
+   "text": "422 + 收集到的 emerg 行",
+   "reply": true
+  },
+  {
+   "from": "master",
+   "to": "发布脚本",
+   "text": "200 + 日志行",
+   "reply": true
+  },
+  {
+   "from": "master",
+   "to": "master",
+   "text": "启动新 worker，老 worker 收到 QUIT"
+  },
+  {
+   "from": "发布脚本",
+   "to": "master",
+   "text": "GET /1/control/processes"
+  },
+  {
+   "from": "master",
+   "to": "发布脚本",
+   "text": "列出 exiting=true 的老 worker，直到它们退完",
+   "reply": true
+  }
+ ],
+ "sections": [
+  {
+   "at": 2,
+   "label": "失败"
+  },
+  {
+   "at": 3,
+   "label": "成功"
+  }
+ ]
+}

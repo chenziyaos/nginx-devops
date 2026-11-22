@@ -19,16 +19,7 @@
 
 [开发篇 02](02-data-structures.md) 的数组、链表、哈希都从内存池分配，并且都没有删除接口，因为池只能整体释放。这一篇讲池本身，以及池管不了的那部分：多个 worker 要共享的状态。下图是两类内存的分工，判断是：选哪一种只看数据要活多久、要不要跨进程：
 
-```mermaid
-flowchart LR
-    A["要分配内存"] --> B{"要跨 worker 共享吗？"}
-    B -- 否 --> C{"活多久？"}
-    C -- "一轮配置" --> D["cycle->pool<br/>reload 时整池换掉"]
-    C -- "一个连接" --> E["c->pool<br/>connection_pool_size 512"]
-    C -- "一个请求" --> F["r->pool<br/>request_pool_size 4096"]
-    B -- 是 --> G["共享内存 zone<br/>ngx_slab_pool_t 分配"]
-    G --> H["limit_req / limit_conn<br/>proxy_cache keys_zone<br/>ssl_session_cache<br/>upstream zone"]
-```
+![选内存池还是共享内存只看数据要活多久、要不要跨 worker](../figures/dev-03/01.svg)
 
 ## 1. ngx_pool_t 只在销毁时整体释放：小块顺着块链切分，大块单独 malloc
 
@@ -146,17 +137,7 @@ ok - palloc aligns to NGX_ALIGNMENT (16 here), pnalloc does not; a new block kee
 
 下图是实验结束时池的样子，判断是：小块只能随块整体释放，大块各自独立，可以提前还：
 
-```mermaid
-flowchart LR
-    subgraph B0["块 0（1024 字节）"]
-        H0["ngx_pool_t 80 字节<br/>max / current / large / cleanup"] --- S0["+80 … +1012 小块"]
-    end
-    subgraph B1["块 1（1024 字节）"]
-        H1["ngx_pool_data_t 32 字节"] --- S1["+32 起 944 字节"]
-    end
-    B0 -- "d.next" --> B1
-    H0 -- "large" --> L1["malloc 945 字节"]
-```
+![小块顺着块链切分，大块单独 malloc 且挂在 large 链上](../figures/dev-03/02.svg)
 
 **小结**：内存池用“不能单独释放小块”换来了极快的分配（移动一个指针）和不会泄漏（整池一起还）；写模块时，生命周期等于请求的东西从 `r->pool` 分配，不用操心释放。
 
@@ -380,19 +361,7 @@ ok - with request_pool_size 16k the request needs one block
 
 下图是这个连接上的内存时间线，判断是：空闲 keepalive 连接的内存只剩连接池那 512 字节：
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant N as nginx
-    C->>N: 建立连接
-    Note over N: 连接池 512（A）
-    C->>N: GET /
-    Note over N: 头缓冲 malloc 1024（B）<br/>请求池 4096 × 2（C、D）
-    N->>C: 200 ok
-    Note over N: keepalive：释放 C、D，ngx_pfree(B)<br/>只剩连接池 A
-    C->>N: 关闭连接
-    Note over N: 释放 A
-```
+![keepalive 空闲连接只保留连接池，请求池和头缓冲整个释放](../figures/dev-03/03.svg)
 
 **小结**：每个活跃请求的内存成本大约是“请求池用量 + 头缓冲 + body 缓冲”，空闲 keepalive 连接只占连接池；调大 `request_pool_size` 能减少块数，但对总用量影响不大。
 
@@ -532,20 +501,7 @@ d's link went to pool->chain: yes; a's buffer was reset: yes
 
 下图是这次整理前后三条链的变化，判断是：只有“自己的、已发完的、排在最前面的”缓冲会被回收：
 
-```mermaid
-flowchart LR
-    subgraph 整理前
-        O["out: d(他人) → a(空) → b(剩 3) → c(空)"]
-    end
-    subgraph 整理后
-        F["free: a"]
-        BU["busy: b → c"]
-        P["pool->chain: d 的链表节点"]
-    end
-    O --> F
-    O --> BU
-    O --> P
-```
+![只有自己的、已发完的、排在最前面的缓冲才会被回收](../figures/dev-03/04.svg)
 
 **小结**：`tag` 是缓冲的所有权标记；写过滤器时，自己分配的 buf 一定要设 `tag`，否则 `ngx_chain_update_chains` 会把它当成别人的，只回收节点，缓冲本身得不到复用。
 
@@ -672,16 +628,7 @@ ok - a name has one owner and one size; a zone used before its declaration is fi
 
 下图是一个 zone 从登记到被 worker 使用的过程，判断是：zone 在 fork 之前就已映射好，所以每个 worker 看到的是同一段内存、同一个地址：
 
-```mermaid
-sequenceDiagram
-    participant M as master
-    participant W as worker
-    M->>M: 解析配置：ngx_shared_memory_add(name, size, tag)
-    M->>M: ngx_init_cycle：size 为 0 报错<br/>mmap(MAP_ANON|MAP_SHARED)
-    M->>M: ngx_init_zone_pool：放 ngx_slab_pool_t、建锁<br/>模块 init 回调
-    M->>W: fork，继承映射
-    W->>W: ngx_slab_alloc / ngx_shmtx_lock
-```
+![zone 在 fork 之前就映射好，每个 worker 看到同一个地址](../figures/dev-03/05.svg)
 
 reload 时，新 cycle 按名字在旧 cycle 里找 zone，tag 和大小都相同才直接复用旧映射，否则映射一块新的；`upstream` 的 zone 设置了 `noreuse`，每次都新建，但会把旧数据交给 `init` 回调。复用规则和 limit_req 的实测见[开发篇 08 §8](08-limit-req.md)。
 
@@ -745,16 +692,7 @@ ok - small below pagesize/64, exact at pagesize/64, big up to pagesize/2, whole 
 
 下图是一次分配的路径，判断是：先按大小选档，再在该档的“半满页”链上找空位，找不到才拿新页：
 
-```mermaid
-flowchart LR
-    A["ngx_slab_alloc(size)"] --> B{"size > pagesize / 2？"}
-    B -- 是 --> C["按页数分配<br/>8193 → 1 页，40000 → 3 页"]
-    B -- 否 --> D["取 2 的幂，最小 8<br/>slot = shift - 3"]
-    D --> E{"slots[slot] 上有半满页？"}
-    E -- 有 --> F["在位图里找空位"]
-    E -- 没有 --> G["拿一张新页，初始化位图"]
-    G --> F
-```
+![slab 先按大小选档、再在半满页链上找空位、找不到才拿新页](../figures/dev-03/06.svg)
 
 **小结**：估算 zone 容量时，先把对象大小取到 2 的幂，再按本机页大小算每页能放几个；同一份配置在 4 KB 页和 16 KB 页的机器上，zone 的最小值、档位边界和容量都不同。
 
@@ -786,18 +724,7 @@ ok - no lost increments; a dead owner's lock is released only by its own pid
 
 下图是锁值在实验里的变化，判断是：只要锁值里存的是 pid，持有者死后它也不会自己变回 0，只能由知道这个 pid 的 master 清掉：
 
-```mermaid
-sequenceDiagram
-    participant P as 子进程
-    participant L as 锁值（共享内存）
-    participant M as 父进程（扮演 master）
-    P->>L: CAS 0 → 子进程 pid
-    P->>P: _exit，不解锁
-    M->>L: trylock：CAS 0 → 自己的 pid，失败
-    M->>L: force_unlock(pid + 1)：值不符，返回 0
-    M->>L: force_unlock(子进程 pid)：CAS pid → 0，返回 1
-    M->>L: trylock 成功
-```
+![锁值存的是 pid，持有者死后只能由 master 清掉](../figures/dev-03/07.svg)
 
 40 万次自增一次不少。子进程退出后，锁值仍是它的 pid，`trylock` 失败；`ngx_shmtx_force_unlock` 只在锁值等于给定 pid 时清零：
 

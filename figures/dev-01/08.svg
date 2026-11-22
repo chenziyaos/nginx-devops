@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 571" width="1200" height="571">
+<rect x="0" y="0" width="1200" height="571" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">debug 由编译期宏控制，可用 debug_connection 限定客户端</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">三种调试方式对应三种需求：看模块流转、看函数变量、或在生产环境排错</text>
+<text x="390" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">调试需求</text>
+<text x="810" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">具体方案</text>
+<polyline points="504,332.5 597,332.5 597,209.5 686,209.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,203.5 696,209.5 686,215.5" fill="#8F959E"/>
+<polyline points="504,332.5 686,332.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,326.5 696,332.5 686,338.5" fill="#8F959E"/>
+<polyline points="504,332.5 597,332.5 597,455.5 686,455.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,449.5 696,455.5 686,461.5" fill="#8F959E"/>
+<rect x="280" y="281" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="390" y="337.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">要看什么</text>
+<rect x="700" y="158" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="810" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">模块间流转</text>
+<text x="810" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">--with-debug、</text>
+<text x="810" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">debug_connection 限定客户端、</text>
+<text x="810" y="243.7" font-size="12" fill="#646A73" text-anchor="middle">error_log debug</text>
+<rect x="700" y="281" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="810" y="308.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">函数内变量</text>
+<text x="810" y="328.7" font-size="12" fill="#646A73" text-anchor="middle">--with-debug、-O0 -g、</text>
+<text x="810" y="347.7" font-size="12" fill="#646A73" text-anchor="middle">master_process off、daemon</text>
+<text x="810" y="366.7" font-size="12" fill="#646A73" text-anchor="middle">off、调试器附着</text>
+<rect x="700" y="404" width="220" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="810" y="441.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">生产问题</text>
+<text x="810" y="461.2" font-size="12" fill="#646A73" text-anchor="middle">不开 debug、info 级 error_log、</text>
+<text x="810" y="480.2" font-size="12" fill="#646A73" text-anchor="middle">access_log 变量</text>
+<text x="40" y="547" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_log.h、src/event/ngx_event_accept.c、labs/dev-01 实验（1.31.9）</text>
+</svg>

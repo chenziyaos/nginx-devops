@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 598" width="1200" height="598">
+<rect x="0" y="0" width="1200" height="598" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">kill -HUP 只在主循环的下一轮才真正执行，处理函数只置标志</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">信号处理函数和主循环之间只隔着一个标志位；真正的工作（ngx_init_cycle、启动 worker）在 sigsuspend 返回后</text>
+<line x1="226.7" y1="168" x2="226.7" y2="534" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">运维</text>
+<line x1="600" y1="168" x2="600" y2="534" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">ngx_signal_handler</text>
+<line x1="973.3" y1="168" x2="973.3" y2="534" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master 主循环</text>
+<text x="236.7" y="202.6" font-size="13" fill="#1F2329">kill -HUP</text>
+<polyline points="226.7,211 588,211" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,205 598,211 588,217" fill="#8F959E"/>
+<text x="610" y="243.6" font-size="13" fill="#1F2329">ngx_reconfigure = 1</text>
+<polyline points="600,252 626,252 626,270 614,270" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="614,264 604,270 614,276" fill="#8F959E"/>
+<text x="610" y="310.6" font-size="13" fill="#1F2329">返回，sigsuspend 随之返回</text>
+<polyline points="600,319 961.3,319" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="961.3,313 971.3,319 961.3,325" fill="#8F959E"/>
+<text x="963.3" y="351.6" font-size="13" fill="#1F2329" text-anchor="end">ngx_init_cycle（新配置）</text>
+<polyline points="973.3,360 947.3,360 947.3,378 959.3,378" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="959.3,372 969.3,378 959.3,384" fill="#8F959E"/>
+<text x="963.3" y="418.6" font-size="13" fill="#1F2329" text-anchor="end">启动新 worker</text>
+<polyline points="973.3,427 947.3,427 947.3,445 959.3,445" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="959.3,439 969.3,445 959.3,451" fill="#8F959E"/>
+<text x="963.3" y="485.6" font-size="13" fill="#1F2329" text-anchor="end">给老 worker 发 QUIT</text>
+<polyline points="973.3,494 947.3,494 947.3,512 959.3,512" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="959.3,506 969.3,512 959.3,518" fill="#8F959E"/>
+<text x="40" y="574" font-size="12" fill="#646A73" data-role="source">来源：src/os/unix/ngx_process.c、ngx_process_cycle.c（1.31.9）</text>
+</svg>

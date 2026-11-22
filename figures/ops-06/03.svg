@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1300 612" width="1300" height="612">
+<rect x="0" y="0" width="1300" height="612" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">失败之后换不换下一台，由 proxy_next_upstream 决定</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">一次请求选后端、建连、等响应头；红色是记失败的两处，虚线是换下一台重试</text>
+<text x="150" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">选后端</text>
+<text x="483.3" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">建连</text>
+<text x="816.7" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">等响应头</text>
+<text x="1150" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">换不换</text>
+<polyline points="264,312 313.7,312 313.7,242 359.3,242" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="359.3,236 369.3,242 359.3,248" fill="#8F959E"/>
+<polyline points="264,312 313.7,312 313.7,382 359.3,382" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="359.3,376 369.3,382 359.3,388" fill="#8F959E"/>
+<polyline points="597.3,382 647,382 647,312 692.7,312" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="692.7,306 702.7,312 692.7,318" fill="#8F959E"/>
+<polyline points="597.3,382 647,382 647,452 692.7,452" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="692.7,446 702.7,452 692.7,458" fill="#8F959E"/>
+<polyline points="930.7,312 1026,312" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1026,306 1036,312 1026,318" fill="#8F959E"/>
+<polyline points="522.9,196 522.9,174 1110.4,174 1110.4,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1104.4,256 1110.4,266 1116.4,256" fill="#8F959E"/>
+<polyline points="1110.4,358 1110.4,520 189.6,520 189.6,368" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="183.6,368 189.6,358 195.6,368" fill="#8F959E"/>
+<polyline points="1150,358 1150,396" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1144,396 1150,406 1156,396" fill="#8F959E"/>
+<rect x="40" y="270" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="150" y="316.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">选一台后端</text>
+<rect x="373.3" y="200" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="483.3" y="237.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">建连失败</text>
+<text x="483.3" y="257.2" font-size="12" fill="#646A73" text-anchor="middle">拒绝或连接超时：记 502 或 504</text>
+<rect x="373.3" y="340" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="483.3" y="386.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">建连成功</text>
+<rect x="706.7" y="270" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="816.7" y="297.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">读超时</text>
+<text x="816.7" y="317.7" font-size="12" fill="#646A73" text-anchor="middle">超过 proxy_read_timeout：</text>
+<text x="816.7" y="336.7" font-size="12" fill="#646A73" text-anchor="middle">记 504</text>
+<rect x="706.7" y="410" width="220" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="816.7" y="447.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">收到响应头</text>
+<text x="816.7" y="467.2" font-size="12" fill="#646A73" text-anchor="middle">交给客户端</text>
+<rect x="1040" y="270" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1150" y="297.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">换下一台？</text>
+<text x="1150" y="317.7" font-size="12" fill="#646A73" text-anchor="middle">还有没试过的后端，且错误类型属</text>
+<text x="1150" y="336.7" font-size="12" fill="#646A73" text-anchor="middle">于 proxy_next_upstream</text>
+<rect x="1040" y="410" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1150" y="447.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">返回状态码</text>
+<text x="1150" y="467.2" font-size="12" fill="#646A73" text-anchor="middle">最后一次的结果</text>
+<text x="1158" y="381" font-size="12" fill="#646A73">否</text>
+<text x="650" y="511" font-size="12" fill="#646A73" text-anchor="middle">是</text>
+<text x="40" y="588" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_proxy_module.c（1.31.9）</text>
+</svg>

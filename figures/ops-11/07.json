@@ -1,0 +1,45 @@
+{
+ "type": "sequence",
+ "title": "日志文件 mv 后 nginx 继续写旧文件，USR1 才能让其切换到新文件",
+ "subtitle": "纵轴是时间顺序；logrotate 发送 USR1 信号是关键",
+ "source": "来源：ngx_process_cycle.c、ngx_event.c（1.31.9）、labs/ops-11 实验输出",
+ "actors": [
+  {"name": "logrotate"},
+  {"name": "master"},
+  {"name": "worker"},
+  {"name": "磁盘"}
+ ],
+ "messages": [
+  {
+   "from": "logrotate",
+   "to": "磁盘",
+   "text": "mv access.log access.log.1"
+  },
+  {
+   "from": "worker",
+   "to": "磁盘",
+   "text": "继续写同一个 fd（现在叫 access.log.1）"
+  },
+  {
+   "from": "logrotate",
+   "to": "master",
+   "text": "kill -USR1"
+  },
+  {
+   "from": "master",
+   "to": "磁盘",
+   "text": "flush，open access.log（新建），chown"
+  },
+  {
+   "from": "master",
+   "to": "worker",
+   "text": "转发 USR1 信号"
+  },
+  {
+   "from": "worker",
+   "to": "磁盘",
+   "text": "flush，open，之后写新文件"
+  }
+ ],
+ "sections": []
+}

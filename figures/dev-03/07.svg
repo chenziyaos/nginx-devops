@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 580" width="1200" height="580">
+<rect x="0" y="0" width="1200" height="580" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">锁值存的是 pid，持有者死后只能由 master 清掉</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上到下；锁值在共享内存里，CAS 指令保证原子性</text>
+<line x1="226.7" y1="168" x2="226.7" y2="516" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">子进程</text>
+<line x1="600" y1="168" x2="600" y2="516" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">锁值</text>
+<line x1="973.3" y1="168" x2="973.3" y2="516" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master</text>
+<text x="236.7" y="202.6" font-size="13" fill="#1F2329">CAS 0 → 子 pid</text>
+<polyline points="226.7,211 588,211" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,205 598,211 588,217" fill="#8F959E"/>
+<text x="236.7" y="243.6" font-size="13" fill="#1F2329">_exit（不解锁）</text>
+<polyline points="226.7,252 252.7,252 252.7,270 240.7,270" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="240.7,264 230.7,270 240.7,276" fill="#8F959E"/>
+<text x="963.3" y="310.6" font-size="13" fill="#1F2329" text-anchor="end">trylock</text>
+<text x="963.3" y="330.6" font-size="13" fill="#1F2329" text-anchor="end">CAS 0 → 自 pid，失败</text>
+<polyline points="973.3,339 612,339" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,333 602,339 612,345" fill="#8F959E"/>
+<text x="963.3" y="371.6" font-size="13" fill="#1F2329" text-anchor="end">force_unlock(pid+1)</text>
+<text x="963.3" y="391.6" font-size="13" fill="#1F2329" text-anchor="end">值不符，返回 0</text>
+<polyline points="973.3,400 612,400" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,394 602,400 612,406" fill="#8F959E"/>
+<text x="963.3" y="432.6" font-size="13" fill="#1F2329" text-anchor="end">force_unlock(子 pid)</text>
+<text x="963.3" y="452.6" font-size="13" fill="#1F2329" text-anchor="end">CAS pid → 0，返回 1</text>
+<polyline points="973.3,461 612,461" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,455 602,461 612,467" fill="#8F959E"/>
+<text x="963.3" y="493.6" font-size="13" fill="#1F2329" text-anchor="end">trylock 成功</text>
+<polyline points="973.3,502 612,502" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,496 602,502 612,508" fill="#8F959E"/>
+<text x="40" y="556" font-size="12" fill="#646A73" data-role="source">来源：labs/dev-03 实验输出</text>
+</svg>

@@ -1,0 +1,66 @@
+{
+ "type": "sequence",
+ "title": "新配置成功才启动新 worker，失败时老 worker 照常工作",
+ "subtitle": "时间从上向下；alt/else 分支代表新配置是否通过验证",
+ "source": "来源：nginx 源码、labs/ops-03 实验",
+ "actors": [
+  "运维",
+  "master",
+  {
+   "name": "老 worker",
+   "sub": "用老配置"
+  },
+  {
+   "name": "新 worker",
+   "sub": "用新配置"
+  }
+ ],
+ "messages": [
+  {
+   "from": "运维",
+   "to": "master",
+   "text": "HUP（nginx -s reload）"
+  },
+  {
+   "from": "master",
+   "to": "master",
+   "text": "ngx_init_cycle（新配置）"
+  },
+  {
+   "from": "master",
+   "to": "master",
+   "text": "记 emerg，继续用老 cycle"
+  },
+  {
+   "from": "master",
+   "to": "新 worker",
+   "text": "fork 新 worker（JUST_RESPAWN）"
+  },
+  {
+   "from": "master",
+   "to": "老 worker",
+   "text": "QUIT"
+  },
+  {
+   "from": "老 worker",
+   "to": "老 worker",
+   "text": "关监听和空闲连接，做完手上的请求"
+  },
+  {
+   "from": "老 worker",
+   "to": "master",
+   "text": "退出（SIGCHLD）",
+   "reply": true
+  }
+ ],
+ "sections": [
+  {
+   "at": 2,
+   "label": "新配置有错"
+  },
+  {
+   "at": 3,
+   "label": "新配置成功"
+  }
+ ]
+}

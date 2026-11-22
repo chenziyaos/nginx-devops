@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">pass 保留客户端连接和地址，proxy_pass 新建本机连接</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">左右两种把连接交给 18251 的方式；蓝色是同一个 nginx 内分流时优先用的 pass</text>
+<rect x="40" y="147.6" width="548" height="179" rx="12" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="495.1" y="167.6" width="72.9" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="531.6" y="183.8" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">新建连接</text>
+<text x="60" y="188.1" font-size="20" fill="#646A73" font-weight="bold" data-role="card-title">proxy_pass</text>
+<line x1="60" y1="216.6" x2="568" y2="216.6" stroke="#EFF0F1" stroke-width="1"/>
+<circle cx="64" cy="243.6" r="3" fill="#646A73"/>
+<text x="84" y="248.5" font-size="14" fill="#1F2329" data-role="card-body">新建 TCP 连接到后端</text>
+<circle cx="64" cy="271.6" r="3" fill="#646A73"/>
+<text x="84" y="276.5" font-size="14" fill="#1F2329" data-role="card-body">后端看到 nginx 的端口</text>
+<circle cx="64" cy="299.6" r="3" fill="#646A73"/>
+<text x="84" y="304.5" font-size="14" fill="#1F2329" data-role="card-body">日志 2 行</text>
+<rect x="612" y="147.6" width="548" height="179" rx="12" fill="#F0F4FF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="624" y="146.6" width="524" height="3" rx="1.5" fill="#3370FF" data-role="colorline"/>
+<rect x="1067.1" y="167.6" width="72.9" height="24" rx="12" fill="#E1EAFF" stroke="#82A7FC" stroke-width="1" data-role="pill"/>
+<text x="1103.6" y="183.8" font-size="12" fill="#245BDB" text-anchor="middle" data-role="pill">同机优先</text>
+<text x="632" y="188.1" font-size="20" fill="#245BDB" font-weight="bold" data-role="card-title">pass</text>
+<line x1="632" y1="216.6" x2="1140" y2="216.6" stroke="#EFF0F1" stroke-width="1"/>
+<circle cx="636" cy="243.6" r="3" fill="#646A73"/>
+<text x="656" y="248.5" font-size="14" fill="#1F2329" data-role="card-body">同一条连接</text>
+<circle cx="636" cy="271.6" r="3" fill="#646A73"/>
+<text x="656" y="276.5" font-size="14" fill="#1F2329" data-role="card-body">后端看到客户端的端口</text>
+<circle cx="636" cy="299.6" r="3" fill="#646A73"/>
+<text x="656" y="304.5" font-size="14" fill="#1F2329" data-role="card-body">日志 1 行</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_pass_module.c（1.31.9）</text>
+</svg>

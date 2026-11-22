@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1300 446" width="1300" height="446">
+<rect x="0" y="0" width="1300" height="446" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">ngx_module_t 的 type 字段决定了 ctx 指向哪种回调表</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">每行一种模块类型；高亮的 HTTP 模块回调最多，配置要分 main、srv、loc 三级创建和合并</text>
+<rect x="40" y="128" width="1220" height="254" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="129" width="1218" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="160" width="1218" height="12" fill="#F5F6F7"/>
+<rect x="41" y="256" width="1218" height="42" fill="#F0F4FF"/>
+<line x1="40" y1="172" x2="1260" y2="172" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="214" x2="1259" y2="214" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1259" y2="256" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="298" x2="1259" y2="298" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="340" x2="1259" y2="340" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1259" y2="256" stroke="#82A7FC" stroke-width="1"/>
+<line x1="41" y1="298" x2="1259" y2="298" stroke="#82A7FC" stroke-width="1"/>
+<rect x="40" y="128" width="1220" height="254" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="155" font-size="14" fill="#1F2329" font-weight="bold">type</text>
+<text x="343.6" y="155" font-size="14" fill="#1F2329" font-weight="bold">ctx 指向</text>
+<text x="618.1" y="155" font-size="14" fill="#1F2329" font-weight="bold">主要回调</text>
+<text x="58" y="197.9" font-size="14" fill="#1F2329">NGX_CORE_MODULE</text>
+<text x="343.6" y="197.9" font-size="14" fill="#1F2329">ngx_core_module_t</text>
+<text x="618.1" y="197.9" font-size="14" fill="#1F2329">create_conf / init_conf</text>
+<text x="58" y="239.9" font-size="14" fill="#1F2329">NGX_EVENT_MODULE</text>
+<text x="343.6" y="239.9" font-size="14" fill="#1F2329">ngx_event_module_t</text>
+<text x="618.1" y="239.9" font-size="14" fill="#1F2329">create_conf / init_conf / actions</text>
+<text x="58" y="281.9" font-size="14" fill="#245BDB" font-weight="bold">NGX_HTTP_MODULE</text>
+<text x="343.6" y="281.9" font-size="14" fill="#245BDB" font-weight="bold">ngx_http_module_t</text>
+<text x="618.1" y="281.9" font-size="14" fill="#245BDB" font-weight="bold">preconfiguration / postconfiguration / create_*_conf / merge_*</text>
+<text x="58" y="323.9" font-size="14" fill="#1F2329">NGX_STREAM_MODULE</text>
+<text x="343.6" y="323.9" font-size="14" fill="#1F2329">ngx_stream_module_t</text>
+<text x="618.1" y="323.9" font-size="14" fill="#1F2329">—</text>
+<text x="58" y="365.9" font-size="14" fill="#1F2329">NGX_CONF_MODULE</text>
+<text x="343.6" y="365.9" font-size="14" fill="#1F2329">ngx_conf_module</text>
+<text x="618.1" y="365.9" font-size="14" fill="#1F2329">只处理 include</text>
+<text x="40" y="422" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_module.h（1.31.9）</text>
+</svg>

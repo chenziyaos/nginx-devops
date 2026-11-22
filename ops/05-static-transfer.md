@@ -67,13 +67,7 @@ ok - without sendfile on the file is read and written with writev; with it, send
 
 `tcp_nodelay` 默认开启，但不是在连接建立时就设置，而是在几个需要立即发出小包的时刻才设置：连接进入 keepalive 状态时（`ngx_http_set_keepalive`）、检测到 SSL 握手时（`ngx_http_request.c` 第 773 行）、以及与后端的 upstream 连接上。进入 keepalive 时如果之前设置过 `TCP_CORK`，nginx 先取消它，把残留的数据推出去。
 
-```mermaid
-flowchart LR
-    s["static 模块<br/>打开文件"] --> c{"sendfile on?"}
-    c -->|否，默认| r["copy filter 读进<br/>2 个 32 KB 缓冲区"] --> w["writev<br/>33026、32768 … 3392"]
-    c -->|是| sf["sendfile()<br/>一次发出头和文件<br/>单次上限 sendfile_max_chunk 2 MB"]
-    sf --> l["Linux：tcp_nopush on 时<br/>先设 TCP_CORK"]
-```
+![不开 sendfile 时 writev 分块发送，开了交给内核一次发出](../figures/ops-05/01.svg)
 
 **小结**：静态文件多的站点，显式写上 `sendfile on;`；在 Linux 上配合 `tcp_nopush on;` 减少小包。`tcp_nodelay` 保持默认即可。gzip 等需要读取内容的过滤器开启时，响应体仍然要读进内存，sendfile 只对原样发送的文件生效。
 
@@ -168,18 +162,7 @@ ETag: "695735a5-5"
 ok - a 304 has no Content-Length and no Accept-Ranges
 ```
 
-```mermaid
-flowchart TB
-    a["响应状态 200"] --> b{"带 If-Modified-Since?"}
-    b -->|是| c{"等于 mtime？<br/>before 模式下不早于 mtime？"}
-    c -->|否| ok["200"]
-    c -->|是| d
-    b -->|否| d{"带 If-None-Match?"}
-    d -->|是| e{"弱比较匹配 ETag?"}
-    e -->|否| ok
-    e -->|是| nm["304<br/>去掉 Content-Length、Accept-Ranges"]
-    d -->|否，且有 IMS| nm
-```
+![两个条件头都带时，两个都满足才返回 304](../figures/ops-05/02.svg)
 
 **小结**：多台机器发同一批静态文件时，要保证各台的 mtime 一致（例如打包时固定），否则 ETag 和 Last-Modified 都会因机器而异。排查“浏览器总拿不到 304”时，把请求里的两个条件头分别去掉试一次，就能确定是哪一个不满足。
 
@@ -309,18 +292,7 @@ app.js 307 bytes, app.js.gz 52 bytes
 ok - a client that accepts gzip gets app.js.gz as is, others get app.js
 ```
 
-```mermaid
-flowchart TB
-    q["请求 + 响应"] --> t{"gzip on，状态允许<br/>类型在 gzip_types，长度 ≥ 20"}
-    t -->|否| p["原样发送"]
-    t -->|是| a{"Accept-Encoding 含 gzip<br/>HTTP ≥ 1.1"}
-    a -->|否| p
-    a -->|是| v{"请求带 Via?"}
-    v -->|否| z["压缩：chunked、W/ ETag<br/>不再支持 Range"]
-    v -->|是| gp{"gzip_proxied"}
-    gp -->|off，默认| p
-    gp -->|any 等条件满足| z
-```
+![gzip 默认只压 text/html，带 Via 头时默认不压，压缩后不再支持 Range](../figures/ops-05/03.svg)
 
 **小结**：开 gzip 时至少同时写上 `gzip_types`（`text/html` 总是包含在内，不用写）和 `gzip_vary on`；有 CDN 回源时再看 `gzip_proxied`。对 JS、CSS 这类发布后不变的文件，用 `gzip_static` 预先压缩，可以省掉每次请求的 CPU，也保留了 Content-Length 和 Range。
 
@@ -427,21 +399,7 @@ ok - within open_file_cache_valid the cached descriptor still points to the old 
 
 同一个文件，经过缓存的 location 在 `mv` 之后仍然返回 v1，没有缓存的返回 v2。缓存是每个 worker 各一份，多 worker 时不同请求可能分别看到新旧内容，直到各自的条目过期。
 
-```mermaid
-sequenceDiagram
-    participant C as 客户端
-    participant W as worker（open_file_cache）
-    participant FS as 文件系统
-    C->>W: GET /ofc/f.txt
-    W->>FS: open + fstat，缓存 fd（inode A，v1）
-    W-->>C: v1
-    Note over FS: 发布：写 f.txt.new，mv 覆盖<br/>路径指向 inode B（v2）
-    C->>W: GET /ofc/f.txt（有效期内）
-    W-->>C: 复用 fd，仍是 inode A：v1
-    C->>W: 超过 open_file_cache_valid 后
-    W->>FS: 重新 stat，发现变化，打开 inode B
-    W-->>C: v2
-```
+![open_file_cache 有效期内不重新打开文件，发布后可能返回旧内容](../figures/ops-05/04.svg)
 
 **小结**：开了 `open_file_cache` 的站点，发布后要么等过 `open_file_cache_valid`，要么 reload（新 worker 的缓存是空的）。对小文件多、发布频繁的目录，收益不一定抵得过这个延迟。
 
@@ -494,16 +452,7 @@ curl 的 `num_connects` 是 1 0 0 1：第 4 个请求新建了连接。access lo
 
 这一段后面紧跟的普通分支带着 `!ngx_terminate && !ngx_exiting` 条件，而上面这个分支没有，这是“退出时也保留连接”的依据。本篇没有在实验里验证这一行为。
 
-```mermaid
-flowchart LR
-    r["请求开始"] --> a{"keepalive_timeout = 0?"}
-    a -->|是| close["Connection: close"]
-    a -->|否| b{"本连接已处理<br/>≥ keepalive_requests（默认 1000）?"}
-    b -->|是| close
-    b -->|否| c{"连接存在超过<br/>keepalive_time（默认 1 小时）?"}
-    c -->|是| close
-    c -->|否| keep["keep-alive<br/>空闲超过 keepalive_timeout（默认 75 秒）后关闭"]
-```
+![到达三个上限之一就关闭连接](../figures/ops-05/05.svg)
 
 **小结**：`keepalive_requests` 的默认值是 1.19.10 才改成 1000 的（变更日志 1.19.10），老配置里照抄的更小的值可以重新评估。放在四层负载均衡后面的 nginx，`keepalive_timeout` 要比负载均衡器的空闲超时长，让负载均衡器先关连接，否则它可能往一个 nginx 刚关闭的连接上发请求。
 
@@ -574,18 +523,7 @@ ok - a body larger than the buffer is written to client_body_temp
 
 `client_body_buffer_size` 的默认值是两个内存页（`(size_t) 2 * ngx_pagesize`）。实验机器是 macOS arm64，页大小 16384，默认值是 32768；常见的 x86-64 Linux 页大小 4096，默认值是 8192。同一份配置在两种机器上，请求体落盘的阈值相差 4 倍。
 
-```mermaid
-flowchart TB
-    h["请求头读完"] --> f["find-config：选定 location"]
-    f --> cl{"有 Content-Length<br/>且 > client_max_body_size?"}
-    cl -->|是| e413["413<br/>too large body: N bytes"]
-    cl -->|否| rb["模块开始读请求体（proxy、fastcgi…）"]
-    rb --> ch{"chunked 且累计 > 上限?"}
-    ch -->|是| c413["413<br/>too large chunked body: A+B bytes"]
-    ch -->|否| buf{"> client_body_buffer_size<br/>（默认 2 页）?"}
-    buf -->|否| mem["留在内存"]
-    buf -->|是| tmp["写 client_body_temp<br/>warn 日志"]
-```
+![Content-Length 在选 location 时检查，chunked 请求在读取时检查](../figures/ops-05/06.svg)
 
 **小结**：上传接口按 location 单独放宽 `client_max_body_size`，其余保持 1 MB 默认值。error.log 里频繁出现 “buffered to a temporary file” 时，按请求体的常见大小调大 `client_body_buffer_size`，或者确认临时目录所在磁盘够快；并且要按实际机器的页大小理解默认值。
 

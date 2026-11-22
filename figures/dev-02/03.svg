@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 580" width="1200" height="580">
+<rect x="0" y="0" width="1200" height="580" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">ngx_list_t 追加新段不搬家</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">上是 ngx_list_t 结构，下是链接的三个 part；last 指针指向最后一个 part</text>
+<rect x="40" y="128" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="178.3" font-size="18" fill="#646A73" font-weight="bold">ngx_list_t</text>
+<rect x="248.7" y="144" width="895.3" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="696.4" y="167" font-size="14" fill="#1F2329" text-anchor="middle">ngx_list_t</text>
+<text x="696.4" y="187" font-size="12" fill="#646A73" text-anchor="middle">nalloc = 4</text>
+<rect x="40" y="228" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="278.3" font-size="18" fill="#646A73" font-weight="bold">part 0（内嵌）</text>
+<rect x="248.7" y="244" width="895.3" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="696.4" y="267" font-size="14" fill="#1F2329" text-anchor="middle">元素 0–3</text>
+<text x="696.4" y="287" font-size="12" fill="#646A73" text-anchor="middle">满</text>
+<rect x="40" y="328" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="378.3" font-size="18" fill="#646A73" font-weight="bold">part 1</text>
+<rect x="248.7" y="344" width="895.3" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="696.4" y="367" font-size="14" fill="#1F2329" text-anchor="middle">元素 4–7</text>
+<text x="696.4" y="387" font-size="12" fill="#646A73" text-anchor="middle">满</text>
+<rect x="40" y="428" width="1120" height="88" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="layer"/>
+<text x="60" y="478.3" font-size="18" fill="#646A73" font-weight="bold">part 2（last）</text>
+<rect x="248.7" y="444" width="895.3" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
+<text x="696.4" y="467" font-size="14" fill="#1F2329" text-anchor="middle">元素 8–9</text>
+<text x="696.4" y="487" font-size="12" fill="#646A73" text-anchor="middle">还剩 2 格</text>
+<text x="40" y="556" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_list.c（1.31.9）、labs/dev-02 实验输出</text>
+</svg>

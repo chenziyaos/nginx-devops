@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 841" width="1200" height="841">
+<rect x="0" y="0" width="1200" height="841" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">子请求的输出按顺序排队，与完成的先后无关</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下；蓝色是主请求，绿色是子请求，c-＞data 决定谁能写连接</text>
+<line x1="226.7" y1="186" x2="226.7" y2="777" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="58" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="162" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">主请求</text>
+<line x1="600" y1="186" x2="600" y2="777" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="58" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">子请求 /slow</text>
+<text x="600" y="172" font-size="12" fill="#646A73" text-anchor="middle">后端 proxy_pass</text>
+<line x1="973.3" y1="186" x2="973.3" y2="777" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">子请求 /fast.txt</text>
+<text x="973.3" y="172" font-size="12" fill="#646A73" text-anchor="middle">静态文件</text>
+<text x="236.7" y="220.6" font-size="13" fill="#1F2329">输出 A，创建 /slow、/fast.txt</text>
+<polyline points="226.7,229 252.7,229 252.7,247 240.7,247" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="240.7,241 230.7,247 240.7,253" fill="#8F959E"/>
+<rect x="40" y="271" width="160.5" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="120.2" y="287.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">SSI include，count 到 3</text>
+<line x1="208.5" y1="283" x2="1160" y2="283" stroke="#EFF0F1" stroke-width="1"/>
+<text x="236.7" y="321.6" font-size="13" fill="#1F2329">c-＞data = /slow</text>
+<polyline points="226.7,330 588,330" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,324 598,330 588,336" fill="#8F959E"/>
+<text x="610" y="362.6" font-size="13" fill="#1F2329">连接后端，NGX_AGAIN</text>
+<polyline points="600,371 626,371 626,389 614,389" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="614,383 604,389 614,395" fill="#8F959E"/>
+<rect x="40" y="413" width="149" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="114.5" y="429.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">/fast 先完成但不能写</text>
+<line x1="197" y1="425" x2="1160" y2="425" stroke="#EFF0F1" stroke-width="1"/>
+<text x="963.3" y="463.6" font-size="13" fill="#1F2329" text-anchor="end">读完文件，fast 存进 postpone</text>
+<polyline points="973.3,472 947.3,472 947.3,490 959.3,490" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="959.3,484 969.3,490 959.3,496" fill="#8F959E"/>
+<text x="590" y="530.5" font-size="13" fill="#1F2329" text-anchor="end">后端响应到达，输出 slow，结束</text>
+<polyline points="600,539 238.7,539" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="238.7,533 228.7,539 238.7,545" fill="#8F959E"/>
+<rect x="40" y="555" width="227.6" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="153.8" y="571.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">后端响应到达，/slow 输出按序发出</text>
+<line x1="275.6" y1="567" x2="1160" y2="567" stroke="#EFF0F1" stroke-width="1"/>
+<text x="590" y="605.5" font-size="13" fill="#1F2329" text-anchor="end">c-＞data = 主请求</text>
+<polyline points="600,614 238.7,614" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="238.7,608 228.7,614 238.7,620" fill="#8F959E"/>
+<text x="236.7" y="646.5" font-size="13" fill="#1F2329">postpone filter wake</text>
+<polyline points="226.7,655 961.3,655" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,649 971.3,655 961.3,661" fill="#8F959E"/>
+<text x="963.3" y="687.5" font-size="13" fill="#1F2329" text-anchor="end">放出 fast，结束</text>
+<polyline points="973.3,696 238.7,696" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="238.7,690 228.7,696 238.7,702" fill="#8F959E"/>
+<text x="236.7" y="728.5" font-size="13" fill="#1F2329">输出 B、C，last_buf，writev 201 字节</text>
+<polyline points="226.7,737 252.7,737 252.7,755 240.7,755" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="240.7,749 230.7,755 240.7,761" fill="#8F959E"/>
+<text x="40" y="817" font-size="12" fill="#646A73" data-role="source">来源：本文整理（labs/dev-06 实验）</text>
+</svg>

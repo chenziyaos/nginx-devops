@@ -1,0 +1,107 @@
+{
+ "type": "graph",
+ "title": "location 先查前缀树，再试正则和 predicate，最后回到前缀",
+ "subtitle": "绿色是查找结束的出口；正则和 predicate 都按书写顺序，第一个成立的胜出",
+ "source": "来源：ngx_http_core_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "静态 location 树",
+   "nodes": [
+    {
+     "id": "t",
+     "title": "找最长前缀",
+     "sub": "URI 在静态树里查"
+    }
+   ]
+  },
+  {
+   "name": "前缀的结果",
+   "nodes": [
+    {
+     "id": "x",
+     "title": "= location",
+     "sub": "完全相等，结束",
+     "tone": "good"
+    },
+    {
+     "id": "p1",
+     "title": "^~ 前缀",
+     "sub": "最长前缀带 ^~，结束",
+     "tone": "good"
+    },
+    {
+     "id": "rx",
+     "title": "正则",
+     "sub": "前缀不带 ^~ 或没有前缀；按书写顺序",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "正则之后",
+   "nodes": [
+    {
+     "id": "r1",
+     "title": "这个正则",
+     "sub": "第一个匹配，结束",
+     "tone": "good"
+    },
+    {
+     "id": "pr",
+     "title": "predicate",
+     "sub": "按书写顺序（§5）"
+    }
+   ]
+  },
+  {
+   "name": "最后",
+   "nodes": [
+    {
+     "id": "r2",
+     "title": "这个 predicate",
+     "sub": "第一个为真，结束",
+     "tone": "good"
+    },
+    {
+     "id": "p2",
+     "title": "回到最长前缀",
+     "sub": "没有前缀则用 server 级配置"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "t",
+   "to": "x"
+  },
+  {
+   "from": "t",
+   "to": "p1"
+  },
+  {
+   "from": "t",
+   "to": "rx"
+  },
+  {
+   "from": "rx",
+   "to": "r1",
+   "label": "匹配"
+  },
+  {
+   "from": "rx",
+   "to": "pr",
+   "label": "都不匹配"
+  },
+  {
+   "from": "pr",
+   "to": "r2",
+   "label": "为真"
+  },
+  {
+   "from": "pr",
+   "to": "p2",
+   "label": "都为假"
+  }
+ ]
+}

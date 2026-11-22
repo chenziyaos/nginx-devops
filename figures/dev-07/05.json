@@ -1,0 +1,105 @@
+{
+ "type": "graph",
+ "title": "last 重新匹配 location，break 留在原地，redirect 返回 302",
+ "subtitle": "从上到下是四条路径；蓝色是 rewrite 匹配成功后的行为",
+ "source": "来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.9）",
+ "stages": [
+  {
+   "name": "rewrite 匹配成功",
+   "nodes": [
+    {
+     "id": "match",
+     "title": "执行替换"
+    }
+   ]
+  },
+  {
+   "name": "四种标志",
+   "nodes": [
+    {
+     "id": "none",
+     "title": "无标志",
+     "sub": "继续执行下一条指令"
+    },
+    {
+     "id": "last",
+     "title": "last",
+     "sub": "stop，uri_changed = 1",
+     "tone": "main",
+     "emph": true
+    },
+    {
+     "id": "brk",
+     "title": "break",
+     "sub": "stop，uri_changed = 0",
+     "tone": "main",
+     "emph": true
+    },
+    {
+     "id": "redir",
+     "title": "redirect / permanent",
+     "sub": "stop，status 302 / 301"
+    }
+   ]
+  },
+  {
+   "name": "后续处理",
+   "nodes": [
+    {
+     "id": "next_instr",
+     "title": "继续下一条",
+     "sub": "同一 location"
+    },
+    {
+     "id": "post_rw",
+     "title": "POST_REWRITE 回 FIND_CONFIG",
+     "sub": "重新匹配 location"
+    },
+    {
+     "id": "stay",
+     "title": "留在当前 location",
+     "sub": "后面阶段继续"
+    },
+    {
+     "id": "http",
+     "title": "生成 Location 头",
+     "sub": "返回 302 或 301"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "match",
+   "to": "none"
+  },
+  {
+   "from": "match",
+   "to": "last"
+  },
+  {
+   "from": "match",
+   "to": "brk"
+  },
+  {
+   "from": "match",
+   "to": "redir"
+  },
+  {
+   "from": "none",
+   "to": "next_instr"
+  },
+  {
+   "from": "last",
+   "to": "post_rw"
+  },
+  {
+   "from": "brk",
+   "to": "stay"
+  },
+  {
+   "from": "redir",
+   "to": "http"
+  }
+ ]
+}

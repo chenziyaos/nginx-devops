@@ -1,0 +1,111 @@
+{
+  "type": "graph",
+  "title": "500 要写进 proxy_next_upstream 才会换机器；POST 发出后不会重试",
+  "subtitle": "从上到下四层判断：500 是否要换机、已发 POST 是否允许重试、是否还有后端可试",
+  "source": "来源：ngx_http_upstream.c、ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "stages": [
+    {
+      "name": "状态码",
+      "nodes": [
+        {
+          "id": "r",
+          "title": "后端返回 500"
+        }
+      ]
+    },
+    {
+      "name": "proxy_next_upstream",
+      "nodes": [
+        {
+          "id": "n",
+          "title": "包含 http_500？"
+        },
+        {
+          "id": "pass",
+          "title": "原样返回",
+          "sub": "不计失败",
+          "tone": "contrast"
+        }
+      ]
+    },
+    {
+      "name": "幂等性",
+      "nodes": [
+        {
+          "id": "m",
+          "title": "POST 已发",
+          "sub": "未设 non_idempotent"
+        },
+        {
+          "id": "pass2",
+          "title": "原样返回",
+          "sub": "不计失败",
+          "tone": "contrast"
+        }
+      ]
+    },
+    {
+      "name": "后端选择",
+      "nodes": [
+        {
+          "id": "t",
+          "title": "还有可试",
+          "sub": "的后端"
+        },
+        {
+          "id": "next",
+          "title": "换机器",
+          "sub": "记失败，摘除",
+          "tone": "good"
+        }
+      ]
+    },
+    {
+      "name": "返回",
+      "nodes": [
+        {
+          "id": "last",
+          "title": "原样返回",
+          "sub": "最后一台",
+          "tone": "contrast"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "r",
+      "to": "n"
+    },
+    {
+      "from": "n",
+      "to": "pass",
+      "label": "否"
+    },
+    {
+      "from": "n",
+      "to": "m",
+      "label": "是"
+    },
+    {
+      "from": "m",
+      "to": "pass2",
+      "label": "是"
+    },
+    {
+      "from": "m",
+      "to": "t",
+      "label": "否"
+    },
+    {
+      "from": "t",
+      "to": "next",
+      "label": "有"
+    },
+    {
+      "from": "t",
+      "to": "last",
+      "label": "无"
+    }
+  ]
+}

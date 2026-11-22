@@ -1,0 +1,28 @@
+{
+ "type": "cycle",
+ "title": "读处理函数在数据不足时退出，下一个读事件从保存的状态继续",
+ "subtitle": "accept 后由 wait_request_handler 等第一批数据，然后进入这个环；函数名省略 ngx_http_ 前缀",
+ "source": "来源：本文整理",
+ "center": "状态存在 r->state",
+ "steps": [
+  {
+   "title": "读请求行",
+   "sub": "process_request_line",
+   "tone": "good"
+  },
+  {
+   "title": "读请求头",
+   "sub": "process_request_headers",
+   "tone": "good"
+  },
+  {
+   "title": "阶段/过滤/响应",
+   "sub": "request_handler",
+   "tone": "main"
+  },
+  {
+   "title": "keepalive 等待",
+   "sub": "下一个请求的数据"
+  }
+ ]
+}

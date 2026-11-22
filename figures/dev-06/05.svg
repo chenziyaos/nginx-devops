@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 467" width="1200" height="467">
+<rect x="0" y="0" width="1200" height="467" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">rewrite last 只重新选 location，内部跳转重新执行 server 级</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">都消耗 uri_changes（上限 10）；区别是清空上下文和跳转位置</text>
+<rect x="40" y="128" width="548" height="275" rx="12" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<text x="60" y="168.5" font-size="20" fill="#646A73" font-weight="bold" data-role="card-title">rewrite ... last</text>
+<rect x="60" y="181" width="108.6" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="114.3" y="197.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">uri_changes--</text>
+<line x1="60" y1="225" x2="568" y2="225" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="259" font-size="14" fill="#646A73">处理</text>
+<text x="568" y="259" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">POST_REWRITE checker</text>
+<line x1="60" y1="273" x2="568" y2="273" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="297" font-size="14" fill="#646A73">跳转位置</text>
+<text x="568" y="297" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">2 (FIND_CONFIG)</text>
+<line x1="60" y1="311" x2="568" y2="311" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="335" font-size="14" fill="#646A73">重新匹配</text>
+<text x="568" y="335" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">location</text>
+<line x1="60" y1="349" x2="568" y2="349" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="373" font-size="14" fill="#646A73">r-＞ctx</text>
+<text x="568" y="373" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">保留</text>
+<rect x="612" y="128" width="548" height="275" rx="12" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<text x="632" y="168.5" font-size="20" fill="#646A73" font-weight="bold" data-role="card-title">error_page / try_files / index</text>
+<rect x="632" y="181" width="169.8" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="716.9" y="197.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">uri_changes--，count++</text>
+<line x1="632" y1="225" x2="1140" y2="225" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="259" font-size="14" fill="#646A73">处理</text>
+<text x="1140" y="259" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">ngx_http_internal_redirect</text>
+<line x1="632" y1="273" x2="1140" y2="273" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="297" font-size="14" fill="#646A73">跳转位置</text>
+<text x="1140" y="297" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">1 (SERVER_REWRITE)</text>
+<line x1="632" y1="311" x2="1140" y2="311" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="335" font-size="14" fill="#646A73">重新执行</text>
+<text x="1140" y="335" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">server 级 rewrite</text>
+<line x1="632" y1="349" x2="1140" y2="349" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="373" font-size="14" fill="#646A73">r-＞ctx</text>
+<text x="1140" y="373" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">清空，r-＞internal=1</text>
+<text x="40" y="443" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.9）</text>
+</svg>

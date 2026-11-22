@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">json_set 对来源变量做一次解析，一次取多个路径的值</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是 json_set 的处理流程；绿色表示成功取到值，红色表示解析失败</text>
+<text x="144" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">来源数据</text>
+<text x="448" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">判断是否需要解析</text>
+<text x="752" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">解析结果</text>
+<text x="1056" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">日志输出</text>
+<polyline points="252,256 330,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,250 340,256 330,262" fill="#8F959E"/>
+<polyline points="556,256 597,256 597,204 634,204" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,198 644,204 634,210" fill="#8F959E"/>
+<polyline points="556,256 597,256 597,308 634,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,302 644,308 634,314" fill="#8F959E"/>
+<polyline points="860,204 938,204" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,198 948,204 938,210" fill="#8F959E"/>
+<polyline points="860,308 938,308" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,302 948,308 938,314" fill="#8F959E"/>
+<rect x="40" y="214" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="251.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">$http_x_ctx</text>
+<text x="144" y="271.2" font-size="12" fill="#646A73" text-anchor="middle">请求头里的 JSON</text>
+<rect x="344" y="214" width="208" height="84" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
+<text x="448" y="251.4" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">第一次使用</text>
+<text x="448" y="271.2" font-size="12" fill="#646A73" text-anchor="middle">$tenant 或 $first_item</text>
+<rect x="648" y="162" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="752" y="189.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">合法 JSON</text>
+<text x="752" y="209.7" font-size="12" fill="#646A73" text-anchor="middle">$tenant = t-42；</text>
+<text x="752" y="228.7" font-size="12" fill="#646A73" text-anchor="middle">$first_item = a1</text>
+<rect x="648" y="266" width="208" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="752" y="293.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">不合法或为空</text>
+<text x="752" y="313.7" font-size="12" fill="#646A73" text-anchor="middle">同一来源的目标变量都置为不</text>
+<text x="752" y="332.7" font-size="12" fill="#646A73" text-anchor="middle">存在</text>
+<rect x="952" y="162" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="199.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">正常输出</text>
+<text x="1056" y="219.2" font-size="12" fill="#646A73" text-anchor="middle">取到的字段值</text>
+<rect x="952" y="266" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">缺失值</text>
+<text x="1056" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">日志中是 -</text>
+<text x="615.5" y="195" font-size="12" fill="#646A73" text-anchor="middle">解析成功</text>
+<text x="615.5" y="326" font-size="12" fill="#646A73" text-anchor="middle">解析失败</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_json_module.c（1.31.5+）、labs/ops-11 实验输出</text>
+</svg>

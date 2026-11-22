@@ -1,0 +1,13 @@
+{
+ "type": "table",
+ "title": "后端收到哪个 URI，先看变量，再看 rewrite，最后看 URI 部分",
+ "subtitle": "请求进入带 proxy_pass 的 location 后，从上往下第一个成立的条件决定发给后端的 URI",
+ "source": "来源：ngx_http_proxy_module.c（1.31.9）",
+ "columns": ["顺序", "条件", "后端收到的 URI"],
+ "rows": [
+  ["①", "proxy_pass 里有变量", "用变量算出的 URI，不再拼接"],
+  ["②", "rewrite ... break 改过 URI", "改写后的完整 URI，忽略 proxy_pass 的 URI 部分"],
+  ["③", "proxy_pass 不带 URI 部分", {"text": "客户端原始请求 URI：%2F、双斜杠、.. 都原样", "tone": "risk"}],
+  ["④", "proxy_pass 带 URI 部分", "规范化后的 URI 去掉 location 前缀，接在 URI 部分后面"]
+ ]
+}

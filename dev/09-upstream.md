@@ -19,14 +19,7 @@
 
 [运维篇 07](../ops/07-load-balancing.md) 从配置和现象讲了各种算法与被动健康检查，[开发篇 06](06-http-request.md) §3 讲了 content handler 怎样接管请求。这一篇看 proxy 模块把请求交给 upstream 之后的源码。下图是本篇的主线，判断是：算法、连接缓存和粘性是同一组函数指针的三层包装，状态机只认最外层：
 
-```mermaid
-flowchart LR
-    P["proxy handler<br/>ngx_http_upstream_init"] --> S["upstream 状态机<br/>connect / send / process_header / send_response"]
-    S -- "u->peer.get / free" --> K["keepalive 层<br/>缓存里找同地址连接"]
-    K --> T["sticky 层<br/>把 cookie 换成 hint"]
-    T --> A["算法层<br/>round robin / least_conn / least_time"]
-    A --> W["每台后端的状态<br/>current_weight / effective_weight / fails / conns"]
-```
+![算法、keepalive、sticky 是同一个函数指针的三层包装，状态机只认最外层](../figures/dev-09/01.svg)
 
 ## 1. upstream 是挂在请求上的状态机：每一步只是换掉下一次事件的处理函数
 
@@ -119,19 +112,7 @@ ok - a new connection: connect returns NGX_AGAIN (-2), the request waits for the
 
 下图是这个请求里两个指针的变化，判断是：upstream 的每一步都由事件驱动，函数返回就意味着在等下一个事件：
 
-```mermaid
-stateDiagram-v2
-    [*] --> connect: ngx_http_upstream_init_request
-    connect --> send_request: 写事件（connect 返回 -2 之后）
-    connect --> send_request: 直接调用（复用连接，-4）
-    send_request --> process_header: 读事件（写事件换成 dummy）
-    process_header --> send_response: 响应头完整
-    send_response --> process_upstream: proxy_buffering on
-    send_response --> non_buffered: proxy_buffering off
-    process_upstream --> finalize: 响应体读完
-    non_buffered --> finalize: 响应体读完
-    finalize --> [*]: peer.free，连接放回缓存或关闭
-```
+![upstream 的每一步都由事件驱动，函数返回就意味着在等下一个事件](../figures/dev-09/02.svg)
 
 **小结**：在 debug 日志里看 upstream，先找 `http upstream connect` 的返回值，再看 `send request`、`process header` 和 `finalize` 之间隔了多少行，就知道时间花在连接、等响应头还是传响应体上。写一个 upstream 类模块（fastcgi、grpc、自定义协议），要提供的是 `create_request`、`process_header`、`finalize_request` 这几个回调，状态机由 `ngx_http_upstream.c` 负责。
 
@@ -236,17 +217,7 @@ ok - no connect, NGX_DONE (-4), the request is sent at once
 
 没有 `connect to` 行，`http upstream connect: -4` 是 `NGX_DONE`。连接已经可写，`ngx_http_upstream_connect` 跳过等待写事件，直接调用 `send request`（[第 1750 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream.c#L1750)）。下图是两个阶段各自做的事，判断是：算法模块在配置阶段只登记函数，所有的选择都发生在请求里：
 
-```mermaid
-flowchart TB
-    subgraph C["配置阶段（ngx_http_upstream_init_main_conf）"]
-        D["least_conn / hash 指令<br/>写 init_upstream"] --> I["init_upstream(cf, us)<br/>建 peers 链表，设 peer.init"]
-    end
-    subgraph R["请求（ngx_http_upstream_init_request）"]
-        PI["peer.init(r, us)<br/>分配 rrp，设 tries、get、free"] --> G["ngx_event_connect_peer<br/>调用 get"]
-        G --> F["尝试结束<br/>调用 free(state)"]
-    end
-    I --> PI
-```
+![算法模块在配置阶段只登记函数，所有的选择都发生在请求里](../figures/dev-09/03.svg)
 
 **小结**：写一个负载均衡模块，要实现的是 `init_upstream`（配置阶段建数据）、`init`（每个请求一次）、`get` 和 `free`；它看不到请求怎么发、响应怎么读。`free` 的 `state` 参数是它唯一能知道这次尝试成败的地方。
 
@@ -350,12 +321,7 @@ ok - effective_weight 5 - 5/2 = 3, the retry picks B, then A recovers 4, 5
 
 A 的 `effective_weight` 从 5 减去 5 / 2（整数除法得 2）变成 3，`fails` 是 1，还没到 `max_fails`，A 仍然可选。同一个请求里的重试选了 B：A 已经在 `tried` 位图里（§4）。之后每次计算 A 都先按当前的 `effective_weight` 加权、再加 1：第 2 个请求时 A 只加了 3，`current_weight` 是 1，输给了 C；第 3 个请求时 `effective_weight` 回到 5。下图是这三个请求里 A 的两个数，判断是：失败的惩罚在几次选择之内就被自动收回，不需要定时器：
 
-```mermaid
-flowchart LR
-    R1["请求 1<br/>A 失败<br/>effective 5 → 3"] --> R1b["同一请求重试<br/>A 在 tried 里，选 B"]
-    R1b --> R2["请求 2<br/>A 加 3，effective → 4<br/>current 1，选 C"]
-    R2 --> R3["请求 3<br/>A 加 4，effective → 5<br/>选 A"]
-```
+![失败的惩罚在几次选择之内就被自动收回，不需要定时器](../figures/dev-09/04.svg)
 
 `fails` 的清零条件是 `accessed < checked`：失败时两者都记成当前秒，`checked` 只在距上次超过 `fail_timeout` 后被选中时才更新（[第 924–926 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream_round_robin.c#L924)），所以失败之后 `fail_timeout` 之内的成功不会清掉 `fails`，这段时间里再失败一次就达到 `max_fails=2`。
 
@@ -430,14 +396,7 @@ ok - free rr peer 2 4 after the refused connect, the second request goes straigh
 
 `http next upstream, 2` 的 2 是 `NGX_HTTP_UPSTREAM_FT_ERROR`；`free rr peer 2 4` 是 `tries` 为 2 时以 `NGX_PEER_FAILED`（4）释放；`free rr peer failed: 0` 是扣完之后的 `effective_weight`（权重 1、`max_fails=1`）。随后 `get rr peer, try: 1` 选了 19181。第二个请求的 `get` 跳过了 19198（`fails` 已达 `max_fails`），而且没有 `connect to` 行：它用的是第一个请求留在缓存里的连接。下图是 `ngx_http_upstream_next` 的判断顺序，判断是：重试与否只看计数和配置，不看后端是否“看起来恢复了”：
 
-```mermaid
-flowchart TB
-    E["连接失败 / 超时 / 匹配 proxy_next_upstream 的状态码"] --> N["ngx_http_upstream_next(ft_type)"]
-    N --> FR["peer.free(NGX_PEER_FAILED)<br/>fails++，tries--"]
-    FR --> Q{"tries == 0？<br/>ft_type 不在 next_upstream？<br/>请求体已发出且不缓冲？<br/>超过 next_upstream_timeout？"}
-    Q -- 是 --> END["结束请求：502 / 504 / 原状态码"]
-    Q -- 否 --> C["关闭这条连接<br/>ngx_http_upstream_connect → get"]
-```
+![四个条件任一成立就结束请求，否则换机器重试](../figures/dev-09/05.svg)
 
 有一个例外：从缓存里取出的连接如果报 `NGX_HTTP_UPSTREAM_FT_ERROR`，`ngx_http_upstream_next` 会把 `tries` 加回 1（[第 4650–4653 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream.c#L4650)），因为后端可能只是关掉了空闲连接，这次失败不该算在后端头上。
 
@@ -537,19 +496,7 @@ ok - two locations, one upstream: separate connections unless keepalive N is wri
 
 默认配置下 `/loc1/` 和 `/loc2/` 各用各的连接（1 1 2 2）；写了 `keepalive 16` 的 upstream，`/shared/` 和 `/shared2/` 共用一条连接，序号接着上一步的 3 往下数（4 5 6 7）。下图是包装后 `get` 和 `free` 的调用顺序，判断是：缓存只在“选出地址之后”起作用，它不会让请求偏向已有连接的后端：
 
-```mermaid
-sequenceDiagram
-    participant U as upstream 状态机
-    participant K as keepalive get/free
-    participant A as 算法 get/free
-    U->>K: get
-    K->>A: original_get_peer
-    A-->>K: sockaddr（19181）
-    K-->>U: 缓存里有同地址连接：NGX_DONE；没有：NGX_OK
-    U->>K: free(state)
-    K->>K: 满足条件就放回 cache 队列
-    K->>A: original_free_peer(state)
-```
+![缓存只在选出地址之后起作用，它不会让请求偏向已有连接的后端](../figures/dev-09/06.svg)
 
 **小结**：想复用后端连接，`proxy_pass` 要指向一个 `upstream{}` 块，不要直接写地址。多个 location 代理到同一组后端、又希望共用连接时，显式写 `keepalive N;`（不带 `local`）；默认的 `local` 适合不同 location 用不同的认证头或 TLS 参数、连接不能混用的场合。
 
@@ -778,16 +725,7 @@ ngx_http_upstream_least_time_eta(ngx_http_upstream_lt_peer_data_t *ltp,
 
 `rt` 是 `header_time` 或 `response_time` 的指数移动平均（新样本占 0.05，`ngx_http_upstream_response_time_avg`），只在成功的尝试后更新；超过 5000 毫秒的一律按 5000 算，否则加到下一个 20 的倍数（`rt += 20 - rt % 20`；算例：平均 37 毫秒按 40 算，45 毫秒和 40 毫秒都按 60 算），再乘以 `1 + conns`。距上次 `checked` 每过 `fail_timeout + 1` 秒，`rt` 右移一位减半，让变慢过的后端有机会重新被选中。下图是三个模块包装的先后，判断是：指令的书写顺序就是包装顺序，算法指令要写在 `sticky` 之前：
 
-```mermaid
-flowchart TB
-    subgraph P["解析 upstream{}（按书写顺序）"]
-        L["least_conn;<br/>init_upstream = least_conn"] --> S["sticky cookie srv;<br/>original = least_conn<br/>init_upstream = sticky"]
-    end
-    subgraph M["init_main_conf"]
-        U["upstream 模块：调用 sticky 的 init_upstream<br/>→ least_conn 的 init_upstream"] --> K["keepalive 模块：<br/>original_init_peer = sticky 的 init"]
-    end
-    S --> U
-```
+![指令的书写顺序就是包装顺序，算法指令要写在 sticky 之前](../figures/dev-09/07.svg)
 
 **小结**：在一个 upstream 块里同时用算法和 `sticky`，先写算法、后写 `sticky`；`nginx -t` 输出 `load balancing method redefined` 时，说明有一个算法或 sticky 被后面的指令覆盖了，要当错误处理。`least_time` 对落在同一个 20 毫秒区间里的后端一视同仁，适合后端响应时间差别明显的场合。
 
@@ -873,15 +811,7 @@ ok - only the buffered request spills to a temp file; all three get 4194304 byte
 
 缓冲模式下 32 KB 的缓冲放不下，nginx 把后端的数据写进 `proxy_temp`，error log 里有一条 `an upstream response is buffered to a temporary file` 警告；`proxy_buffering off` 和后端发 `X-Accel-Buffering: no` 都走 non-buffered 路径，没有临时文件。三个客户端都收到了完整的 4194304 字节。下图是这个分支，判断是：缓冲决定的是“后端连接能多早释放”，代价是磁盘写入：
 
-```mermaid
-flowchart TB
-    H["send_response：响应头已发出"] --> UP{"u->upgrade？"}
-    UP -- 是 --> G["ngx_http_upstream_upgrade<br/>双向转发（WebSocket）"]
-    UP -- 否 --> B{"u->buffering？<br/>proxy_buffering / X-Accel-Buffering"}
-    B -- 否 --> NB["process_non_buffered_upstream<br/>一块 proxy_buffer_size，客户端慢则后端也等"]
-    B -- 是 --> EP["event pipe：proxy_buffers 4 8k = 32 KB<br/>不够就写临时文件"]
-    EP --> R["后端读完即可 free，连接放回缓存"]
-```
+![缓冲决定的是后端连接能多早释放，代价是磁盘写入](../figures/dev-09/08.svg)
 
 **小结**：缓冲模式让 nginx 尽快读完后端响应、尽早把后端连接放回缓存，慢客户端的代价落在 nginx 的内存和磁盘上；看到临时文件警告频繁出现，要么调大 `proxy_buffers`，要么对大文件下载关闭缓冲或设 `proxy_max_temp_file_size`。流式接口（SSE、长轮询）应关闭缓冲，或者由后端发 `X-Accel-Buffering: no`。
 

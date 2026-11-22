@@ -1,0 +1,39 @@
+{
+  "type": "sequence",
+  "title": "流水线请求在同一轮循环末尾通过投递队列处理，不用再等 kevent",
+  "subtitle": "kevent 返回 → 处理第一个请求 → 把剩余字节投递到队列 → ngx_process_events 返回 → 本轮末尾处理第二个；用户态的数据内核不会再通知",
+  "source": "来源：src/http/ngx_http_request.c、labs/dev-05 实验（1.31.9）",
+  "actors": [
+    "kevent",
+    "请求处理",
+    "ngx_posted_events"
+  ],
+  "messages": [
+    {
+      "from": "kevent",
+      "to": "请求处理",
+      "text": "fd 3 可读（两请求）"
+    },
+    {
+      "from": "请求处理",
+      "to": "请求处理",
+      "text": "处理第一个请求"
+    },
+    {
+      "from": "请求处理",
+      "to": "ngx_posted_events",
+      "text": "剩余字节投递"
+    },
+    {
+      "from": "kevent",
+      "to": "请求处理",
+      "text": "ngx_process_events 返回",
+      "reply": true
+    },
+    {
+      "from": "ngx_posted_events",
+      "to": "请求处理",
+      "text": "处理第二个请求"
+    }
+  ]
+}

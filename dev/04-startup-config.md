@@ -19,15 +19,7 @@
 
 [开发篇 01](01-source-map.md) §5 讲了 `main()` 调用 `ngx_init_cycle`、`ngx_init_cycle` 依次调用核心模块的 `create_conf`、`ngx_conf_parse`、`init_conf`。这一篇进到 `ngx_conf_parse` 里面。下图是一条指令从文本到结构体字段的路径，判断是：解析器本身不认识任何指令，它只负责切词和分派，指令的含义全在各模块的 `set` 函数里：
 
-```mermaid
-flowchart LR
-    A["配置文本<br/>sendfile on;"] --> B["ngx_conf_read_token<br/>切词：sendfile、on"]
-    B --> C["ngx_conf_handler<br/>按模块顺序查指令表"]
-    C --> D{"模块类型、上下文位、<br/>参数个数都对？"}
-    D -- 否 --> E["[emerg] not allowed here /<br/>invalid number of arguments"]
-    D -- 是 --> F["cmd->conf + ctx_index<br/>找到 ngx_http_core_loc_conf_t"]
-    F --> G["cmd->set<br/>ngx_conf_set_flag_slot<br/>写 offset 处的字段"]
-```
+![解析器只负责切词和分派，指令含义在各模块的 set 函数里](../figures/dev-04/01.svg)
 
 ## 1. 配置文件先被切成词：引号、转义、#、${ 的规则都在 ngx_conf_read_token 里
 
@@ -251,14 +243,7 @@ ok - server belongs to the http, upstream, stream and stream upstream modules
 
 下图是 `server` 在不同块里的去向，判断是：同一个名字归谁，由“它出现在哪个块里”唯一决定：
 
-```mermaid
-flowchart LR
-    S["server"] --> H{"当前块"}
-    H -- "http{}<br/>NGX_HTTP_MAIN_CONF" --> A["ngx_http_core_module<br/>虚拟主机"]
-    H -- "upstream{}<br/>NGX_HTTP_UPS_CONF" --> B["ngx_http_upstream_module<br/>后端地址"]
-    H -- "stream{}<br/>NGX_STREAM_MAIN_CONF" --> C["ngx_stream_core_module"]
-    H -- "stream 的 upstream{}" --> D["ngx_stream_upstream_module"]
-```
+![同名指令靠所在块唯一确定接收模块](../figures/dev-04/02.svg)
 
 **小结**：指令名不是全局唯一的，“指令 + 所在块”才唯一；写模块时给指令取名不必避开别的模块，只要上下文位不重叠。
 
@@ -312,13 +297,7 @@ ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
 下图把这些错误放在解析的时间线上，判断是：越晚发现的错误，离出错的那一行越远：
 
-```mermaid
-flowchart LR
-    A["读文件、切词<br/>unexpected …"] --> B["分派<br/>unknown / not allowed /<br/>invalid number"]
-    B --> C["set 函数<br/>is duplicate / invalid value"]
-    C --> D["http{} 解析完<br/>unknown variable（无行号）"]
-    D --> E["ngx_init_cycle 后半<br/>zero size shared memory zone、<br/>bind() failed（无行号）"]
-```
+![越晚发现的错误，离出错的那一行越远](../figures/dev-04/03.svg)
 
 **小结**：带文件和行号的错误在解析当下就被发现；不带的（未知变量、共享内存大小为 0、端口被占）都发生在解析之后的初始化阶段，要按名字去配置里找。
 
@@ -428,12 +407,7 @@ typedef struct {
 
 下图是 `sendfile on;` 写在某个 location 里时，从 ctx 到字段的指针链，判断是：同一个模块在每个块里都有自己的一份配置结构，指令只写当前块的那一份：
 
-```mermaid
-flowchart LR
-    A["cf->ctx<br/>（location 的 ngx_http_conf_ctx_t）"] -- "+ NGX_HTTP_LOC_CONF_OFFSET" --> B["loc_conf[]<br/>59 格"]
-    B -- "[ngx_http_core_module.ctx_index]" --> C["ngx_http_core_loc_conf_t"]
-    C -- "+ offsetof(..., sendfile)" --> D["sendfile 字段 = 1"]
-```
+![指令值写进哪个结构体，由 conf 偏移和 ctx_index 唯一决定](../figures/dev-04/04.svg)
 
 **小结**：一条指令能写在哪些块，看 `type` 里的上下文位；它的值存在哪一级，看 `conf` 是哪一个 `NGX_HTTP_*_CONF_OFFSET`。两者不必一致：`sendfile` 能写在 `http{}`、`server{}` 里，值却总是存在那一级的 loc_conf 里，成为下级 location 的父值。
 
@@ -555,15 +529,7 @@ server a: main_conf shared with http{}: yes, own srv_conf: yes, client_max_body_
 
 下图是这份配置的 ctx 关系，判断是：上下级之间共享的是指针，不是副本：
 
-```mermaid
-flowchart TB
-    H["http{} ctx<br/>main / srv / loc"] --> SA["server a ctx<br/>main = http 的<br/>srv、loc 新建"]
-    H --> SB["server b ctx<br/>main = http 的<br/>srv、loc 新建"]
-    SA --> L1["location /a<br/>main、srv = server a 的<br/>loc 新建"]
-    L1 --> L2["location /a/b<br/>loc 新建"]
-    SA --> L3["/c、= /exact、~ \.php$<br/>各自 loc 新建"]
-    SB --> L4["location /<br/>loc 新建"]
-```
+![上下级之间共享的是指针，不是副本](../figures/dev-04/05.svg)
 
 **小结**：main 级配置全局一份，srv 级每个 server 一份，loc 级每个块一份；模块在 location 的 handler 里拿到的 `srv_conf`，就是所在 server 的那一份。
 
@@ -712,15 +678,7 @@ loc_conf arrays: 1 http + 2 server + 6 location = 9, each with 59 slots
 
 下图是 core 模块合并 `client_max_body_size` 时值的流向，判断是：每个块只看自己的直接父级，不会跨级去找：
 
-```mermaid
-flowchart TB
-    H["http{} loc_conf<br/>2m（设了）"] --> SA["server a loc_conf<br/>UNSET → 2m"]
-    H --> SB["server b loc_conf<br/>1m（设了）"]
-    SA --> A["/a：5m（设了）"]
-    A --> AB["/a/b：UNSET → 5m"]
-    SA --> C["/c、= /exact、~ \.php$<br/>UNSET → 2m"]
-    SB --> R["/：UNSET → 1m"]
-```
+![每个块只看自己的直接父级，子级 UNSET 时才继承](../figures/dev-04/06.svg)
 
 有两点容易误会。第一，合并的外层循环是模块，不是 server：先把所有 server 的 core 模块合并完，再合并下一个模块。所以一个模块的 merge 函数里看不到其他模块合并后的值，只能看到自己的。第二，`http{}` 这一级的 loc_conf 本身从不合并，没设的字段在那里一直是 `NGX_CONF_UNSET`，默认值是在子级合并时填进去的。
 
@@ -779,17 +737,7 @@ master 自己不处理连接，旧配置对它已经没有用；老 worker 是�
 
 下图是 reload 前后 socket 和 cycle 的交接，判断是：端口不断，靠的是同一个 fd 在新旧 cycle 之间传递：
 
-```mermaid
-sequenceDiagram
-    participant M as master
-    participant O as 老 worker（旧 cycle 副本）
-    participant N as 新 worker
-    M->>M: ngx_init_cycle(old)：19082 沿用 fd 5，19084 新 bind
-    M->>M: 关闭 19083，释放旧 cycle 内存池
-    M->>N: fork（继承 fd 5 和新 fd）
-    M->>O: QUIT
-    O->>O: 处理完手上的请求后退出
-```
+![端口不断靠的是同一个 fd 在新旧 cycle 之间传递](../figures/dev-04/07.svg)
 
 **小结**：reload 失败（新配置初始化出错）时，`ngx_init_cycle` 返回 NULL，旧 cycle 原封不动，这是运维篇 03 里“新配置有错时老 worker 照常服务”的源码依据；成功时，端口按地址交接，地址不变就不重新 bind。
 

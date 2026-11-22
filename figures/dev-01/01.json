@@ -1,0 +1,48 @@
+{
+ "type": "layers",
+ "title": "nginx 源码分基础层、事件层、协议层三层，HTTP 相关目录占 52.7%",
+ "subtitle": "从上到下是依赖关系；基础层最底，不知道 HTTP 存在；协议层最顶，通过事件层拿连接",
+ "source": "来源：本文整理（1.31.9）",
+ "layers": [
+  {
+   "name": "协议层",
+   "items": [
+    {
+     "title": "src/http",
+     "sub": "18 个文件、modules/ 60 个、v2 / v3"
+    },
+    {
+     "title": "src/stream",
+     "sub": "27 个文件"
+    },
+    {
+     "title": "src/mail",
+     "sub": "14 个文件"
+    }
+   ]
+  },
+  {
+   "name": "事件层",
+   "items": [
+    {
+     "title": "src/event",
+     "sub": "accept、定时器、kqueue/epoll、quic",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "基础层",
+   "items": [
+    {
+     "title": "src/core",
+     "sub": "pool、array、rbtree、conf、cycle、log、slab"
+    },
+    {
+     "title": "src/os/unix",
+     "sub": "进程、信号、sendfile"
+    }
+   ]
+  }
+ ]
+}

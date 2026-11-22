@@ -1,0 +1,15 @@
+{
+ "type": "table",
+ "title": "默认转义把 0x80 以上的字节也写成 \\xHH，escape=json 原样保留",
+ "subtitle": "一个字节写进日志时按所属类别处理；绿色列是给机器读的日志该用的写法",
+ "source": "来源：ngx_http_log_module.c、ngx_string.c（1.31.9）",
+ "columns": ["字节", "默认转义", "escape=json"],
+ "rows": [
+  ["0x00–0x1F 控制字符", "\\xHH", "\\n \\t 或 \\u00XX"],
+  ["双引号、反斜杠", "\\xHH", "前面加反斜杠"],
+  ["0x7F", "\\xHH", "原样"],
+  ["0x80–0xFF", {"text": "\\xHH", "tone": "risk"}, {"text": "原样（UTF-8 保留）", "bold": true}],
+  ["其他可打印 ASCII", "原样", "原样"]
+ ],
+ "highlight_col": 2
+}

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 542" width="1200" height="542">
+<rect x="0" y="0" width="1200" height="542" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">指令的书写顺序就是包装顺序，算法指令要写在 sticky 之前</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">上半部分：解析 upstream{} 时各指令按顺序改写 init_upstream，后面的覆盖前面的；下半部分：init_main_conf 阶段按最终顺序调用包装函数</text>
+<text x="390" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">解析 upstream{}（按书写顺序）</text>
+<text x="810" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">init_main_conf</text>
+<polyline points="504,318 686,318" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,312 696,318 686,324" fill="#8F959E"/>
+<polyline points="390,246 390,262" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="384,262 390,272 396,262" fill="#8F959E"/>
+<polyline points="810,364 810,380" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="804,380 810,390 816,380" fill="#8F959E"/>
+<rect x="280" y="158" width="220" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="390" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">least_conn</text>
+<text x="390" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">init_upstream = least_conn</text>
+<rect x="280" y="276" width="220" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="390" y="303.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">sticky cookie srv</text>
+<text x="390" y="323.7" font-size="12" fill="#646A73" text-anchor="middle">original = least_conn，</text>
+<text x="390" y="342.7" font-size="12" fill="#646A73" text-anchor="middle">init_upstream = sticky</text>
+<rect x="700" y="276" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="810" y="303.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">upstream 模块</text>
+<text x="810" y="323.7" font-size="12" fill="#646A73" text-anchor="middle">调用 sticky 的 init_upstream →</text>
+<text x="810" y="342.7" font-size="12" fill="#646A73" text-anchor="middle">least_conn 的 init_upstream</text>
+<rect x="700" y="394" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="810" y="421.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">keepalive 模块</text>
+<text x="810" y="441.7" font-size="12" fill="#646A73" text-anchor="middle">original_init_peer = sticky</text>
+<text x="810" y="460.7" font-size="12" fill="#646A73" text-anchor="middle">的 init</text>
+<text x="40" y="518" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_sticky_module.c、ngx_http_upstream_keepalive_module.c（1.31.9）</text>
+</svg>

@@ -1,0 +1,36 @@
+{
+ "type": "table",
+ "title": "选内存池还是共享内存只看数据要活多久、要不要跨 worker",
+ "subtitle": "前三行在一个 worker 内、按生命周期选内存池；高亮行要跨 worker 共享，只能用共享内存 zone",
+ "source": "来源：本文整理",
+ "aspect": "wide",
+ "columns": [
+  "数据要活多久",
+  "从哪分配",
+  "说明"
+ ],
+ "rows": [
+  [
+   "一轮配置",
+   "cycle->pool",
+   "reload 时整池换掉"
+  ],
+  [
+   "一个连接",
+   "c->pool",
+   "connection_pool_size 512"
+  ],
+  [
+   "一个请求",
+   "r->pool",
+   "request_pool_size 4096"
+  ],
+  [
+   "跨 worker 共享",
+   "共享内存 zone",
+   "ngx_slab_pool_t 分配，limit_req、proxy_cache 等都用它"
+  ]
+ ],
+ "highlight_row": 3,
+ "tone": "main"
+}

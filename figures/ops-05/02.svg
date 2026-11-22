@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">两个条件头都带时，两个都满足才返回 304</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">响应状态是 200 时 not_modified 过滤器的判定；IMS = If-Modified-Since，INM = If-None-Match</text>
+<rect x="40" y="134.4" width="1120" height="212" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="135.4" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="166.4" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="178.4" x2="1160" y2="178.4" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="220.4" x2="1159" y2="220.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="262.4" x2="1159" y2="262.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="304.4" x2="1159" y2="304.4" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">请求带的头</text>
+<text x="261.4" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">If-Modified-Since</text>
+<text x="746.1" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">If-None-Match</text>
+<text x="1072.3" y="161.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">结果</text>
+<text x="58" y="204.3" font-size="14" fill="#1F2329">只带 IMS</text>
+<text x="261.4" y="204.3" font-size="14" fill="#1F2329">等于 mtime（before 模式下不早于 mtime）</text>
+<text x="746.1" y="204.3" font-size="14" fill="#1F2329">—</text>
+<text x="1072.3" y="204.3" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">304</text>
+<text x="58" y="246.3" font-size="14" fill="#1F2329">只带 INM</text>
+<text x="261.4" y="246.3" font-size="14" fill="#1F2329">—</text>
+<text x="746.1" y="246.3" font-size="14" fill="#1F2329">弱比较匹配 ETag</text>
+<text x="1072.3" y="246.3" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">304</text>
+<text x="58" y="288.3" font-size="14" fill="#1F2329">两个都带</text>
+<text x="261.4" y="288.3" font-size="14" fill="#1F2329">满足</text>
+<text x="746.1" y="288.3" font-size="14" fill="#1F2329">匹配</text>
+<text x="1072.3" y="288.3" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">304</text>
+<text x="58" y="330.3" font-size="14" fill="#1F2329">任一不满足</text>
+<text x="261.4" y="330.3" font-size="14" fill="#1F2329">不满足</text>
+<text x="746.1" y="330.3" font-size="14" fill="#1F2329">或不匹配</text>
+<text x="1072.3" y="330.3" font-size="14" fill="#1F2329" text-anchor="middle">200</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_not_modified_filter_module.c（1.31.9）</text>
+</svg>

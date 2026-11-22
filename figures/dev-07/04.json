@@ -1,0 +1,92 @@
+{
+ "type": "graph",
+ "title": "替换串分两遍处理：先算长度、再拷贝，避免反复扩容",
+ "subtitle": "从上到下是处理流程；蓝色是两个关键步骤",
+ "source": "来源：ngx_http_script.c（1.31.9）",
+ "stages": [
+  {
+   "name": "regex_start",
+   "nodes": [
+    {
+     "id": "match",
+     "title": "匹配 r->uri",
+     "sub": ""
+    },
+    {
+     "id": "has_var",
+     "title": "有变量？",
+     "sub": ""
+    }
+   ]
+  },
+  {
+   "name": "算长度",
+   "nodes": [
+    {
+     "id": "const_len",
+     "title": "code->size + 各捕获",
+     "sub": "无变量"
+    },
+    {
+     "id": "tmp_eng",
+     "title": "临时引擎跑 lengths",
+     "sub": "有变量",
+     "tone": "main",
+     "emph": true
+    }
+   ]
+  },
+  {
+   "name": "分配与拷贝",
+   "nodes": [
+    {
+     "id": "alloc",
+     "title": "ngx_pnalloc 一次分配",
+     "sub": "+ 原参数长度",
+     "tone": "main",
+     "emph": true
+    },
+    {
+     "id": "copy",
+     "title": "copy / copy_capture",
+     "sub": "依次写入"
+    },
+    {
+     "id": "end",
+     "title": "regex_end",
+     "sub": "写回 r->uri、r->args"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "match",
+   "to": "has_var"
+  },
+  {
+   "from": "has_var",
+   "to": "const_len"
+  },
+  {
+   "from": "has_var",
+   "to": "tmp_eng"
+  },
+  {
+   "from": "const_len",
+   "to": "alloc"
+  },
+  {
+   "from": "tmp_eng",
+   "to": "alloc"
+  },
+  {
+   "from": "alloc",
+   "to": "copy"
+  },
+  {
+   "from": "copy",
+   "to": "end"
+  }
+ ]
+}

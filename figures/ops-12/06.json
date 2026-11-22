@@ -1,0 +1,41 @@
+{
+ "type": "flow",
+ "title": "access 按默认 server 执行，虚拟主机切换在 access 之后",
+ "subtitle": "从左到右是处理顺序；红色的 access 只认默认 server，后面两步才可能切换 server",
+ "source": "来源：ngx_stream_ssl_preread_module.c（1.31.9）",
+ "steps": [
+  {
+   "title": "accept",
+   "lines": [
+    "默认 server"
+   ]
+  },
+  {
+   "title": "access",
+   "lines": [
+    "按默认 server 的 allow / deny"
+   ],
+   "tone": "risk"
+  },
+  {
+   "title": "SNI 回调",
+   "lines": [
+    "listen 带 ssl 时",
+    "切换 server、选证书"
+   ]
+  },
+  {
+   "title": "preread",
+   "lines": [
+    "开了 ssl_preread 时",
+    "拿到名字，切换 server"
+   ]
+  },
+  {
+   "title": "content",
+   "lines": [
+    "按当前 server"
+   ]
+  }
+ ]
+}

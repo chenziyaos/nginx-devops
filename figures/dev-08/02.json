@@ -1,0 +1,34 @@
+{
+ "type": "table",
+ "title": "excess 超过 burst 才拒绝，拒绝时不写回共享内存",
+ "subtitle": "找到节点、移到 LRU 队头后，先算 excess = 旧值 − rate×ms/1000 + 1000（小于 0 取 0），再按下表判决",
+ "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+ "columns": [
+  "条件",
+  "返回",
+  "共享内存"
+ ],
+ "rows": [
+  [
+   "excess > burst",
+   {
+    "text": "NGX_BUSY（拒绝）",
+    "tone": "risk"
+   },
+   "不写回"
+  ],
+  [
+   "不超，且是最后一个 limit_req",
+   {
+    "text": "NGX_OK",
+    "tone": "good"
+   },
+   "写回 excess；ms 不为 0 时 last = now"
+  ],
+  [
+   "不超，后面还有 limit_req",
+   "NGX_AGAIN",
+   "不写回，count++ 占位"
+  ]
+ ]
+}

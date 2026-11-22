@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 755" width="1200" height="755">
+<rect x="0" y="0" width="1200" height="755" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">被第二条规则拒绝时，第一条的 excess 不变</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">同一个 location 写了两条 limit_req；前面的规则只预检，最后一条通过后才统一写回</text>
+<line x1="226.7" y1="186" x2="226.7" y2="691" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="58" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="162" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">limit_req handler</text>
+<line x1="600" y1="186" x2="600" y2="691" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">perip</text>
+<text x="600" y="172" font-size="12" fill="#646A73" text-anchor="middle">第 1 条</text>
+<line x1="973.3" y1="186" x2="973.3" y2="691" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">perserver</text>
+<text x="973.3" y="172" font-size="12" fill="#646A73" text-anchor="middle">最后一条</text>
+<text x="236.7" y="220.6" font-size="13" fill="#1F2329">lookup(account=0)</text>
+<polyline points="226.7,229 588,229" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,223 598,229 588,235" fill="#8F959E"/>
+<text x="590" y="261.6" font-size="13" fill="#1F2329" text-anchor="end">NGX_AGAIN，count + 1</text>
+<polyline points="600,270 238.7,270" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,264 228.7,270 238.7,276" fill="#8F959E"/>
+<text x="236.7" y="302.6" font-size="13" fill="#1F2329">lookup(account=1)</text>
+<polyline points="226.7,311 961.3,311" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,305 971.3,311 961.3,317" fill="#8F959E"/>
+<rect x="40" y="327" width="148.7" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="114.4" y="343.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">perserver 超过 burst</text>
+<line x1="196.7" y1="339" x2="1160" y2="339" stroke="#EFF0F1" stroke-width="1"/>
+<text x="963.3" y="377.6" font-size="13" fill="#1F2329" text-anchor="end">NGX_BUSY</text>
+<polyline points="973.3,386 238.7,386" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,380 228.7,386 238.7,392" fill="#8F959E"/>
+<text x="236.7" y="418.6" font-size="13" fill="#1F2329">unlock：count − 1</text>
+<polyline points="226.7,427 588,427" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,421 598,427 588,433" fill="#8F959E"/>
+<text x="236.7" y="459.6" font-size="13" fill="#1F2329">返回 503，perip 的 excess 不变</text>
+<polyline points="226.7,468 252.7,468 252.7,486 240.7,486" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="240.7,480 230.7,486 240.7,492" fill="#8F959E"/>
+<rect x="40" y="510" width="85.6" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="82.8" y="526.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">两条都通过</text>
+<line x1="133.6" y1="522" x2="1160" y2="522" stroke="#EFF0F1" stroke-width="1"/>
+<text x="963.3" y="560.5" font-size="13" fill="#1F2329" text-anchor="end">NGX_OK，写回 excess</text>
+<polyline points="973.3,569 238.7,569" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,563 228.7,569 238.7,575" fill="#8F959E"/>
+<text x="236.7" y="601.5" font-size="13" fill="#1F2329">account：写回 excess，count − 1</text>
+<polyline points="226.7,610 588,610" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,604 598,610 588,616" fill="#8F959E"/>
+<text x="236.7" y="642.5" font-size="13" fill="#1F2329">取两条规则里最长的延迟</text>
+<polyline points="226.7,651 252.7,651 252.7,669 240.7,669" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="240.7,663 230.7,669 240.7,675" fill="#8F959E"/>
+<text x="40" y="731" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+</svg>

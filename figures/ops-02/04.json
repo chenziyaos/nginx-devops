@@ -1,0 +1,30 @@
+{
+ "type": "compare",
+ "title": "用 map 替代 if 能避免隐式 location 配置造成的覆盖",
+ "subtitle": "左侧是有问题的做法，右侧是推荐方案；红色代表数据丢失风险",
+ "source": "来源：本文整理",
+ "cards": [
+  {
+   "title": "if 语句的问题",
+   "tone": "risk",
+   "rows": [
+    ["创建隐式 location", "if 块被当成 location 解析"],
+    ["数组指令覆盖", "内部 add_header 覆盖父层"],
+    ["结果", "父层的头会丢失"]
+   ],
+   "verdict": "避免使用"
+  },
+  {
+   "title": "map 替代方案",
+   "tone": "good",
+   "rows": [
+    ["时机", "配置解析时定义映射"],
+    ["求值", "请求时计算变量值"],
+    ["隐式 location", "不创建（避免覆盖）"],
+    ["继承", "add_header 正常继承"]
+   ],
+   "verdict": "推荐",
+   "primary": true
+  }
+ ]
+}

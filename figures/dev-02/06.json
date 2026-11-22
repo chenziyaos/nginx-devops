@@ -1,0 +1,33 @@
+{
+  "type": "compare",
+  "title": "定时器用差值比较容忍溢出；普通比较给出错的先后顺序",
+  "subtitle": "对同一对键：a=2^64-16，b=16（回绕后）；绿色是定时器正确的做法",
+  "source": "来源：src/core/ngx_rbtree.c（1.31.9）、labs/dev-02 实验输出",
+  "cards": [
+    {
+      "id": "v1",
+      "title": "insert_value",
+      "sub": "普通比较",
+      "rows": [
+        ["a 值", "2^64 - 16"],
+        ["b 值", "16"],
+        ["比较", "a < b ？否"],
+        ["最小", "b"]
+      ],
+      "verdict": "错误"
+    },
+    {
+      "id": "v2",
+      "title": "insert_timer_value",
+      "sub": "差值比较",
+      "primary": true,
+      "rows": [
+        ["a 值", "2^64 - 16"],
+        ["b 值", "16"],
+        ["比较", "(a-b)<0 ？是"],
+        ["最小", "a"]
+      ],
+      "verdict": "正确"
+    }
+  ]
+}

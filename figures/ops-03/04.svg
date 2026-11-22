@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 462" width="1200" height="462">
+<rect x="0" y="0" width="1200" height="462" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">QUIT 等请求做完，worker_shutdown_timeout 给它设上限</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">老 worker 收到不同信号后的退出方式；TERM / INT 不等请求</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">信号</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">先做的事</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">看 worker_shutdown_timeout</text>
+<polyline points="294,252 476,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,246 486,252 476,258" fill="#8F959E"/>
+<polyline points="294,356 476,356" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,350 486,356 476,362" fill="#8F959E"/>
+<polyline points="714,252 807,252 807,200 896,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,194 906,200 896,206" fill="#8F959E"/>
+<polyline points="714,252 807,252 807,304 896,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,298 906,304 896,310" fill="#8F959E"/>
+<rect x="70" y="210" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="256.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">收到 QUIT</text>
+<rect x="70" y="314" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="360.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">收到 TERM / INT</text>
+<rect x="490" y="210" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="237.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">关闭监听和空闲连接</text>
+<text x="600" y="257.7" font-size="12" fill="#646A73" text-anchor="middle">监听 socket、空闲 keepalive</text>
+<text x="600" y="276.7" font-size="12" fill="#646A73" text-anchor="middle">连接</text>
+<rect x="490" y="314" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="360.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">立即关闭连接退出</text>
+<rect x="910" y="158" width="220" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">等请求结束</text>
+<text x="1020" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">没有配置：最后一个请求结束才</text>
+<text x="1020" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">退出</text>
+<rect x="910" y="262" width="220" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">到期强制退出</text>
+<text x="1020" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">有配置：到期后关闭剩余连接</text>
+<text x="760.5" y="243" font-size="12" fill="#646A73" text-anchor="middle">没有</text>
+<text x="760.5" y="270" font-size="12" fill="#646A73" text-anchor="middle">有</text>
+<text x="40" y="438" font-size="12" fill="#646A73" data-role="source">来源：labs/ops-03 实验（1.31.9）</text>
+</svg>

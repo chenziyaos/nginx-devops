@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 529" width="1200" height="529">
+<rect x="0" y="0" width="1200" height="529" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">内置模块查不到就尝试用 load_module 加载</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">配置里出现指令 X 时 nginx 依次检查；红色是 error.log 里会看到的报错</text>
+<text x="144" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">内置模块</text>
+<text x="448" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">load_module</text>
+<text x="752" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">dlopen</text>
+<text x="1056" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">版本和签名</text>
+<polyline points="252,251 293,251 293,190.5 330,190.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,184.5 340,190.5 330,196.5" fill="#8F959E"/>
+<polyline points="252,251 293,251 293,311.5 330,311.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,305.5 340,311.5 330,317.5" fill="#8F959E"/>
+<polyline points="556,311.5 634,311.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,305.5 644,311.5 634,317.5" fill="#8F959E"/>
+<polyline points="860,311.5 901,311.5 901,190.5 938,190.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,184.5 948,190.5 938,196.5" fill="#8F959E"/>
+<polyline points="860,311.5 938,311.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,305.5 948,311.5 938,317.5" fill="#8F959E"/>
+<polyline points="860,311.5 901,311.5 901,432.5 938,432.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,426.5 948,432.5 938,438.5" fill="#8F959E"/>
+<polyline points="448,348 448,386" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="442,386 448,396 454,386" fill="#8F959E"/>
+<rect x="40" y="218.5" width="208" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="246.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">查 ngx_modules[]</text>
+<text x="144" y="266.2" font-size="12" fill="#646A73" text-anchor="middle">X 所属模块在不在</text>
+<rect x="344" y="158" width="208" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="448" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">正常解析</text>
+<rect x="344" y="279" width="208" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="316.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">有 load_module？</text>
+<rect x="344" y="400" width="208" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="448" y="437.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">unknown directive</text>
+<rect x="648" y="279" width="208" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="306.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">dlopen</text>
+<text x="752" y="326.7" font-size="12" fill="#646A73" text-anchor="middle">失败时报 dlopen() ... failed</text>
+<rect x="952" y="158" width="208" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">版本号不同</text>
+<text x="1056" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">version N instead of M</text>
+<rect x="952" y="279" width="208" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="306.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">签名不同</text>
+<text x="1056" y="326.7" font-size="12" fill="#646A73" text-anchor="middle">is not binary compatible</text>
+<rect x="952" y="400" width="208" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="427.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">加载成功</text>
+<text x="1056" y="447.7" font-size="12" fill="#646A73" text-anchor="middle">之后正常解析</text>
+<text x="301" y="224.8" font-size="12" fill="#646A73">在</text>
+<text x="301" y="285.2" font-size="12" fill="#646A73">不在</text>
+<text x="456" y="371" font-size="12" fill="#646A73">没有</text>
+<text x="595" y="302.5" font-size="12" fill="#646A73" text-anchor="middle">有</text>
+<text x="40" y="505" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_module.c（1.31.9）</text>
+</svg>

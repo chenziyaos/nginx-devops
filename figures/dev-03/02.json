@@ -1,0 +1,47 @@
+{
+  "type": "layers",
+  "title": "小块顺着块链切分，大块单独 malloc 且挂在 large 链上",
+  "subtitle": "块 0 包含整个池的管理字段和小块分配区；块 1 只有块头和小块分配区；从池的 large 指针可以回收大块",
+  "source": "来源：本文整理（实验值）",
+  "layers": [
+    {
+      "name": "块 0（1024 字节）",
+      "items": [
+        {
+          "label": "ngx_pool_t",
+          "sub": "80 字节\nmax/current/large/cleanup"
+        },
+        {
+          "label": "小块",
+          "sub": "+80 … +1012\n4 × 4 对齐"
+        }
+      ]
+    },
+    {
+      "name": "块 1（1024 字节）",
+      "items": [
+        {
+          "label": "ngx_pool_data_t",
+          "sub": "32 字节"
+        },
+        {
+          "label": "小块",
+          "sub": "+32 起 944 字节"
+        }
+      ]
+    },
+    {
+      "name": "堆上",
+      "items": [
+        {
+          "label": "大块",
+          "sub": "945 字节（malloc）"
+        }
+      ]
+    }
+  ],
+  "side": {
+    "title": "指针",
+    "items": ["d.next", "large"]
+  }
+}

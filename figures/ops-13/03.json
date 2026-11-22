@@ -1,0 +1,67 @@
+{
+ "type": "sequence",
+ "title": "408 和 499 分别对应超时的两个方向，504 是等后端超时",
+ "subtitle": "时间从上到下，三段依次对应 408、499、504；蓝色的 nginx 是记状态码的一方",
+ "source": "来源：本文整理",
+ "actors": [
+  {
+   "name": "客户端",
+   "tone": "base"
+  },
+  {
+   "name": "nginx",
+   "tone": "main"
+  },
+  {
+   "name": "后端",
+   "tone": "base"
+  }
+ ],
+ "messages": [
+  {
+   "from": "客户端",
+   "to": "nginx",
+   "text": "请求头没发完"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "text": "client_header_timeout 到期，关闭，记 408"
+  },
+  {
+   "from": "客户端",
+   "to": "nginx",
+   "text": "完整请求"
+  },
+  {
+   "from": "nginx",
+   "to": "后端",
+   "text": "转发"
+  },
+  {
+   "from": "客户端",
+   "to": "客户端",
+   "text": "客户端超时更短，先断开"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "text": "发现客户端断开，关后端，记 499"
+  },
+  {
+   "from": "客户端",
+   "to": "nginx",
+   "text": "完整请求"
+  },
+  {
+   "from": "nginx",
+   "to": "后端",
+   "text": "转发"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "text": "proxy_read_timeout 到期，回 504"
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 568" width="1200" height="568">
+<rect x="0" y="0" width="1200" height="568" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="24" fill="#1F2329" font-weight="bold" data-role="title">worker 循环的五个固定阶段：算超时 → 条件分支 → 等内核 → 处理三类事件 → 回圈</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下按执行顺序；accept_mutex 有无决定分支</text>
+<text x="144" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">第 1 步</text>
+<text x="448" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">第 2 步</text>
+<text x="752" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">第 3 步</text>
+<text x="1056" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">第 4 步</text>
+<polyline points="252,304 293,304 293,200 330,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,194 340,200 330,206" fill="#8F959E"/>
+<polyline points="252,304 330,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,298 340,304 330,310" fill="#8F959E"/>
+<polyline points="252,304 293,304 293,408 330,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,402 340,408 330,414" fill="#8F959E"/>
+<polyline points="556,200 597,200 597,304 634,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,298 644,304 634,310" fill="#8F959E"/>
+<polyline points="556,304 634,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,298 644,304 634,310" fill="#8F959E"/>
+<polyline points="556,408 597,408 597,304 634,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,298 644,304 634,310" fill="#8F959E"/>
+<polyline points="860,304 938,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,298 948,304 938,310" fill="#8F959E"/>
+<polyline points="1018.6,350 1018.6,476 181.4,476 181.4,360" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="175.4,360 181.4,350 187.4,360" fill="#8F959E"/>
+<rect x="40" y="262" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">算最近定时器</text>
+<text x="144" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">找红黑树最小值</text>
+<rect x="344" y="158" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">持锁</text>
+<text x="448" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">开且抢到 / POST_EVENTS</text>
+<text x="448" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">入队</text>
+<rect x="344" y="262" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">失锁</text>
+<text x="448" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">开但没抢到 / 超时 500ms</text>
+<rect x="344" y="366" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">关闭</text>
+<text x="448" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">关（默认）/ 保持超时</text>
+<rect x="648" y="262" width="208" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="752" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">kevent/epoll_wait</text>
+<text x="752" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">阻塞于内核</text>
+<rect x="952" y="262" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">处理三类事件</text>
+<text x="1056" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">accept → 定时器 → 投递队列</text>
+<text x="600" y="467" font-size="12" fill="#646A73" text-anchor="middle">循环</text>
+<text x="40" y="544" font-size="12" fill="#646A73" data-role="source">来源：src/event/ngx_event.c（1.31.9）</text>
+</svg>

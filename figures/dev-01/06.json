@@ -1,0 +1,77 @@
+{
+ "type": "flow",
+ "title": "11 个 HTTP 阶段被拍平成数组；POST_REWRITE 可以回跳到 FIND_CONFIG",
+ "subtitle": "从左到右、从上到下是数组顺序；POST_REWRITE 发现 URI 被改，就跳回 FIND_CONFIG 重新找 location",
+ "source": "来源：src/http/ngx_http.c、src/http/ngx_http_core_module.h（1.31.9）",
+ "steps": [
+  {
+   "title": "POST_READ",
+   "lines": [
+    "realip"
+   ]
+  },
+  {
+   "title": "SERVER_REWRITE",
+   "lines": [
+    "rewrite"
+   ]
+  },
+  {
+   "title": "FIND_CONFIG",
+   "tone": "main",
+   "lines": [
+    "匹配 location"
+   ]
+  },
+  {
+   "title": "REWRITE",
+   "lines": [
+    "rewrite"
+   ]
+  },
+  {
+   "title": "POST_REWRITE",
+   "tone": "main",
+   "lines": [
+    "URI 被改则回到 FIND_CONFIG"
+   ]
+  },
+  {
+   "title": "PREACCESS",
+   "lines": [
+    "realip、limit_req、limit_conn"
+   ]
+  },
+  {
+   "title": "ACCESS",
+   "lines": [
+    "access、auth_basic、auth_request"
+   ]
+  },
+  {
+   "title": "POST_ACCESS",
+   "lines": [
+    "检查 access 结果"
+   ]
+  },
+  {
+   "title": "PRECONTENT",
+   "lines": [
+    "try_files、mirror"
+   ]
+  },
+  {
+   "title": "CONTENT",
+   "lines": [
+    "index、autoindex、gzip_static、static"
+   ]
+  },
+  {
+   "title": "LOG",
+   "lines": [
+    "日志在请求结束时单独调用"
+   ]
+  }
+ ],
+ "aspect": "wide"
+}

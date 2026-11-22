@@ -1,0 +1,40 @@
+{
+  "type": "flow",
+  "title": "ngx_hash_t 查找顺序固定：精确名、前缀通配、后缀通配、正则",
+  "subtitle": "按此顺序逐级查找，不按配置书写顺序；蓝色是本篇关注的 server_name",
+  "source": "来源：src/core/ngx_hash.c（1.31.9）",
+  "steps": [
+    {
+      "title": "小写后的 Host"
+    },
+    {
+      "title": "精确表查找",
+      "lines": ["ngx_hash_find"],
+      "tone": "main"
+    },
+    {
+      "title": "命中返回 server",
+      "tone": "good"
+    },
+    {
+      "title": "前缀通配表查找",
+      "lines": ["按标签从右往左逐级查"]
+    },
+    {
+      "title": "命中返回 server",
+      "tone": "good"
+    },
+    {
+      "title": "后缀通配表查找",
+      "lines": ["按标签从左往右逐级查"]
+    },
+    {
+      "title": "命中返回 server",
+      "tone": "good"
+    },
+    {
+      "title": "正则 server_name",
+      "lines": ["按配置顺序逐一试"]
+    }
+  ]
+}

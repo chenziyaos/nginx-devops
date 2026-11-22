@@ -200,18 +200,7 @@ unknown.test       /                                -> b.test (default_server)
 - `EXAMPLE.com.` 规范化后命中精确名字；
 - 正则里的命名捕获 `(?<n>...)` 变成变量 `$n`，可以在这个 server 里使用。
 
-```mermaid
-flowchart TD
-    H["Host（已转小写、去末尾点）"] --> E{"精确名字表?"}
-    E -- "命中" --> S["选中"]
-    E -- "否" --> WH{"前缀通配表 *.x（取最长）?"}
-    WH -- "命中" --> S
-    WH -- "否" --> WT{"后缀通配表 x.*（取最长）?"}
-    WT -- "命中" --> S
-    WT -- "否" --> R{"正则，按书写顺序"}
-    R -- "第一个匹配" --> S
-    R -- "都不匹配" --> D["默认 server（§1）"]
-```
+![server_name 先查三张哈希表，书写顺序只影响正则的先后](../figures/ops-04/01.svg)
 
 **小结**：server_name 先查三张哈希表（精确、前缀通配、后缀通配），书写顺序只影响正则之间的先后；实验里排在最前的正则输给了排在后面的 `www.*`。选定 server 之后，location 的匹配规则更复杂，但思路相同：先查前缀结构，再按顺序跑正则。
 
@@ -332,17 +321,7 @@ Darwin
 l.test             /DOCS/a.txt                      -> /docs/
 ```
 
-```mermaid
-flowchart TD
-    U["URI"] --> T["静态 location 树"]
-    T -- "= 完全相等" --> X["结束：= location"]
-    T -- "最长前缀带 ^~" --> P1["结束：这个前缀"]
-    T -- "最长前缀不带 ^~，或没有前缀" --> RX{"正则，按书写顺序"}
-    RX -- "第一个匹配" --> R1["结束：这个正则"]
-    RX -- "都不匹配" --> PR{"predicate，按书写顺序（§5）"}
-    PR -- "第一个为真" --> R2["结束：这个 predicate"]
-    PR -- "都为假" --> P2["回到最长前缀；没有前缀则用 server 级配置"]
-```
+![location 先查前缀树，再试正则和 predicate，最后回到前缀](../figures/ops-04/02.svg)
 
 **小结**：正则能盖过任何不带 `^~` 的前缀，包括与 URI 等长的前缀；`^~` 只看最长的那个前缀。macOS 上前缀和正则都不分大小写，生产在 Linux 上时要注意差异。正则之后、回到前缀之前，1.31.5 新加了一层：predicate location。
 
@@ -542,16 +521,7 @@ trying to use file: "/index.html"
 rewrite or internal redirection cycle while internally redirecting to "/loop/again"
 ```
 
-```mermaid
-flowchart LR
-    A["参数 1：$uri（文件）"] -- "不存在" --> B["参数 2：$uri/（目录，检查前去掉斜杠）"]
-    B -- "不存在" --> C{"最后一个参数（不检查）"}
-    A -- "存在" --> K["改写 $uri，留在本 location"]
-    B -- "存在" --> K
-    C -- "=404" --> D["直接返回状态码"]
-    C -- "@name" --> E["named location"]
-    C -- "/index.html" --> F["内部跳转，重新选 location"]
-```
+![try_files 只检查前面的参数，最后一个参数是兜底去向](../figures/ops-04/03.svg)
 
 **小结**：`try_files` 的前 N−1 个参数只是存在性检查，命中就改写 `$uri` 留在原地；最后一个参数才是兜底去向，URI 形式会重新走一遍 location 匹配，写错了会循环到 500。`$uri/` 命中目录后 URI 不带斜杠，会再经历一次 301。`$uri` 最终要落到磁盘路径上，这一步由 `root` 或 `alias` 决定。
 
@@ -600,13 +570,7 @@ r.test             /cap/a.txt                       -> alias a
 | `location /img { alias data/files/; }` | `/img../secret.txt` | `data/files/../secret.txt`，即 `data/secret.txt` |
 | `location ~ ^/cap/(.+)$ { alias data/files/$1; }` | `/cap/a.txt` | `data/files/a.txt`（正则里 alias 要自己拼捕获组） |
 
-```mermaid
-flowchart LR
-    U["URI /img../secret.txt"] --> M["匹配 location /img（4 字节）"]
-    M --> C["URI 跳过 4 字节：../secret.txt"]
-    C --> P["拼到 alias 后：data/files/../secret.txt"]
-    P --> F["操作系统解析为 data/secret.txt"]
-```
+![alias 只做前缀替换、不做路径检查，斜杠不对齐会穿透](../figures/ops-04/04.svg)
 
 **版本差异**：alias 相关的安全修复在 2026 年有三次，都在 `tools/since.py alias` 里：1.29.7 修了 DAV 模块 COPY/MOVE 配合 alias 的缓冲区溢出（CVE-2026-27654）；1.31.7 修了 rewrite 改过 URI 后再用 alias 映射时的缓冲区溢出（CVE-2026-15176）；1.31.9 修了 `try_files` 与 `alias` 在特定配置下的缓冲区溢出（CVE-2026-125283）。最后这个在 stable 的 1.30.7 也同时修复（见 release-1.30.7 的 `docs/xml/nginx/changes.xml` 中 1.30.7 条目）。同一个 location 里同时用 `alias` 和 `try_files` 的，至少升级到 1.31.9 或 1.30.7。
 
@@ -673,17 +637,7 @@ open() "$LAB/html/target/abc" failed (2: No such file or directory)
 
 `/deny-return/` 写了 `deny all` 仍然返回 200；同样的 `deny all` 配上静态文件就是 403。`break` 之后请求留在 `/rewrite-break/`，用 server 级的 `root html` 去找 `html/target/abc`，所以是 404，而 `last` 进入了 `/target/`。运维篇 09 的限流实验第一个坑也是这个原因：用 `return` 出内容的 location，`limit_req` 根本不会运行。
 
-```mermaid
-flowchart LR
-    A["SERVER_REWRITE"] --> B["FIND_CONFIG：选 location（§3–§5）"]
-    B --> C["REWRITE：rewrite / return / set"]
-    C -- "rewrite ... last" --> B
-    C -- "return" --> Z["直接响应，后面全部跳过"]
-    C --> D["PREACCESS：limit_req、limit_conn"]
-    D --> E["ACCESS：allow/deny、auth"]
-    E --> F["PRECONTENT：try_files（§6）"]
-    F --> G["CONTENT：static（root/alias，§7）、proxy_pass"]
-```
+![return 在 REWRITE 阶段结束请求，限流和访问控制来不及运行](../figures/ops-04/05.svg)
 
 **小结**：location 选定之后，`return` 在 REWRITE 阶段就结束请求，`deny all`、限流、认证、`try_files` 都来不及运行；需要这些模块生效的 location，内容要来自静态文件或代理。`rewrite last` 会回到 location 匹配，`break` 不会。把本篇的规则按阶段排好，“这个请求为什么进了那个块、为什么那条指令没生效”基本都能对上。
 

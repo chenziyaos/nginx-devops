@@ -1,0 +1,38 @@
+{
+ "type": "sequence",
+ "title": "proxy_responses 决定 UDP 会话何时结束",
+ "subtitle": "竖向是时间轴；有 proxy_responses 时收到回复立刻释放，否则等 proxy_timeout",
+ "source": "来源：labs/ops-12 实验输出",
+ "actors": [
+  "客户端",
+  "nginx",
+  "UDP 后端 :18256"
+ ],
+ "messages": [
+  {
+   "from": "客户端",
+   "to": "nginx",
+   "text": "ping（4 字节）"
+  },
+  {
+   "from": "nginx",
+   "to": "UDP 后端 :18256",
+   "text": "ping"
+  },
+  {
+   "from": "UDP 后端 :18256",
+   "to": "nginx",
+   "text": "pong（5 字节）"
+  },
+  {
+   "from": "nginx",
+   "to": "客户端",
+   "text": "pong"
+  },
+  {
+   "from": "nginx",
+   "to": "nginx",
+   "text": "设了 proxy_responses 1：立即结束会话"
+  }
+ ]
+}

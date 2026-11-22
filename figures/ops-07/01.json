@@ -1,0 +1,24 @@
+{
+  "type": "flow",
+  "title": "每个请求通过三步算出去哪台后端：加权、比较、扣减",
+  "subtitle": "从左到右是算法的三个步骤；最后每 7 个请求循环一次 A 5 次、B 和 C 各 1 次",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "steps": [
+    {
+      "title": "所有可用后端",
+      "lines": ["current_weight += effective_weight"]
+    },
+    {
+      "title": "比较",
+      "lines": ["选 current_weight 最大的","并列取先出现的"]
+    },
+    {
+      "title": "扣减",
+      "lines": ["选中者：current_weight -= 总权重（例：7）"]
+    },
+    {
+      "title": "结果",
+      "lines": ["A A B A C A A","每 7 个请求一轮"]
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+ "type": "graph",
+ "title": "三种方式选的是谁负责编译参数和安全更新",
+ "subtitle": "从左到右是决策流程；绿色是最终选择",
+ "source": "来源：本文整理",
+ "stages": [
+  {
+   "name": "需要的功能",
+   "nodes": [
+    {
+     "id": "need",
+     "title": "列出配置要用的指令"
+    }
+   ]
+  },
+  {
+   "name": "需要 1.31 功能吗",
+   "nodes": [
+    {
+     "id": "y131",
+     "title": "mainline",
+     "sub": "nginx.org 或自编",
+     "tone": "good"
+    },
+    {
+     "id": "n131",
+     "title": "继续判断"
+    }
+   ]
+  },
+  {
+   "name": "需要第三方模块吗",
+   "nodes": [
+    {
+     "id": "ysrc",
+     "title": "自己编译",
+     "sub": "--with-compat",
+     "tone": "good"
+    },
+    {
+     "id": "nsrc",
+     "title": "继续判断"
+    }
+   ]
+  },
+  {
+   "name": "接受版本冻结吗",
+   "nodes": [
+    {
+     "id": "ydist",
+     "title": "发行版包",
+     "tone": "good"
+    },
+    {
+     "id": "norg",
+     "title": "stable 包",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "need",
+   "to": "y131",
+   "label": "是"
+  },
+  {
+   "from": "need",
+   "to": "n131",
+   "label": "否"
+  },
+  {
+   "from": "n131",
+   "to": "ysrc",
+   "label": "是"
+  },
+  {
+   "from": "n131",
+   "to": "nsrc",
+   "label": "否"
+  },
+  {
+   "from": "nsrc",
+   "to": "ydist",
+   "label": "能"
+  },
+  {
+   "from": "nsrc",
+   "to": "norg",
+   "label": "不能"
+  }
+ ]
+}

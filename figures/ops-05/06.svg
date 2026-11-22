@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 514" width="1200" height="514">
+<rect x="0" y="0" width="1200" height="514" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">Content-Length 在选 location 时检查，chunked 请求在读取时检查</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">请求头读完之后请求体的去向；红色是两种 413，上限都是 client_max_body_size</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">find-config</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">读请求体</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">放在哪里</text>
+<polyline points="294,252 387,252 387,200 476,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,194 486,200 476,206" fill="#8F959E"/>
+<polyline points="294,252 387,252 387,304 476,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,298 486,304 476,310" fill="#8F959E"/>
+<polyline points="714,304 807,304 807,200 896,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,194 906,200 896,206" fill="#8F959E"/>
+<polyline points="714,304 896,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,298 906,304 896,310" fill="#8F959E"/>
+<polyline points="714,304 807,304 807,408 896,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,402 906,408 896,414" fill="#8F959E"/>
+<rect x="70" y="210" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="247.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">选定 location</text>
+<text x="180" y="267.2" font-size="12" fill="#646A73" text-anchor="middle">有 Content-Length 就和上限比</text>
+<rect x="490" y="158" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">413</text>
+<text x="600" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">too large body: N bytes</text>
+<rect x="490" y="262" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="289.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">模块读请求体</text>
+<text x="600" y="309.7" font-size="12" fill="#646A73" text-anchor="middle">proxy、fastcgi…；chunked 累计</text>
+<text x="600" y="328.7" font-size="12" fill="#646A73" text-anchor="middle">和上限比</text>
+<rect x="910" y="158" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">413</text>
+<text x="1020" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">too large chunked body: A+B</text>
+<text x="1020" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">bytes</text>
+<rect x="910" y="262" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="289.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">留在内存</text>
+<text x="1020" y="309.7" font-size="12" fill="#646A73" text-anchor="middle">不超过 client_body_buffer_size</text>
+<text x="1020" y="328.7" font-size="12" fill="#646A73" text-anchor="middle">（默认 2 页）</text>
+<rect x="910" y="366" width="220" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">写 client_body_temp</text>
+<text x="1020" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">超过缓冲区；warn 日志</text>
+<text x="340.5" y="243" font-size="12" fill="#646A73" text-anchor="middle">超过</text>
+<text x="340.5" y="270" font-size="12" fill="#646A73" text-anchor="middle">没超过</text>
+<text x="815" y="256" font-size="12" fill="#646A73">超过</text>
+<text x="40" y="490" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c、ngx_http_request_body.c（1.31.9）</text>
+</svg>

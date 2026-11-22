@@ -1,0 +1,43 @@
+{
+  "type": "sequence",
+  "title": "TCP 代理中四个字节计数各自在哪一段累加，对得上说明转发完整",
+  "subtitle": "竖向是时间轴，$bytes_received 等于 $upstream_bytes_sent 时转发无损",
+  "source": "来源：labs/ops-12 实验输出",
+  "actors": [
+    "客户端",
+    "nginx :18240",
+    "后端 :18250"
+  ],
+  "messages": [
+    {
+      "from": "客户端",
+      "to": "nginx :18240",
+      "label": "18 字节（bytes_received）"
+    },
+    {
+      "from": "nginx :18240",
+      "to": "后端 :18250",
+      "label": "18 字节（upstream_bytes_sent）"
+    },
+    {
+      "from": "后端 :18250",
+      "to": "nginx :18240",
+      "label": "145 字节（upstream_bytes_received）"
+    },
+    {
+      "from": "nginx :18240",
+      "to": "客户端",
+      "label": "145 字节（bytes_sent）"
+    },
+    {
+      "from": "后端 :18250",
+      "to": "nginx :18240",
+      "label": "关闭"
+    },
+    {
+      "from": "nginx :18240",
+      "to": "客户端",
+      "label": "关闭，写一行日志"
+    }
+  ]
+}

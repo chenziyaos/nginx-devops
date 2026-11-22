@@ -1,0 +1,40 @@
+{
+  "type": "layers",
+  "title": "算法、keepalive、sticky 是同一个函数指针的三层包装，状态机只认最外层",
+  "subtitle": "从外到内四层：proxy handler 给状态机一个 u->peer.get，状态机不知道后面还包着几层",
+  "source": "来源：本文整理（1.31.9）",
+  "layers": [
+    {
+      "name": "proxy handler",
+      "items": [
+        "ngx_http_upstream_init"
+      ]
+    },
+    {
+      "name": "upstream 状态机",
+      "items": [
+        "connect / send / process_header",
+        "u->peer.get / free"
+      ]
+    },
+    {
+      "name": "keepalive 层",
+      "items": [
+        "缓存里找同地址连接"
+      ]
+    },
+    {
+      "name": "sticky 层",
+      "items": [
+        "把 cookie 换成 hint"
+      ]
+    },
+    {
+      "name": "算法层",
+      "items": [
+        "round_robin / least_conn",
+        "current_weight / effective_weight"
+      ]
+    }
+  ]
+}

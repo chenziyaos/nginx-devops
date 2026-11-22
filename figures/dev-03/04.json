@@ -1,0 +1,67 @@
+{
+ "type": "graph",
+ "title": "只有自己的、已发完的、排在最前面的缓冲才会被回收",
+ "subtitle": "从左到右是处理前后；绿色是被回收的，红色是保留在 busy 里的",
+ "source": "来源：本文整理（实验值）",
+ "stages": [
+  {
+   "name": "整理前",
+   "nodes": [
+    {
+     "id": "out",
+     "title": "out 链",
+     "sub": "d(他人) → a(空)\nb(剩 3B) → c(空)"
+    }
+   ]
+  },
+  {
+   "name": "处理",
+   "nodes": [
+    {
+     "id": "proc",
+     "title": "扫描 out"
+    }
+   ]
+  },
+  {
+   "name": "整理后",
+   "nodes": [
+    {
+     "id": "free",
+     "title": "free 链",
+     "sub": "a（重置）",
+     "tone": "good"
+    },
+    {
+     "id": "busy",
+     "title": "busy 链",
+     "sub": "b(剩 3B)\nc(空）→ 仍待处理",
+     "tone": "risk"
+    },
+    {
+     "id": "pchain",
+     "title": "pool->chain",
+     "sub": "d 的节点\n（非自己的）"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "out",
+   "to": "proc"
+  },
+  {
+   "from": "proc",
+   "to": "free"
+  },
+  {
+   "from": "proc",
+   "to": "busy"
+  },
+  {
+   "from": "proc",
+   "to": "pchain"
+  }
+ ]
+}

@@ -1,0 +1,94 @@
+{
+  "type": "graph",
+  "title": "worker 循环的五个固定阶段：算超时 → 条件分支 → 等内核 → 处理三类事件 → 回圈",
+  "subtitle": "从上到下按执行顺序；accept_mutex 有无决定分支",
+  "source": "来源：src/event/ngx_event.c（1.31.9）",
+  "stages": [
+    {
+      "name": "第 1 步",
+      "nodes": [
+        {
+          "id": "1",
+          "title": "算最近定时器",
+          "sub": "找红黑树最小值"
+        }
+      ]
+    },
+    {
+      "name": "第 2 步",
+      "nodes": [
+        {
+          "id": "2a",
+          "title": "持锁",
+          "sub": "开且抢到 / POST_EVENTS 入队"
+        },
+        {
+          "id": "2b",
+          "title": "失锁",
+          "sub": "开但没抢到 / 超时 500ms"
+        },
+        {
+          "id": "2c",
+          "title": "关闭",
+          "sub": "关（默认）/ 保持超时"
+        }
+      ]
+    },
+    {
+      "name": "第 3 步",
+      "nodes": [
+        {
+          "id": "3",
+          "title": "kevent/epoll_wait",
+          "sub": "阻塞于内核",
+          "tone": "main"
+        }
+      ]
+    },
+    {
+      "name": "第 4 步",
+      "nodes": [
+        {
+          "id": "4",
+          "title": "处理三类事件",
+          "sub": "accept → 定时器 → 投递队列"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "1",
+      "to": "2a"
+    },
+    {
+      "from": "1",
+      "to": "2b"
+    },
+    {
+      "from": "1",
+      "to": "2c"
+    },
+    {
+      "from": "2a",
+      "to": "3"
+    },
+    {
+      "from": "2b",
+      "to": "3"
+    },
+    {
+      "from": "2c",
+      "to": "3"
+    },
+    {
+      "from": "3",
+      "to": "4"
+    },
+    {
+      "from": "4",
+      "to": "1",
+      "label": "循环"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 945" width="1200" height="945">
+<rect x="0" y="0" width="1200" height="945" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">open_file_cache 有效期内不重新打开文件，发布后可能返回旧内容</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下是两次文件请求的时间顺序；蓝色是缓存取用、红色是缓存返回旧内容</text>
+<line x1="226.7" y1="186" x2="226.7" y2="881" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="126.7" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="226.7" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">客户端</text>
+<line x1="600" y1="186" x2="600" y2="881" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="58" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">worker</text>
+<text x="600" y="172" font-size="12" fill="#646A73" text-anchor="middle">open_file_cache</text>
+<line x1="973.3" y1="186" x2="973.3" y2="881" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="873.3" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="973.3" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">文件系统</text>
+<text x="236.7" y="220.6" font-size="13" fill="#1F2329">GET /f.txt</text>
+<polyline points="226.7,229 588,229" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,223 598,229 588,235" fill="#8F959E"/>
+<text x="610" y="261.6" font-size="13" fill="#1F2329">open + fstat</text>
+<polyline points="600,270 961.3,270" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,264 971.3,270 961.3,276" fill="#8F959E"/>
+<text x="963.3" y="302.6" font-size="13" fill="#1F2329" text-anchor="end">fd（inode A，v1）</text>
+<polyline points="973.3,311 612,311" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="612,305 602,311 612,317" fill="#8F959E"/>
+<text x="610" y="343.6" font-size="13" fill="#1F2329">缓存保存</text>
+<polyline points="600,352 626,352 626,370 614,370" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="614,364 604,370 614,376" fill="#8F959E"/>
+<text x="590" y="410.6" font-size="13" fill="#1F2329" text-anchor="end">v1</text>
+<polyline points="600,419 238.7,419" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,413 228.7,419 238.7,425" fill="#8F959E"/>
+<rect x="40" y="435" width="289.8" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="184.9" y="451.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">open_file_cache_valid（默认 60 秒）开始计时</text>
+<line x1="337.8" y1="447" x2="1160" y2="447" stroke="#EFF0F1" stroke-width="1"/>
+<text x="963.3" y="485.6" font-size="13" fill="#1F2329" text-anchor="end">发布：写 f.txt.new，mv 覆盖</text>
+<polyline points="973.3,494 947.3,494 947.3,512 959.3,512" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="959.3,506 969.3,512 959.3,518" fill="#8F959E"/>
+<text x="236.7" y="552.5" font-size="13" fill="#1F2329">GET /f.txt（有效期内）</text>
+<polyline points="226.7,561 588,561" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,555 598,561 588,567" fill="#8F959E"/>
+<text x="610" y="593.5" font-size="13" fill="#1F2329">复用缓存 fd（inode A）</text>
+<polyline points="600,602 626,602 626,620 614,620" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="614,614 604,620 614,626" fill="#8F959E"/>
+<rect x="40" y="644" width="85.6" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="82.8" y="660.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">返回旧内容</text>
+<line x1="133.6" y1="656" x2="1160" y2="656" stroke="#EFF0F1" stroke-width="1"/>
+<text x="590" y="694.5" font-size="13" fill="#1F2329" text-anchor="end">v1（已过期）</text>
+<polyline points="600,703 238.7,703" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,697 228.7,703 238.7,709" fill="#8F959E"/>
+<text x="236.7" y="735.5" font-size="13" fill="#1F2329">GET /f.txt（超过有效期）</text>
+<polyline points="226.7,744 588,744" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,738 598,744 588,750" fill="#8F959E"/>
+<text x="610" y="776.5" font-size="13" fill="#1F2329">重新 stat</text>
+<polyline points="600,785 961.3,785" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="961.3,779 971.3,785 961.3,791" fill="#8F959E"/>
+<text x="963.3" y="817.5" font-size="13" fill="#1F2329" text-anchor="end">fd（inode B，v2）</text>
+<polyline points="973.3,826 612,826" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="612,820 602,826 612,832" fill="#8F959E"/>
+<text x="590" y="858.5" font-size="13" fill="#1F2329" text-anchor="end">v2</text>
+<polyline points="600,867 238.7,867" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="238.7,861 228.7,867 238.7,873" fill="#8F959E"/>
+<text x="40" y="921" font-size="12" fill="#646A73" data-role="source">来源：ngx_open_file_cache.c、ngx_http_core_module.c（1.31.9）</text>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">单行超过一块大缓冲、或大缓冲用完，都回 400</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">当前缓冲满而头没读完时从上往下检查，命中一行就停；494 对外记作 400</text>
+<rect x="40" y="134.4" width="1120" height="212" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="135.4" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="166.4" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="178.4" x2="1160" y2="178.4" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="220.4" x2="1159" y2="220.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="262.4" x2="1159" y2="262.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="304.4" x2="1159" y2="304.4" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">检查</text>
+<text x="576.6" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">结果</text>
+<text x="58" y="204.3" font-size="14" fill="#1F2329">这一行已读字节 ≥ 大缓冲区大小</text>
+<text x="576.6" y="204.3" font-size="14" fill="#D83931" font-weight="bold">494：client sent too long header line</text>
+<text x="58" y="246.3" font-size="14" fill="#1F2329">连接上有空闲的大缓冲区</text>
+<text x="576.6" y="246.3" font-size="14" fill="#2EA121" font-weight="bold">取一块，只搬未解析完的这一行</text>
+<text x="58" y="288.3" font-size="14" fill="#1F2329">nbusy ＜ 块数</text>
+<text x="576.6" y="288.3" font-size="14" fill="#2EA121" font-weight="bold">分配一块，只搬这一行</text>
+<text x="58" y="330.3" font-size="14" fill="#1F2329">以上都不满足</text>
+<text x="576.6" y="330.3" font-size="14" fill="#D83931" font-weight="bold">494</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.9）</text>
+</svg>

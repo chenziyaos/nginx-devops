@@ -1,0 +1,23 @@
+{
+ "type": "graph",
+ "title": "limit_conn 的计数跟着请求走，不跟着连接走",
+ "subtitle": "PREACCESS 阶段加 1，请求内存池销毁时减 1；keepalive 连接空闲时不占计数",
+ "source": "来源：ngx_http_limit_conn_module.c（1.31.9）",
+ "stages": [
+  {"name": "收到请求", "nodes": [
+    {"id": "h", "title": "读完请求头"}]},
+  {"name": "PREACCESS", "nodes": [
+    {"id": "inc", "title": "conn + 1", "sub": "挂上内存池清理函数", "tone": "main", "emph": true},
+    {"id": "rej", "title": "返回 503", "sub": "不计数", "tone": "risk"}]},
+  {"name": "处理", "nodes": [
+    {"id": "run", "title": "处理并发送响应"}]},
+  {"name": "结束", "nodes": [
+    {"id": "dec", "title": "conn − 1", "sub": "请求内存池销毁", "tone": "main"}]}
+ ],
+ "edges": [
+  {"from": "h", "to": "inc", "label": "未达上限"},
+  {"from": "h", "to": "rej", "label": "已达上限"},
+  {"from": "inc", "to": "run"},
+  {"from": "run", "to": "dec"}
+ ]
+}

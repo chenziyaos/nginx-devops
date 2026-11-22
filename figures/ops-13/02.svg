@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">请求行放不下回 414，头放不下对外都是 400</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">client_header_buffer_size（默认 1k）放不下时改用 large_client_header_buffers（默认 4 个 8k）；每行是一种放不下</text>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="152.2" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="183.2" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="597.8" y="152.2" width="236.9" height="168" fill="#F0FBEF"/>
+<rect x="597.8" y="152.2" width="236.9" height="43" fill="#E4FAE1"/>
+<line x1="40" y1="195.2" x2="1160" y2="195.2" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="237.2" x2="1159" y2="237.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="279.2" x2="1159" y2="279.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="597.8" y1="152.2" x2="597.8" y2="320.2" stroke="#8EE085" stroke-width="1"/>
+<line x1="834.7" y1="152.2" x2="834.7" y2="320.2" stroke="#8EE085" stroke-width="1"/>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">哪部分放不下</text>
+<text x="487.7" y="178.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">内部状态</text>
+<text x="716.2" y="178.2" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">对外状态码</text>
+<text x="852.7" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">error.log 原文</text>
+<text x="58" y="221.1" font-size="14" fill="#1F2329">请求行放不进一个缓冲</text>
+<text x="487.7" y="221.1" font-size="14" fill="#1F2329" text-anchor="middle">414</text>
+<text x="716.2" y="221.1" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">414</text>
+<text x="852.7" y="221.1" font-size="14" fill="#1F2329">too long URI</text>
+<text x="58" y="263.1" font-size="14" fill="#1F2329">某个头行放不进一个缓冲</text>
+<text x="487.7" y="263.1" font-size="14" fill="#1F2329" text-anchor="middle">494</text>
+<text x="716.2" y="263.1" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">400</text>
+<text x="852.7" y="263.1" font-size="14" fill="#1F2329">too long header line</text>
+<text x="58" y="305.1" font-size="14" fill="#1F2329">缓冲用完</text>
+<text x="487.7" y="305.1" font-size="14" fill="#1F2329" text-anchor="middle">494</text>
+<text x="716.2" y="305.1" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">400</text>
+<text x="852.7" y="305.1" font-size="14" fill="#1F2329">too large request</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.9）</text>
+</svg>

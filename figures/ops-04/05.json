@@ -1,0 +1,24 @@
+{
+ "type": "graph",
+ "title": "return 在 REWRITE 阶段结束请求，限流和访问控制来不及运行",
+ "subtitle": "从左到右是阶段顺序；rewrite ... last 回到 FIND_CONFIG 重新选 location",
+ "source": "来源：ngx_http_core_module.h（1.31.9）",
+ "stages": [
+  {"name": "SERVER_REWRITE", "nodes": [
+    {"id": "sr", "title": "server 级指令"}]},
+  {"name": "FIND_CONFIG", "nodes": [
+    {"id": "fc", "title": "选 location", "sub": "§3–§5"}]},
+  {"name": "REWRITE", "nodes": [
+    {"id": "rw", "title": "location 级指令", "sub": "rewrite / return / set", "tone": "main"}]},
+  {"name": "PREACCESS 到 CONTENT", "nodes": [
+    {"id": "z", "title": "直接响应", "sub": "后面的阶段全部跳过", "tone": "risk"},
+    {"id": "rest", "title": "后面的阶段", "sub": "limit_req、allow/deny、try_files（§6）、proxy_pass"}]}
+ ],
+ "edges": [
+  {"from": "sr", "to": "fc"},
+  {"from": "fc", "to": "rw"},
+  {"from": "rw", "to": "z", "label": "return"},
+  {"from": "rw", "to": "rest", "label": "继续"},
+  {"from": "rw", "to": "fc", "label": "rewrite last"}
+ ]
+}

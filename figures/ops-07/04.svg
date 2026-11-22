@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 446.1" width="1200" height="446.1">
+<rect x="0" y="0" width="1200" height="446.1" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="27" fill="#1F2329" font-weight="bold" data-role="title">500 要写进 proxy_next_upstream 才会换机器；POST 发出后不会重试</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上到下四层判断：500 是否要换机、已发 POST 是否允许重试、是否还有后端可试</text>
+<text x="113.6" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">状态码</text>
+<text x="356.8" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">proxy_next_upstream</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">幂等性</text>
+<text x="843.2" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">后端选择</text>
+<text x="1086.4" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">返回</text>
+<polyline points="191.2,200 269.2,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="269.2,194 279.2,200 269.2,206" fill="#8F959E"/>
+<polyline points="434.4,200 512.4,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="512.4,194 522.4,200 512.4,206" fill="#8F959E"/>
+<polyline points="677.6,200 755.6,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="755.6,194 765.6,200 755.6,206" fill="#8F959E"/>
+<polyline points="920.8,200 998.8,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="998.8,194 1008.8,200 998.8,206" fill="#8F959E"/>
+<polyline points="356.8,246 356.8,284.1" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="350.8,284.1 356.8,294.1 362.8,284.1" fill="#8F959E"/>
+<polyline points="600,246 600,284.1" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="594,284.1 600,294.1 606,284.1" fill="#8F959E"/>
+<polyline points="843.2,246 843.2,284" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="837.2,284 843.2,294 849.2,284" fill="#8F959E"/>
+<rect x="40" y="158" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="113.6" y="204.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">后端返回 500</text>
+<rect x="283.2" y="158" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="193.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">包含</text>
+<text x="356.8" y="215.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">http_500？</text>
+<rect x="283.2" y="298.1" width="147.2" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="356.8" y="335.5" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">原样返回</text>
+<text x="356.8" y="355.3" font-size="12" fill="#646A73" text-anchor="middle">不计失败</text>
+<rect x="526.4" y="158" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">POST 已发</text>
+<text x="600" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">未设</text>
+<text x="600" y="224.7" font-size="12" fill="#646A73" text-anchor="middle">non_idempotent</text>
+<rect x="526.4" y="298.1" width="147.2" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="335.5" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">原样返回</text>
+<text x="600" y="355.3" font-size="12" fill="#646A73" text-anchor="middle">不计失败</text>
+<rect x="769.6" y="158" width="147.2" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">还有可试</text>
+<text x="843.2" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">的后端</text>
+<rect x="769.6" y="298" width="147.2" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="843.2" y="335.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">换机器</text>
+<text x="843.2" y="355.2" font-size="12" fill="#646A73" text-anchor="middle">记失败，摘除</text>
+<rect x="1012.8" y="158" width="147.2" height="84" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="1086.4" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">原样返回</text>
+<text x="1086.4" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">最后一台</text>
+<text x="364.8" y="269.1" font-size="12" fill="#646A73">否</text>
+<text x="473.4" y="191" font-size="12" fill="#646A73" text-anchor="middle">是</text>
+<text x="608" y="269" font-size="12" fill="#646A73">是</text>
+<text x="716.6" y="191" font-size="12" fill="#646A73" text-anchor="middle">否</text>
+<text x="851.2" y="269" font-size="12" fill="#646A73">有</text>
+<text x="959.8" y="191" font-size="12" fill="#646A73" text-anchor="middle">无</text>
+<text x="40" y="422.1" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）</text>
+</svg>

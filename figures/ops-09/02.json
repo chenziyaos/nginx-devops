@@ -1,0 +1,22 @@
+{
+ "type": "graph",
+ "title": "超过 burst 才拒绝，超过 delay 只是排队",
+ "subtitle": "一个请求在 limit_req 里经过两次比较；红色是唯一返回错误的出口",
+ "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+ "stages": [
+  {"name": "算超出量", "nodes": [
+    {"id": "a", "title": "按 key 找节点", "sub": "excess = 旧值 − rate × 经过时间 + 1"}]},
+  {"name": "和 burst 比", "nodes": [
+    {"id": "r", "title": "拒绝", "sub": "返回 limit_req_status（默认 503），不写回 excess", "tone": "risk"},
+    {"id": "c", "title": "不超过 burst", "sub": "delay 不写时为 0，nodelay 时为极大值"}]},
+  {"name": "和 delay 比", "nodes": [
+    {"id": "p", "title": "立即放行", "sub": "$limit_req_status = PASSED", "tone": "good"},
+    {"id": "w", "title": "排队等待", "sub": "(excess − delay) / rate 秒，DELAYED", "tone": "contrast"}]}
+ ],
+ "edges": [
+  {"from": "a", "to": "r", "label": "> burst"},
+  {"from": "a", "to": "c", "label": "≤ burst"},
+  {"from": "c", "to": "p", "label": "≤ delay"},
+  {"from": "c", "to": "w", "label": "> delay"}
+ ]
+}

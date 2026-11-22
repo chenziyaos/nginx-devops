@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 530" width="1200" height="530">
+<rect x="0" y="0" width="1200" height="530" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="27" fill="#1F2329" font-weight="bold" data-role="title">X-Accel-Expires 优先级最高，Set-Cookie 和 private 让响应不被缓存</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从上往下第一个出现的来源决定有效期；响应带 Set-Cookie 时无论哪一层都不存</text>
+<rect x="40" y="128" width="1120" height="338" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="129" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="160" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="172" x2="1160" y2="172" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="214" x2="1159" y2="214" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1159" y2="256" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="298" x2="1159" y2="298" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="340" x2="1159" y2="340" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="382" x2="1159" y2="382" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="424" x2="1159" y2="424" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="155" font-size="14" fill="#1F2329" font-weight="bold">顺序</text>
+<text x="160.2" y="155" font-size="14" fill="#1F2329" font-weight="bold">来源</text>
+<text x="369.3" y="155" font-size="14" fill="#1F2329" font-weight="bold">取值</text>
+<text x="803.6" y="155" font-size="14" fill="#1F2329" font-weight="bold">结果</text>
+<text x="58" y="197.9" font-size="14" fill="#1F2329">①</text>
+<text x="160.2" y="197.9" font-size="14" fill="#1F2329">X-Accel-Expires</text>
+<text x="369.3" y="197.9" font-size="14" fill="#1F2329">0 / 大于 0</text>
+<text x="803.6" y="197.9" font-size="14" fill="#1F2329">不存 / 有效期 = 它</text>
+<text x="58" y="239.9" font-size="14" fill="#1F2329">②</text>
+<text x="160.2" y="239.9" font-size="14" fill="#1F2329">Cache-Control</text>
+<text x="369.3" y="239.9" font-size="14" fill="#1F2329">private、no-cache、no-store 或 max-age=0</text>
+<text x="803.6" y="239.9" font-size="14" fill="#D83931" font-weight="bold">不存</text>
+<text x="58" y="281.9" font-size="14" fill="#1F2329">③</text>
+<text x="160.2" y="281.9" font-size="14" fill="#1F2329">Cache-Control</text>
+<text x="369.3" y="281.9" font-size="14" fill="#1F2329">s-maxage 或 max-age</text>
+<text x="803.6" y="281.9" font-size="14" fill="#1F2329">有效期 = s-maxage，没有就用 max-age</text>
+<text x="58" y="323.9" font-size="14" fill="#1F2329">④</text>
+<text x="160.2" y="323.9" font-size="14" fill="#1F2329">Expires</text>
+<text x="369.3" y="323.9" font-size="14" fill="#1F2329">在未来</text>
+<text x="803.6" y="323.9" font-size="14" fill="#1F2329">有效期 = Expires</text>
+<text x="58" y="365.9" font-size="14" fill="#1F2329">⑤</text>
+<text x="160.2" y="365.9" font-size="14" fill="#1F2329">proxy_cache_valid</text>
+<text x="369.3" y="365.9" font-size="14" fill="#1F2329">覆盖这个状态码</text>
+<text x="803.6" y="365.9" font-size="14" fill="#1F2329">有效期 = 配置值</text>
+<text x="58" y="407.9" font-size="14" fill="#1F2329">—</text>
+<text x="160.2" y="407.9" font-size="14" fill="#1F2329">以上都没有</text>
+<text x="369.3" y="407.9" font-size="14" fill="#1F2329"></text>
+<text x="803.6" y="407.9" font-size="14" fill="#D83931" font-weight="bold">不存</text>
+<text x="58" y="449.9" font-size="14" fill="#1F2329">—</text>
+<text x="160.2" y="449.9" font-size="14" fill="#1F2329">Set-Cookie</text>
+<text x="369.3" y="449.9" font-size="14" fill="#1F2329">任意</text>
+<text x="803.6" y="449.9" font-size="14" fill="#D83931" font-weight="bold">不存</text>
+<text x="40" y="506" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c（1.31.9）</text>
+</svg>

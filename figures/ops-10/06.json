@@ -1,0 +1,53 @@
+{
+ "type": "sequence",
+ "title": "proxy_cache_lock 时，第一个请求去后端，其他请求等锁释放后读文件",
+ "subtitle": "顺序从上到下；请求 1 回源时，其余请求每 500 毫秒检查一次锁",
+ "source": "来源：本文整理",
+ "actors": [
+  {
+   "name": "请求 1",
+   "tone": "main"
+  },
+  {
+   "name": "请求 2..5"
+  },
+  {
+   "name": "nginx 共享内存"
+  },
+  {
+   "name": "后端"
+  }
+ ],
+ "messages": [
+  {
+   "from": "请求 1",
+   "to": "nginx 共享内存",
+   "text": "节点不存在，建节点，updating = 1"
+  },
+  {
+   "from": "请求 2..5",
+   "to": "nginx 共享内存",
+   "text": "updating = 1，等待"
+  },
+  {
+   "from": "请求 1",
+   "to": "后端",
+   "text": "回源，响应 2–3 秒"
+  },
+  {
+   "from": "请求 2..5",
+   "to": "nginx 共享内存",
+   "text": "每 500 毫秒检查：锁还在吗?"
+  },
+  {
+   "from": "后端",
+   "to": "请求 1",
+   "text": "响应完成，写缓存文件，updating = 0"
+  },
+  {
+   "from": "请求 2..5",
+   "to": "nginx 共享内存",
+   "text": "锁已释放，读文件，HIT"
+  }
+ ]
+}

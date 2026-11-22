@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">缓存键由 key_start 和后端 URI 两段拼成，MD5 的末尾几位决定目录</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">实验里一个请求的缓存文件路径怎么算出来；levels=1:2</text>
+<text x="144" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">两段字符串</text>
+<text x="448" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">MD5</text>
+<text x="752" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">levels=1:2</text>
+<text x="1056" y="147" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">缓存文件</text>
+<polyline points="252,204 293,204 293,256 330,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,250 340,256 330,262" fill="#8F959E"/>
+<polyline points="252,308 293,308 293,256 330,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,250 340,256 330,262" fill="#8F959E"/>
+<polyline points="556,256 634,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,250 644,256 634,262" fill="#8F959E"/>
+<polyline points="860,256 938,256" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,250 948,256 938,262" fill="#8F959E"/>
+<rect x="40" y="162" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="199.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">key_start</text>
+<text x="144" y="219.2" font-size="12" fill="#646A73" text-anchor="middle">http://127.0.0.1:18201</text>
+<rect x="40" y="266" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">发给后端的 URI</text>
+<text x="144" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">/b/plain?x=1</text>
+<rect x="344" y="214" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="448" y="251.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">依次喂给 MD5</text>
+<text x="448" y="271.2" font-size="12" fill="#646A73" text-anchor="middle">0a84d3b2...a6363431b381</text>
+<rect x="648" y="214" width="208" height="84" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="752" y="241.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">从末尾取目录</text>
+<text x="752" y="261.7" font-size="12" fill="#646A73" text-anchor="middle">末 1 位 → 1/，再往前 2 位</text>
+<text x="752" y="280.7" font-size="12" fill="#646A73" text-anchor="middle">→ 38/</text>
+<rect x="952" y="214" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="241.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">文件路径</text>
+<text x="1056" y="261.7" font-size="12" fill="#646A73" text-anchor="middle">out/run/cache/1/38/0a84...b</text>
+<text x="1056" y="280.7" font-size="12" fill="#646A73" text-anchor="middle">381</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_file_cache.c、labs/ops-10 实验（1.31.9）</text>
+</svg>

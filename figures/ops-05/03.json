@@ -1,0 +1,14 @@
+{
+ "type": "flow",
+ "title": "gzip 默认只压 text/html，带 Via 头时默认不压，压缩后不再支持 Range",
+ "subtitle": "四步检查依次通过才压缩；任何一步不满足就原样发送",
+ "source": "来源：ngx_http_gzip_filter_module.c、ngx_http_core_module.c（1.31.9）",
+ "numbered": true,
+ "steps": [
+  {"title": "响应", "lines": ["gzip on、状态允许", "类型在 gzip_types", "长度 ≥ 20"]},
+  {"title": "请求", "lines": ["Accept-Encoding 含 gzip", "HTTP ≥ 1.1"]},
+  {"title": "Via 头", "lines": ["带 Via 时看 gzip_proxied", "默认 off：不压"], "tone": "contrast"},
+  {"title": "压缩", "lines": ["chunked、W/ ETag", "不再支持 Range"], "tone": "main", "emph": true}
+ ],
+ "labels": ["通过", "通过", "没有 Via 或满足"]
+}

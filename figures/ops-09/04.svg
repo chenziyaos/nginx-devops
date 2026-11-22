@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">limit_conn 的计数跟着请求走，不跟着连接走</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">PREACCESS 阶段加 1，请求内存池销毁时减 1；keepalive 连接空闲时不占计数</text>
+<text x="144" y="162.2" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">收到请求</text>
+<text x="448" y="162.2" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">PREACCESS</text>
+<text x="752" y="162.2" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">处理</text>
+<text x="1056" y="162.2" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结束</text>
+<polyline points="252,252.2 293,252.2 293,209.7 330,209.7" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,203.7 340,209.7 330,215.7" fill="#8F959E"/>
+<polyline points="252,252.2 293,252.2 293,294.7 330,294.7" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,288.7 340,294.7 330,300.7" fill="#8F959E"/>
+<polyline points="556,209.7 634,209.7" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,203.7 644,209.7 634,215.7" fill="#8F959E"/>
+<polyline points="860,209.7 938,209.7" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,203.7 948,209.7 938,215.7" fill="#8F959E"/>
+<rect x="40" y="219.7" width="208" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="257.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">读完请求头</text>
+<rect x="344" y="177.2" width="208" height="65" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
+<text x="448" y="205.1" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">conn + 1</text>
+<text x="448" y="224.9" font-size="12" fill="#646A73" text-anchor="middle">挂上内存池清理函数</text>
+<rect x="344" y="262.2" width="208" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="448" y="290.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">返回 503</text>
+<text x="448" y="309.9" font-size="12" fill="#646A73" text-anchor="middle">不计数</text>
+<rect x="648" y="177.2" width="208" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="214.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">处理并发送响应</text>
+<rect x="952" y="177.2" width="208" height="65" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="205.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">conn − 1</text>
+<text x="1056" y="224.9" font-size="12" fill="#646A73" text-anchor="middle">请求内存池销毁</text>
+<text x="311.5" y="200.7" font-size="12" fill="#646A73" text-anchor="middle">未达上限</text>
+<text x="311.5" y="312.7" font-size="12" fill="#646A73" text-anchor="middle">已达上限</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_conn_module.c（1.31.9）</text>
+</svg>

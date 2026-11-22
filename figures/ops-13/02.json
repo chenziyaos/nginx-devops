@@ -1,0 +1,33 @@
+{
+ "type": "table",
+ "title": "请求行放不下回 414，头放不下对外都是 400",
+ "subtitle": "client_header_buffer_size（默认 1k）放不下时改用 large_client_header_buffers（默认 4 个 8k）；每行是一种放不下",
+ "source": "来源：ngx_http_request.c（1.31.9）",
+ "columns": [
+  "哪部分放不下",
+  "内部状态",
+  "对外状态码",
+  "error.log 原文"
+ ],
+ "rows": [
+  [
+   "请求行放不进一个缓冲",
+   "414",
+   "414",
+   "too long URI"
+  ],
+  [
+   "某个头行放不进一个缓冲",
+   "494",
+   "400",
+   "too long header line"
+  ],
+  [
+   "缓冲用完",
+   "494",
+   "400",
+   "too large request"
+  ]
+ ],
+ "highlight_col": 2
+}

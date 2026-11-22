@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">有 zone 时所有 worker 共享一份 peers；没有 zone 时各算各的</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">同一个 upstream，两个 worker 看到的权重、失败计数和连接数是否相同</text>
+<rect x="40" y="133.2" width="548" height="215" rx="12" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="495.1" y="153.2" width="72.9" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="531.6" y="169.4" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">各算各的</text>
+<circle cx="71" cy="162.2" r="11" fill="#FFFFFF" stroke="#BBBFC4" stroke-width="2" data-role="card-id"/>
+<text x="71" y="167.2" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">①</text>
+<text x="90" y="173.7" font-size="20" fill="#646A73" font-weight="bold" data-role="card-title">没有 zone</text>
+<text x="90" y="196.8" font-size="13" fill="#646A73">每个 worker 自己的 peers</text>
+<line x1="60" y1="218.2" x2="568" y2="218.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="252.2" font-size="14" fill="#646A73">worker 1</text>
+<text x="568" y="252.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">自己的权重、失败计数、连接数</text>
+<line x1="60" y1="266.2" x2="568" y2="266.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="290.2" font-size="14" fill="#646A73">worker 2</text>
+<text x="568" y="290.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">自己的权重、失败计数、连接数</text>
+<rect x="612" y="133.2" width="548" height="215" rx="12" fill="#F0F4FF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="624" y="132.2" width="524" height="3" rx="1.5" fill="#3370FF" data-role="colorline"/>
+<rect x="1067.1" y="153.2" width="72.9" height="24" rx="12" fill="#E1EAFF" stroke="#82A7FC" stroke-width="1" data-role="pill"/>
+<text x="1103.6" y="169.4" font-size="12" fill="#245BDB" text-anchor="middle" data-role="pill">共享一份</text>
+<circle cx="643" cy="162.2" r="11" fill="#FFFFFF" stroke="#3370FF" stroke-width="2" data-role="card-id"/>
+<text x="643" y="167.2" font-size="13" fill="#245BDB" font-weight="bold" text-anchor="middle">②</text>
+<text x="662" y="173.7" font-size="20" fill="#245BDB" font-weight="bold" data-role="card-title">有 zone</text>
+<text x="662" y="196.8" font-size="13" fill="#646A73">共享内存里的一份 peers</text>
+<line x1="632" y1="218.2" x2="1140" y2="218.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="252.2" font-size="14" fill="#646A73">worker 1</text>
+<text x="1140" y="252.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">读写共享的那一份</text>
+<line x1="632" y1="266.2" x2="1140" y2="266.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="632" y="290.2" font-size="14" fill="#646A73">worker 2</text>
+<text x="1140" y="290.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">读写共享的那一份</text>
+<circle cx="636" cy="321.2" r="3" fill="#646A73"/>
+<text x="656" y="326.1" font-size="14" fill="#1F2329" data-role="card-body">权重、失败计数、连接数、平均时间都只有一份</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c（1.31.9）</text>
+</svg>

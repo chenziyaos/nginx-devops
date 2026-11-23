@@ -2,16 +2,16 @@
 
 一套基于 nginx 1.31.9 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）和开发篇（10 章）。每章的结论都配有一个可以在本机复现的实验，引用的源码片段逐行核对过 1.31.9 的源码。适合两类读者：一类要配置和排查线上 nginx，另一类要读 nginx 源码或者自己写模块。
 
-这里不是 nginx 官方文档的翻译，也不覆盖全部指令。每章挑一个主题，讲清楚 nginx 在源码里实际怎么做，以及默认值和容易误解的行为。2018 年的旧版教程保留在 tag [`legacy-2018`](https://github.com/chenziyaos/nginx-devops/tree/legacy-2018)。
+这里不是 nginx 官方文档的翻译，也不覆盖全部指令。每章挑一个主题，讲清楚 nginx 在源码里实际怎么做，以及默认值和容易误解的行为。2018 年的旧版教程保留在 tag [`legacy-2018`](https://github.com/zyaochen/nginx-devops/tree/legacy-2018)。
 
-在线阅读：<https://chenziyaos.github.io/nginx-devops/>，带侧边目录和全文搜索。它由 `mkdocs.yml` 从 README.md、ops/ 和 dev/ 生成，推送到 master 后自动发布；本地预览：`pip install -r docs-site/requirements.txt && mkdocs serve`。
+在线阅读：<https://zyaochen.github.io/nginx-devops/>，带侧边目录和全文搜索。它由 `mkdocs.yml` 从 README.md、ops/ 和 dev/ 生成，推送到 master 后自动发布；本地预览：`pip install -r docs-site/requirements.txt && mkdocs serve`。
 
 ## 快速开始
 
 需要 C 编译器、`make`、`git`、`curl`、Python 3，以及 OpenSSL 3 和 PCRE2 的开发文件。macOS 上用 Homebrew 装 `openssl@3` 和 `pcre2`，`tools/build.sh` 会自动找到它们。
 
 ```bash
-git clone https://github.com/chenziyaos/nginx-devops.git
+git clone https://github.com/zyaochen/nginx-devops.git
 cd nginx-devops
 tools/build.sh                     # 拉取 release-1.31.9，编译到 ./.nginx，不需要 root
 tools/verify_labs.sh ops-09        # 运行运维篇 09 的实验，和章节里引用的输出逐行比对

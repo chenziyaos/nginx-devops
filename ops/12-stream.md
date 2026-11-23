@@ -628,7 +628,7 @@ ok - both versions carry the client port; a connection without the header gets 4
 
 ## 8. 开源版只有被动检查；作者 2017 年的主动检查模块在 1.31.9 上不能直接打补丁
 
-§2 的被动检查只能在真实流量连接失败时发现问题。开源 nginx 的 stream 模块到 1.31.9 仍然没有主动探测（定时向后端发请求、根据结果上下线）的指令。本系列作者 2017 年写过一个第三方模块 [chenziyaos/ngx_stream_upstream_check_module](https://github.com/chenziyaos/ngx_stream_upstream_check_module)，以下只陈述可以核对的事实：
+§2 的被动检查只能在真实流量连接失败时发现问题。开源 nginx 的 stream 模块到 1.31.9 仍然没有主动探测（定时向后端发请求、根据结果上下线）的指令。本系列作者 2017 年写过一个第三方模块 [zyaochen/ngx_stream_upstream_check_module](https://github.com/zyaochen/ngx_stream_upstream_check_module)，以下只陈述可以核对的事实：
 
 - 仓库创建于 2017-12-13，最后一次推送是 2017-12-25，不是 fork；文件是 `README.md`、`build.sh`、`config`、`nginx-stable-1.12+.patch`、`ngx_stream_upstream_check_module.c`、`.h`。
 - README 说明它为 stream upstream 提供主动健康检查，检查类型支持 TCP、UDP、HTTP，配置写在 `upstream` 块里，例如 `check interval=3000 rise=2 fall=5 timeout=5000 default_down=true type=tcp;`，HTTP 类型另有 `check_http_send` 和 `check_http_expect_alive`。

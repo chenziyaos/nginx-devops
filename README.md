@@ -4,6 +4,8 @@
 
 这里不是 nginx 官方文档的翻译，也不覆盖全部指令。每章挑一个主题，讲清楚 nginx 在源码里实际怎么做，以及默认值和容易误解的行为。2018 年的旧版教程保留在 tag [`legacy-2018`](https://github.com/chenziyaos/nginx-devops/tree/legacy-2018)。
 
+在线阅读：<https://chenziyaos.github.io/nginx-devops/>，带侧边目录和全文搜索。它由 `mkdocs.yml` 从 README.md、ops/ 和 dev/ 生成，推送到 master 后自动发布；本地预览：`pip install -r docs-site/requirements.txt && mkdocs serve`。
+
 ## 快速开始
 
 需要 C 编译器、`make`、`git`、`curl`、Python 3，以及 OpenSSL 3 和 PCRE2 的开发文件。macOS 上用 Homebrew 装 `openssl@3` 和 `pcre2`，`tools/build.sh` 会自动找到它们。
@@ -159,6 +161,7 @@ labs/lib.sh           实验公共函数（start、stop、expect、fire 等）
 labs/ctest.sh         把小 C 程序链接到 nginx 目标文件
 modules/              本仓库自己的动态模块（hello）
 tools/                构建、实验核对、源码摘录、文档检查、生成图
+mkdocs.yml、docs-site/ 在线阅读版的配置；docs-site/pages/ 是指向章节的符号链接
 ```
 
-`.nginx/`、`.nginx-src/` 和各实验的 `logs/`、`out/` 由脚本生成，不进版本库。
+`.nginx/`、`.nginx-src/`、`site/` 和各实验的 `logs/`、`out/` 由脚本生成，不进版本库。

@@ -1,14 +1,14 @@
 # Online edition of README.md, ops/ and dev/, published to GitHub Pages by .github/workflows/pages.yml.
 # Local preview: pip install -r docs-site/requirements.txt && mkdocs serve
 site_name: nginx-devops
-site_url: https://chenziyaos.github.io/nginx-devops/
+site_url: https://zyaochen.github.io/nginx-devops/
 site_description: 基于 nginx 1.31.9 源码的中文教程：运维篇 13 章、开发篇 10 章，每章配本机可复现的实验。
-repo_url: https://github.com/chenziyaos/nginx-devops
-repo_name: chenziyaos/nginx-devops
+repo_url: https://github.com/zyaochen/nginx-devops
+repo_name: zyaochen/nginx-devops
 edit_uri: blob/master/
 docs_dir: docs-site/pages
 site_dir: site
-copyright: <a href="https://chenziyaos.github.io/">chenziyaos</a>
+copyright: <a href="https://zyaochen.github.io/">zyaochen</a>
 
 theme:
   name: material
@@ -76,4 +76,4 @@ extra:
   repo_prefix: ""
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/chenziyaos
+      link: https://github.com/zyaochen

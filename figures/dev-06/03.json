@@ -2,7 +2,7 @@
  "type": "table",
  "title": "单行超过一块大缓冲、或大缓冲用完，都回 400",
  "subtitle": "当前缓冲满而头没读完时从上往下检查，命中一行就停；494 对外记作 400",
- "source": "来源：ngx_http_request.c（1.31.9）",
+ "source": "来源：ngx_http_request.c（1.31.10）",
  "columns": [
   "检查",
   "结果"

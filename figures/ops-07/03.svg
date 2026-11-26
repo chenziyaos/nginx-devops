@@ -34,5 +34,5 @@
 <text x="595" y="186.3" font-size="12" fill="#646A73" text-anchor="middle">无</text>
 <text x="760" y="254.8" font-size="12" fill="#646A73">有</text>
 <text x="899" y="186.3" font-size="12" fill="#646A73" text-anchor="middle">无</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）</text>
 </svg>

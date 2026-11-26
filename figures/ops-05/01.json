@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "不开 sendfile 时 writev 分块发送，开了交给内核一次发出",
  "subtitle": "static 模块打开文件之后的两条路径；sendfile 默认关闭，蓝色是打开后的路径",
- "source": "来源：ngx_http_core_module.c、ngx_linux_sendfile_chain.c（1.31.9）",
+ "source": "来源：ngx_http_core_module.c、ngx_linux_sendfile_chain.c（1.31.10）",
  "stages": [
   {"name": "打开文件", "nodes": [
     {"id": "s", "title": "static 模块", "sub": "打开文件"}]},
@@ -10,7 +10,7 @@
     {"id": "r", "title": "copy filter", "sub": "读进 2 个 32 KB 缓冲区"},
     {"id": "sf", "title": "sendfile()", "sub": "一次发出头和文件；单次上限 sendfile_max_chunk 2 MB", "tone": "main", "emph": true}]},
   {"name": "写到 socket", "nodes": [
-    {"id": "w", "title": "writev 分块", "sub": "33026、32768 … 3392 字节"},
+    {"id": "w", "title": "writev 分块", "sub": "33027、32768 … 3392 字节"},
     {"id": "l", "title": "tcp_nopush on", "sub": "Linux 上先设 TCP_CORK"}]}
  ],
  "edges": [

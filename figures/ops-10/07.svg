@@ -56,5 +56,5 @@
 <text x="716.6" y="541.5" font-size="12" fill="#646A73" text-anchor="middle">不能</text>
 <text x="969.8" y="514.2" font-size="12" fill="#646A73">是</text>
 <text x="969.8" y="594.8" font-size="12" fill="#646A73">否</text>
-<text x="40" y="745.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c（1.31.9）</text>
+<text x="40" y="745.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c（1.31.10）</text>
 </svg>

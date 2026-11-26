@@ -2,7 +2,7 @@
   "type": "cycle",
   "title": "一台后端失败后进摘除状态、fail_timeout 到期后试探、成功恢复",
   "subtitle": "从左上顺时针：初始可用 → 失败次数达到阈值 → 摘除期内不选 → 到期后试一次",
-  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）",
   "steps": [
     {
       "title": "可用",

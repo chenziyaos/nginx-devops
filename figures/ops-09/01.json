@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "return 在 REWRITE 阶段就结束请求，限流没有机会运行",
  "subtitle": "只画出和本篇有关的阶段；从左到右是请求经过的顺序，蓝色是限流模块所在的阶段",
- "source": "来源：ngx_http_core_module.h、ngx_http_limit_req_module.c（1.31.9）",
+ "source": "来源：ngx_http_core_module.h、ngx_http_limit_req_module.c（1.31.10）",
  "stages": [
   {
    "name": "SERVER_REWRITE / REWRITE",

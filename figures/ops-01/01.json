@@ -10,8 +10,8 @@
     {"id": "s0", "title": "1.30.0", "sub": "2026-04-14"},
     {"id": "m0", "title": "1.31.0", "sub": "2026-05-13"}]},
   {"name": "之后", "nodes": [
-    {"id": "s7", "title": "1.30.1 … 1.30.7", "sub": "只有修复", "tone": "contrast"},
-    {"id": "m9", "title": "1.31.1 … 1.31.9", "sub": "新功能 + 修复", "tone": "main", "emph": true}]},
+    {"id": "s7", "title": "1.30.1 … 1.30.8", "sub": "只有修复", "tone": "contrast"},
+    {"id": "m9", "title": "1.31.1 … 1.31.10", "sub": "新功能 + 修复", "tone": "main", "emph": true}]},
   {"name": "将来", "nodes": [
     {"id": "n", "title": "下一个偶数次版本", "sub": "从 mainline 切出"}]}
  ],

@@ -54,5 +54,5 @@
 <text x="822.7" y="379" font-size="14" fill="#646A73">风险</text>
 <rect x="857.1" y="364" width="282.9" height="24" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1" data-role="value-chip"/>
 <text x="1132" y="379" font-size="14" fill="#D83931" font-weight="bold" text-anchor="end">卡住的 worker 拖住分给它的连接</text>
-<text x="40" y="449" font-size="12" fill="#646A73" data-role="source">来源：src/event/ngx_event.c、src/core/ngx_connection.c、labs/dev-05（1.31.9）</text>
+<text x="40" y="449" font-size="12" fill="#646A73" data-role="source">来源：src/event/ngx_event.c、src/core/ngx_connection.c、labs/dev-05（1.31.10）</text>
 </svg>

@@ -43,5 +43,5 @@
 <rect x="952" y="372" width="208" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
 <text x="1056" y="410.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">补丁适配</text>
 <text x="1056" y="430.7" font-size="12" fill="#646A73" text-anchor="middle">每次升级需维护</text>
-<text x="40" y="499" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_upstream_round_robin.c、ngx_stream_upstream_check_module（1.31.9）</text>
+<text x="40" y="499" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_upstream_round_robin.c、ngx_stream_upstream_check_module（1.31.10）</text>
 </svg>

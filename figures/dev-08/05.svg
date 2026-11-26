@@ -25,5 +25,5 @@
 <text x="744.6" y="304.9" font-size="14" fill="#1F2329">队头</text>
 <text x="913.2" y="282.9" font-size="14" fill="#D83931" font-weight="bold">队尾被占位：alert，返回</text>
 <text x="913.2" y="304.9" font-size="14" fill="#D83931" font-weight="bold">500</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

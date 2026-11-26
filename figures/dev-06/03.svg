@@ -19,5 +19,5 @@
 <text x="576.6" y="288.3" font-size="14" fill="#2EA121" font-weight="bold">分配一块，只搬这一行</text>
 <text x="58" y="330.3" font-size="14" fill="#1F2329">以上都不满足</text>
 <text x="576.6" y="330.3" font-size="14" fill="#D83931" font-weight="bold">494</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.10）</text>
 </svg>

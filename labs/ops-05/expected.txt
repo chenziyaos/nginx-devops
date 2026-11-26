@@ -2,8 +2,8 @@
 ## sendfile is off by default
 sf-default: sendfile lines 0, writev lines 7
 sf-on: sendfile lines 1, writev lines 0
-sendfile: @0 200258 h:258
-writev sizes without sendfile: 33026 32768 32768 32768 32768 32768 3392 
+sendfile: @0 200259 h:259
+writev sizes without sendfile: 33027 32768 32768 32768 32768 32768 3392 
 ok - without sendfile on the file is read and written with writev; with it, sendfile() sends it
 
 ## Last-Modified and ETag

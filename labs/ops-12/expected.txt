@@ -1,7 +1,7 @@
 
 ## a TCP proxy and its log line
-bytes=145 first=HTTP/1.1 200 OK
-18240 TCP 200 sent=145 recv=18 up=[127.0.0.1:18250] upsent=18 uprecv=145
+bytes=146 first=HTTP/1.1 200 OK
+18240 TCP 200 sent=146 recv=18 up=[127.0.0.1:18250] upsent=18 uprecv=146
 ok - bytes_received = upstream_bytes_sent = the 18-byte request; bytes_sent = upstream_bytes_received = what the client got
 
 ## failover and the passive check
@@ -27,12 +27,12 @@ ok - with proxy_responses the session ends on the reply; without it, at proxy_ti
 ## SNI routing with ssl_preread
 bytes=49 first=A sni=a.test server_port=18251 remote_port=<port> cert=a.test 
 bytes=49 first=B sni=b.test server_port=18251 remote_port=<port> cert=b.test 
-bytes=145 first=HTTP/1.1 200 OK
+bytes=146 first=HTTP/1.1 200 OK
 ok - a.test and b.test reach the TLS server with their own certificate; plain HTTP goes to the default
 
 ## virtual servers selected by the preread name
 bytes=49 first=A sni=a.test server_port=18251 remote_port=<port> cert=a.test 
-bytes=145 first=HTTP/1.1 200 OK
+bytes=146 first=HTTP/1.1 200 OK
 ok - a.test is served by its server{}, anything else by the default one
 
 ## access rules run before the preread name switches the server

@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "标量指令在子级没写时才继承父级的值",
  "subtitle": "merge 函数检查子级值是否 UNSET；未设则继承父级，已设则使用自己的值",
- "source": "来源：ngx_conf_file.h（1.31.9）",
+ "source": "来源：ngx_conf_file.h（1.31.10）",
  "stages": [
   {
    "name": "解析",

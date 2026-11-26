@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "-s reload 读 pid 文件找 master，立即退出不等 reload 完成",
  "subtitle": "从上到下是执行顺序；空 pid 文件时报 invalid PID number",
- "source": "来源：src/core/nginx.c（1.31.9）",
+ "source": "来源：src/core/nginx.c（1.31.10）",
  "actors": [
   {
    "name": "nginx -s reload",

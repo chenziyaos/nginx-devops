@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "算法模块在配置阶段只登记函数，所有的选择都发生在请求里",
  "subtitle": "左列是配置阶段，右列是请求阶段；init_upstream 设好的 peer.init 在每个请求开始时调用，填进 get / free",
- "source": "来源：ngx_http_upstream.c、ngx_http_upstream_init_main_conf（1.31.9）",
+ "source": "来源：ngx_http_upstream.c、ngx_http_upstream_init_main_conf（1.31.10）",
  "stages": [
   {
    "name": "配置阶段",

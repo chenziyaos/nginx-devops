@@ -2,7 +2,7 @@
   "type": "graph",
   "title": "整组后端都被摘除时返回 502；backup 组在此时接手",
   "subtitle": "从上到下：请求先查主组，没有可用后端时查 backup，都没有则返回 502",
-  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）",
   "stages": [
     {
       "name": "请求到达",

@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "ngx_array_push 是否搬家取决于数组在池里的位置",
  "subtitle": "从左到右：数组没满直接给下一格；满了时只有元素区在池尾才能原地扩一格，否则整体搬家",
- "source": "来源：src/core/ngx_array.c（1.31.9）",
+ "source": "来源：src/core/ngx_array.c（1.31.10）",
  "stages": [
   {
    "name": "调用",

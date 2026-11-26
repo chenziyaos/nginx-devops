@@ -2,7 +2,7 @@
  "type": "flow",
  "title": "stream 能用来分流的名字，要到 preread 阶段才拿到",
  "subtitle": "从左到右、从上到下是一个会话经过的阶段；蓝色是 ssl_preread 偷看 SNI 的位置",
- "source": "来源：ngx_stream.h（1.31.9）",
+ "source": "来源：ngx_stream.h（1.31.10）",
  "per_row": 4,
  "steps": [
   {

@@ -45,5 +45,5 @@
 <text x="1150" y="467.2" font-size="12" fill="#646A73" text-anchor="middle">最后一次的结果</text>
 <text x="1158" y="381" font-size="12" fill="#646A73">否</text>
 <text x="650" y="511" font-size="12" fill="#646A73" text-anchor="middle">是</text>
-<text x="40" y="588" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_proxy_module.c（1.31.9）</text>
+<text x="40" y="588" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_proxy_module.c（1.31.10）</text>
 </svg>

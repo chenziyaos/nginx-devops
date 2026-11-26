@@ -46,7 +46,7 @@
 <text x="963.3" y="687.5" font-size="13" fill="#1F2329" text-anchor="end">放出 fast，结束</text>
 <polyline points="973.3,696 238.7,696" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="238.7,690 228.7,696 238.7,702" fill="#8F959E"/>
-<text x="236.7" y="728.5" font-size="13" fill="#1F2329">输出 B、C，last_buf，writev 201 字节</text>
+<text x="236.7" y="728.5" font-size="13" fill="#1F2329">输出 B、C，last_buf，writev 202 字节</text>
 <polyline points="226.7,737 252.7,737 252.7,755 240.7,755" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="240.7,749 230.7,755 240.7,761" fill="#8F959E"/>
 <text x="40" y="817" font-size="12" fill="#646A73" data-role="source">来源：本文整理（labs/dev-06 实验）</text>

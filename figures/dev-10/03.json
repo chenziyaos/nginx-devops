@@ -2,7 +2,7 @@
  "type": "compare",
  "title": "数组越靠后的过滤器越先执行",
  "subtitle": "左边是 postconfiguration 的执行顺序，每个模块把自己压到链头；右边是 header filter 被调用的顺序，正好反过来",
- "source": "来源：src/core/ngx_module.c、src/http/ngx_http.c（1.31.9）",
+ "source": "来源：src/core/ngx_module.c、src/http/ngx_http.c（1.31.10）",
  "cards": [
   {
    "title": "cycle->modules 数组顺序",

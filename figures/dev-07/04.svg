@@ -38,5 +38,5 @@
 <rect x="910" y="455" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
 <text x="1020" y="482.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">regex_end</text>
 <text x="1020" y="502.7" font-size="12" fill="#646A73" text-anchor="middle">写回 r-＞uri、r-＞args</text>
-<text x="40" y="560" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_script.c（1.31.9）</text>
+<text x="40" y="560" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_script.c（1.31.10）</text>
 </svg>

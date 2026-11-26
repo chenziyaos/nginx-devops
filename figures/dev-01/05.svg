@@ -49,5 +49,5 @@
 <text x="1056" y="548.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master_process</text>
 <text x="1056" y="570.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">off</text>
 <text x="1056" y="590.7" font-size="12" fill="#646A73" text-anchor="middle">ngx_single_process_cycle</text>
-<text x="40" y="648" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_cycle.c（1.31.9）</text>
+<text x="40" y="648" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_cycle.c（1.31.10）</text>
 </svg>

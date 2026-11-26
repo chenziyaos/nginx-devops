@@ -41,5 +41,5 @@
 <text x="1056" y="354.2" font-size="12" fill="#646A73" text-anchor="middle">:18250</text>
 <text x="919.5" y="231" font-size="12" fill="#646A73" text-anchor="middle">SNI 命中</text>
 <text x="919.5" y="357" font-size="12" fill="#646A73" text-anchor="middle">default</text>
-<text x="40" y="411.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_ssl_preread_module.c（1.31.9）</text>
+<text x="40" y="411.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_ssl_preread_module.c（1.31.10）</text>
 </svg>

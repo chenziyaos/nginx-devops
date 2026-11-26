@@ -2,7 +2,7 @@
   "type": "sequence",
   "title": "延迟用写事件定时器实现，不阻塞 worker 但占着连接",
   "subtitle": "时间从上到下；delay 毫秒后定时器到期，请求继续处理下一个阶段",
-  "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+  "source": "来源：ngx_http_limit_req_module.c（1.31.10）",
   "actors": [
     {
       "name": "客户端"

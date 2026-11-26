@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "四个条件任一成立就结束请求，否则换机器重试",
  "subtitle": "从左到右：出错 → 记一次失败 → 查四个停止条件，任一成立就结束，全不成立就换下一台",
- "source": "来源：ngx_http_upstream_next、ngx_http_upstream.c（1.31.9）",
+ "source": "来源：ngx_http_upstream_next、ngx_http_upstream.c（1.31.10）",
  "stages": [
   {
    "name": "出错",

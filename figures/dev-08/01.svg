@@ -24,5 +24,5 @@
 <rect x="697.6" y="344" width="446.4" height="56" rx="8" fill="#FFFFFF" stroke="#F98E8B" stroke-width="1" data-role="layer-chip"/>
 <text x="920.8" y="367" font-size="14" fill="#1F2329" text-anchor="middle">队尾：最久未用</text>
 <text x="920.8" y="387" font-size="12" fill="#646A73" text-anchor="middle">§7 淘汰从这里开始</text>
-<text x="40" y="456" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="456" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

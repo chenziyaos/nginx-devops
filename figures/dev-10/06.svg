@@ -23,5 +23,5 @@
 <rect x="910" y="177.2" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
 <text x="1020" y="214.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">计数随进程消失</text>
 <text x="805" y="200.7" font-size="12" fill="#646A73" text-anchor="middle">请求处理完退出</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.10）</text>
 </svg>

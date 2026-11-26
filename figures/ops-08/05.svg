@@ -42,5 +42,5 @@
 <text x="730" y="543.5" font-size="13" fill="#1F2329" text-anchor="end">解开 ticket，复用（Reused）</text>
 <polyline points="740,552 192,552" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
 <polygon points="192,546 182,552 192,558" fill="#8F959E"/>
-<text x="40" y="606" font-size="12" fill="#646A73" data-role="source">来源：ngx_event_openssl.c（1.31.9）</text>
+<text x="40" y="606" font-size="12" fill="#646A73" data-role="source">来源：ngx_event_openssl.c（1.31.10）</text>
 </svg>

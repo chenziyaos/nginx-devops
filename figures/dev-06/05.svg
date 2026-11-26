@@ -34,5 +34,5 @@
 <line x1="632" y1="349" x2="1140" y2="349" stroke="#EFF0F1" stroke-width="1"/>
 <text x="632" y="373" font-size="14" fill="#646A73">r-＞ctx</text>
 <text x="1140" y="373" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">清空，r-＞internal=1</text>
-<text x="40" y="443" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.9）</text>
+<text x="40" y="443" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.10）</text>
 </svg>

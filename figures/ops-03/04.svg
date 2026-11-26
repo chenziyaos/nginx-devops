@@ -32,5 +32,5 @@
 <text x="1020" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">有配置：到期后关闭剩余连接</text>
 <text x="760.5" y="243" font-size="12" fill="#646A73" text-anchor="middle">没有</text>
 <text x="760.5" y="270" font-size="12" fill="#646A73" text-anchor="middle">有</text>
-<text x="40" y="438" font-size="12" fill="#646A73" data-role="source">来源：labs/ops-03 实验（1.31.9）</text>
+<text x="40" y="438" font-size="12" fill="#646A73" data-role="source">来源：labs/ops-03 实验（1.31.10）</text>
 </svg>

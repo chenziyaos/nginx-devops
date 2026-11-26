@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "替换串分两遍处理：先算长度、再拷贝，避免反复扩容",
  "subtitle": "从上到下是处理流程；蓝色是两个关键步骤",
- "source": "来源：ngx_http_script.c（1.31.9）",
+ "source": "来源：ngx_http_script.c（1.31.10）",
  "stages": [
   {
    "name": "regex_start",

@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "GET / 走两遍阶段引擎，第一次触发内部跳转，第二次才到 static",
  "subtitle": "阶段引擎处理请求时不保存状态，每次都从指定下标开始运行；internal redirect 后从下标 1 重开",
- "source": "来源：labs/dev-01 实验输出（1.31.9）",
+ "source": "来源：labs/dev-01 实验输出（1.31.10）",
  "actors": [
   {
    "name": "curl"
@@ -57,7 +57,7 @@
   {
    "from": "过滤器",
    "to": "write_filter",
-   "label": "234 字节，暂存"
+   "label": "235 字节，暂存"
   },
   {
    "from": "static (17)",
@@ -67,7 +67,7 @@
   {
    "from": "过滤器",
    "to": "write_filter",
-   "label": "241 字节全部"
+   "label": "242 字节全部"
   },
   {
    "from": "write_filter",

@@ -26,5 +26,5 @@
 <text x="236.7" y="366.6" font-size="13" fill="#1F2329">unlock: count--, excess 不变</text>
 <polyline points="226.7,375 588,375" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="588,369 598,375 588,381" fill="#8F959E"/>
-<text x="40" y="429" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="429" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

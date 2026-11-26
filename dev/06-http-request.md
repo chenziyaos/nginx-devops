@@ -2,7 +2,7 @@
 
 > **一句话结论**：一个 HTTP/1.1 请求在连接上先后由 `ngx_http_wait_request_handler`、`ngx_http_process_request_line`、`ngx_http_process_request_headers` 读取，数据不够就返回、等下一个读事件再进来；请求头放在 1k 的缓冲区里，一行放不下才搬进 `large_client_header_buffers`，单行超过一块就是 400。请求头读完后先做整体校验，所有 400 都发生在进入阶段之前。之后请求交给阶段数组：从内存里读出来的 18 个元素和[开发篇 01](01-source-map.md) §6 由模块数组推出的完全一致，各阶段的 checker 对同一个返回值有不同的解释，`rewrite ... last` 回到 FIND_CONFIG（下标 2），内部跳转回到 SERVER_REWRITE（下标 1），两者共用 10 次的上限。响应经过 header 和 body 两条过滤器链，小响应在 write filter 里攒到最后一块才发。子请求与主请求共用连接，postpone 过滤器按顺序放行输出；请求是否结束看 `r->main->count`，归零才释放，然后按配置走 keepalive、延迟关闭或直接关闭。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：没有冒号的请求头行从 1.31.9 起被拒绝（1.30.7 把它当作值为空的头）；HTTP/2、HTTP/3 请求带 `Connection`、`Proxy-Connection` 等逐跳头时被拒绝（1.31.0 起）；`client_body_early_read`（1.31.5 起）让请求体在进入阶段之前读取；带请求体的 `CONNECT` 被拒绝。阶段引擎、过滤器、子请求和结束流程的代码两个版本相同。实验：[`labs/dev-06`](../labs/dev-06/)，`ph.c` 链接本仓库构建的目标文件读取阶段数组，其余步骤读一个 worker 的 debug 日志。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：没有冒号的请求头行从 1.31.9 起被拒绝（1.30.8 把它当作值为空的头）；HTTP/2、HTTP/3 请求带 `Connection`、`Proxy-Connection` 等逐跳头时被拒绝（1.31.0 起）；`client_body_early_read`（1.31.5 起）让请求体在进入阶段之前读取；带请求体的 `CONNECT` 被拒绝。阶段引擎、过滤器、子请求和结束流程的代码两个版本相同。实验：[`labs/dev-06`](../labs/dev-06/)，`ph.c` 链接本仓库构建的目标文件读取阶段数组，其余步骤读一个 worker 的 debug 日志。
 
 ## 导读
 
@@ -23,7 +23,7 @@
 
 ## 1. 一个请求在连接上换三次读处理函数，数据不够就返回等下一个事件
 
-连接建立后，读事件的处理函数是 `ngx_http_wait_request_handler`（[`ngx_http_request.c` 第 329 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_request.c#L329)），它只负责等第一批数据、分配请求头缓冲区（[开发篇 03](03-memory.md) §4）。数据到了就建请求，把处理函数换成读请求行：
+连接建立后，读事件的处理函数是 `ngx_http_wait_request_handler`（[`ngx_http_request.c` 第 329 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_request.c#L329)），它只负责等第一批数据、分配请求头缓冲区（[开发篇 03](03-memory.md) §4）。数据到了就建请求，把处理函数换成读请求行：
 
 ```c
 // src/http/ngx_http_request.c:527-535
@@ -58,7 +58,7 @@
 
 ```
 
-解析器 `ngx_http_parse_request_line` 是一个状态机，状态存在 `r->state` 里；数据不够时返回 `NGX_AGAIN`，循环再去读，读不到（`n == NGX_AGAIN`）就跳出，函数返回，worker 去处理别的连接。下一个读事件到来时，同一个函数从保存的状态接着解析。请求行解析完，处理函数换成读请求头（[第 1229 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_request.c#L1229)），请求头也是同样的循环。请求头全部读完，`ngx_http_process_request` 做最后一次切换：
+解析器 `ngx_http_parse_request_line` 是一个状态机，状态存在 `r->state` 里；数据不够时返回 `NGX_AGAIN`，循环再去读，读不到（`n == NGX_AGAIN`）就跳出，函数返回，worker 去处理别的连接。下一个读事件到来时，同一个函数从保存的状态接着解析。请求行解析完，处理函数换成读请求头（[第 1229 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_request.c#L1229)），请求头也是同样的循环。请求头全部读完，`ngx_http_process_request` 做最后一次切换：
 
 ```c
 // src/http/ngx_http_request.c:2209-2218
@@ -113,7 +113,7 @@ ok - the request line handler runs twice, the header handler twice
 
 ## 2. 请求头先放进 1k 缓冲区，一行放不下才搬进 large_client_header_buffers
 
-请求头缓冲区默认 1k（`client_header_buffer_size`），`large_client_header_buffers` 默认 4 块、每块 8k（[`ngx_http_core_module.c` 第 3628–3632 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L3628)）。当前缓冲区写满而请求头还没读完时，`ngx_http_alloc_large_header_buffer` 先检查正在解析的这一行有没有超过一块大缓冲区：
+请求头缓冲区默认 1k（`client_header_buffer_size`），`large_client_header_buffers` 默认 4 块、每块 8k（[`ngx_http_core_module.c` 第 3628–3632 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L3628)）。当前缓冲区写满而请求头还没读完时，`ngx_http_alloc_large_header_buffer` 先检查正在解析的这一行有没有超过一块大缓冲区：
 
 ```c
 // src/http/ngx_http_request.c:1679-1690
@@ -254,7 +254,7 @@ ok - the 2000-byte line moves to a 4k buffer, the 5000-byte line is 400
             }
 ```
 
-哈希表来自 [`ngx_http_headers_in[]`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_request.c#L80)（`Host`、`Connection`、`If-Modified-Since` 等），每项带一个处理函数和一个偏移：`Host` 由 `ngx_http_process_host` 校验并决定虚拟主机，其余的只是把指针存进 `r->headers_in` 的对应字段，模块以后直接读字段，不用再遍历链表。`max_headers`（1.29.8 起，默认 1000，[第 3640 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L3640)）限制的是头行数。
+哈希表来自 [`ngx_http_headers_in[]`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_request.c#L80)（`Host`、`Connection`、`If-Modified-Since` 等），每项带一个处理函数和一个偏移：`Host` 由 `ngx_http_process_host` 校验并决定虚拟主机，其余的只是把指针存进 `r->headers_in` 的对应字段，模块以后直接读字段，不用再遍历链表。`max_headers`（1.29.8 起，默认 1000，[第 3640 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L3640)）限制的是头行数。
 
 空行之后，`ngx_http_process_request_header` 做跨头的校验，例如 HTTP/1.1 必须有 `Host`，`Content-Length` 和 `Transfer-Encoding: chunked` 不能同时出现：
 
@@ -291,7 +291,7 @@ client sent "Content-Length" and "Transfer-Encoding" headers at the same time
 ok - all four are 400
 ```
 
-四个都是 400，原因各在 error.log 的 info 级别里。没有冒号的头行在 1.31.9 里由解析器直接判为无效：1.30.7 的 `ngx_http_parse_header_line` 在头名后遇到 `CR`/`LF` 时把它当作值为空的头（1.30.7 `ngx_http_parse.c` 第 978–992 行），1.31.9 删掉了这两个分支，`CHANGES` 记为“now header lines without a colon are rejected”。这个函数也用来解析 upstream 的响应头，所以后端发出没有冒号的头行时同样会被拒绝；后一点是读代码得出的推论，本篇没有用后端验证。
+四个都是 400，原因各在 error.log 的 info 级别里。没有冒号的头行在 1.31.10 里由解析器直接判为无效：1.30.8 的 `ngx_http_parse_header_line` 在头名后遇到 `CR`/`LF` 时把它当作值为空的头（1.30.8 `ngx_http_parse.c` 第 978–992 行），1.31.9 删掉了这两个分支，`CHANGES` 记为“now header lines without a colon are rejected”。这个函数也用来解析 upstream 的响应头，所以后端发出没有冒号的头行时同样会被拒绝；后一点是读代码得出的推论，本篇没有用后端验证。
 
 **小结**：请求行和请求头阶段的拒绝都发生在 `ngx_http_handler` 之前，阶段数组里的模块（包括 `limit_req`、`access`）看不到这些请求，access log 里的 400 只能从 error.log 的 info 行找原因。
 
@@ -513,7 +513,7 @@ ok - after the rewrite the phases continue at find_config (2), then rewrite (3) 
 
 `using configuration "/r/"` 之后，下标 3 的 rewrite 改写 URI，下标 4 打印 `uri changes: 11`，接着是新一轮匹配 `using configuration "/static/"`，然后再次经过下标 3、4，这次 URI 没变，继续往下。server 级的 rewrite（下标 1）没有再运行。
 
-`uri_changes` 的初值是 `NGX_HTTP_MAX_URI_CHANGES + 1`（11，[`ngx_http_request.h` 第 12 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_request.h#L12)），每次改写后减一，减到 0 就是 500。实验让一个 location 每次都改写到自己：
+`uri_changes` 的初值是 `NGX_HTTP_MAX_URI_CHANGES + 1`（11，[`ngx_http_request.h` 第 12 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_request.h#L12)），每次改写后减一，减到 0 就是 500。实验让一个 location 每次都改写到自己：
 
 ```text
 # labs/dev-06 ## ten URI changes at most
@@ -686,7 +686,7 @@ write filter 不是每次都写 socket：
     }
 ```
 
-没有 `last_buf`、没有 `flush`、累计不到 `postpone_output`（默认 1460，[`ngx_http_core_module.c` 第 3980 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L3980)）时直接返回。所以响应头不会单独发出，而是和第一批响应体一起写；§7 的 SSI 页面经过 7 次 write filter 调用，累计到 201 字节，只在最后一块到来时调用了一次 `writev`。
+没有 `last_buf`、没有 `flush`、累计不到 `postpone_output`（默认 1460，[`ngx_http_core_module.c` 第 3980 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L3980)）时直接返回。所以响应头不会单独发出，而是和第一批响应体一起写；§7 的 SSI 页面经过 7 次 write filter 调用，累计到 202 字节，只在最后一块到来时调用了一次 `writev`。
 
 **小结**：过滤器链的顺序是编译时（模块数组）决定的，不随配置改变；响应什么时候真正离开 nginx，由 write filter 的三个条件决定：最后一块、flush、累计超过 `postpone_output`。
 
@@ -816,7 +816,7 @@ http wake parent request: "/page.shtml?"
 http posted request: "/page.shtml?"
 http postpone filter output "/page.shtml?"
 http chunk: 2
-writev: 201 of 201
+writev: 202 of 202
 http finalize request: 0, "/page.shtml?" a:1, c:1
 ok - two subrequests, three references, one writev to the client
 ```
@@ -827,7 +827,7 @@ ok - two subrequests, three references, one writev to the client
 2. `/slow` 先运行，连接后端返回 `NGX_AGAIN`（-2），finalize 收到 `NGX_DONE`；`/fast.txt` 接着运行，读完文件就结束了，但它不是 `c->data`，`fast` 被 postpone 过滤器存在内存里（`a:0, c:3`）。
 3. 后端的响应到达（`writev: 78 of 78` 是发给后端的请求，记在客户端连接的日志里），`/slow` 输出 `slow` 并结束，`http wake parent request` 把 `c->data` 交回主请求。
 4. 主请求继续 SSI 输出 `B`，postpone 过滤器遇到 `/fast.txt`，`postpone filter wake` 让它把存下的 `fast` 放出去，它结束后再交回主请求输出 `C`。
-5. 整个响应只在最后一块到来时写了一次：`writev: 201 of 201`。
+5. 整个响应只在最后一块到来时写了一次：`writev: 202 of 202`。
 
 客户端收到的顺序是 `A slow B fast C`，与 `/fast.txt` 先完成无关。
 
@@ -949,7 +949,7 @@ LOG 阶段不在阶段数组里，`ngx_http_free_request` 调用 `ngx_http_log_r
 ## 已知局限与待核实
 
 - 实验只覆盖 HTTP/1.1 明文；HTTP/2、HTTP/3 的请求由各自的模块解析，`ngx_http_finalize_connection` 对它们直接关闭流（第 3003–3015 行），本篇没有展开。
-- §3 “后端发出没有冒号的头行会被拒绝”是读代码的推论，没有用后端验证；1.30.7 的行为只读了源码。
+- §3 “后端发出没有冒号的头行会被拒绝”是读代码的推论，没有用后端验证；1.30.8 的行为只读了源码。
 - 请求体（`ngx_http_read_client_request_body`、`client_body_early_read`）只在版本说明里提到，没有实验。
 - `ph.c` 用 `nm` 把函数地址翻译成名字，依赖本仓库构建保留了符号表；strip 过的二进制不能这样做。
 - §8 列出的加引用计数的场景来自对 `count++` 的搜索，没有逐一用实验验证。
@@ -957,3 +957,4 @@ LOG 阶段不在阶段数组里，`ngx_http_free_request` 调用 `ngx_http_log_r
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖读处理函数的切换、请求头缓冲区与大缓冲区、请求头校验和 1.31.x 的新拒绝规则、从内存读取的阶段数组与 checker 返回值约定、`rewrite last` 与内部跳转、过滤器链与 write filter 的缓冲、子请求与 postpone 过滤器、引用计数与连接去向；实验 `labs/dev-06`。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。`Server: nginx/1.31.10` 比原来长 1 字节，正文和图里依赖响应长度的数字随之更新。实验断言不再写死发往客户端的 writev 字节数。

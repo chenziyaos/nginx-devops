@@ -36,5 +36,5 @@
 <text x="340.5" y="270" font-size="12" fill="#646A73" text-anchor="middle">≤ burst</text>
 <text x="760.5" y="295" font-size="12" fill="#646A73" text-anchor="middle">≤ delay</text>
 <text x="760.5" y="322" font-size="12" fill="#646A73" text-anchor="middle">＞ delay</text>
-<text x="40" y="438" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="438" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

@@ -35,5 +35,5 @@
 <rect x="659.3" y="280.8" width="231" height="59" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="node"/>
 <text x="774.8" y="305.7" font-size="14" fill="#1F2329" text-anchor="middle">location /</text>
 <text x="774.8" y="325.5" font-size="12" fill="#646A73" text-anchor="middle">loc新建</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http.c、ngx_http_core_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http.c、ngx_http_core_module.c（1.31.10）</text>
 </svg>

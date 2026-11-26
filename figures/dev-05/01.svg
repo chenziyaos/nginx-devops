@@ -49,5 +49,5 @@
 <text x="700" y="624.5" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">3</text>
 <text x="496" y="640.9" font-size="14" fill="#1F2329" font-weight="bold">处理事件</text>
 <text x="496" y="663.5" font-size="13" fill="#646A73">accept → 定时器 → 投递队列</text>
-<text x="40" y="736" font-size="12" fill="#646A73" data-role="source">来源：src/os/unix/ngx_process_cycle.c（1.31.9）</text>
+<text x="40" y="736" font-size="12" fill="#646A73" data-role="source">来源：src/os/unix/ngx_process_cycle.c（1.31.10）</text>
 </svg>

@@ -35,5 +35,5 @@
 <text x="760" y="279" font-size="12" fill="#646A73">keepalive</text>
 <text x="600" y="399" font-size="12" fill="#646A73" text-anchor="middle">循环</text>
 <text x="899" y="331" font-size="12" fill="#646A73" text-anchor="middle">关闭</text>
-<text x="40" y="476" font-size="12" fill="#646A73" data-role="source">来源：ngx_event_accept.c、ngx_http_request.c、ngx_connection.c（1.31.9）、labs/ops-11 实验输出</text>
+<text x="40" y="476" font-size="12" fill="#646A73" data-role="source">来源：ngx_event_accept.c、ngx_http_request.c、ngx_connection.c（1.31.10）、labs/ops-11 实验输出</text>
 </svg>

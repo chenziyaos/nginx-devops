@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">1.30.5 之后的 15 条安全修复，nginx -V 只能排除 1 条</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">按 changes.xml 原文点名的触发条件分三类；本仓库二进制编进了 HTTP/2、HTTP/3、stream、ssl_preread，没有 mail</text>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="152.2" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="183.2" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="195.2" x2="1160" y2="195.2" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="237.2" x2="1159" y2="237.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="279.2" x2="1159" y2="279.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">原文点名的条件</text>
+<text x="668.7" y="178.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">条数</text>
+<text x="740.7" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">怎么排除</text>
+<text x="981.6" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">本仓库二进制</text>
+<text x="58" y="221.1" font-size="14" fill="#1F2329">模块：HTTP/2、HTTP/3、SSI、mail、stream、ssl_preread</text>
+<text x="668.7" y="221.1" font-size="14" fill="#1F2329" text-anchor="middle">8</text>
+<text x="740.7" y="221.1" font-size="14" fill="#1F2329">nginx -V 看 --with-*</text>
+<text x="981.6" y="221.1" font-size="14" fill="#1F2329">排除 1 条（mail）</text>
+<text x="58" y="263.1" font-size="14" fill="#1F2329">指令：alias、try_files、rewrite、resolver、ssl_early_data</text>
+<text x="668.7" y="263.1" font-size="14" fill="#1F2329" text-anchor="middle">4</text>
+<text x="740.7" y="263.1" font-size="14" fill="#1F2329">nginx -T 查配置</text>
+<text x="981.6" y="263.1" font-size="14" fill="#1F2329">取决于配置</text>
+<text x="58" y="305.1" font-size="14" fill="#1F2329">没有点名：表达式求值、session ticket、SSL 读请求体</text>
+<text x="668.7" y="305.1" font-size="14" fill="#1F2329" text-anchor="middle">3</text>
+<text x="740.7" y="305.1" font-size="14" fill="#1F2329">读原文对照用法</text>
+<text x="981.6" y="305.1" font-size="14" fill="#1F2329">排除不了</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/ops-01（1.30.8 docs/xml/nginx/changes.xml）</text>
+</svg>

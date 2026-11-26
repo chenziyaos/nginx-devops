@@ -2,7 +2,7 @@
   "type": "flow",
   "title": "ngx_hash_t 查找顺序固定：精确名、前缀通配、后缀通配、正则",
   "subtitle": "按此顺序逐级查找，不按配置书写顺序；蓝色是本篇关注的 server_name",
-  "source": "来源：src/core/ngx_hash.c（1.31.9）",
+  "source": "来源：src/core/ngx_hash.c（1.31.10）",
   "steps": [
     {
       "title": "小写后的 Host"

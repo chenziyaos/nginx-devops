@@ -34,5 +34,5 @@
 <text x="750" y="447.6" font-size="13" fill="#1F2329">flush，open，之后写新文件</text>
 <polyline points="740,456 1008,456" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="1008,450 1018,456 1008,462" fill="#8F959E"/>
-<text x="40" y="510" font-size="12" fill="#646A73" data-role="source">来源：ngx_process_cycle.c、ngx_event.c（1.31.9）、labs/ops-11 实验输出</text>
+<text x="40" y="510" font-size="12" fill="#646A73" data-role="source">来源：ngx_process_cycle.c、ngx_event.c（1.31.10）、labs/ops-11 实验输出</text>
 </svg>

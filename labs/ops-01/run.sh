@@ -13,7 +13,7 @@ step "version and configure arguments"
 "$NGINX" -v 2>&1
 "$NGINX" -V 2>&1 | n | sed -E 's/^built by .*/built by <compiler>/; s/^(built with OpenSSL [0-9]+)\.[^ ]+ .*/\1.x/' \
     | tee out/run/V.txt
-src_ver=$(sed -n 's/^#define NGINX_VERSION *"\(.*\)"/\1/p' ../../.nginx-src/release-1.31.9/src/core/nginx.h)
+src_ver=$(sed -n 's/^#define NGINX_VERSION *"\(.*\)"/\1/p' ../../.nginx-src/release-1.31.10/src/core/nginx.h)
 expect "-v prints NGINX_VERSION from src/core/nginx.h" "$("$NGINX" -v 2>&1)" "nginx version: nginx/$src_ver"
 missing=""
 for f in $(grep -oE -- '--with-[a-z0-9_-]+' ../../tools/build.sh); do
@@ -34,12 +34,12 @@ for m in re.finditer(r'<changes ver="%s\.\d+".*?</changes>' % re.escape(sys.argv
 print(sys.argv[2] + '.x:', ' '.join(f'{t} {c[t]}' for t in ('feature', 'change', 'bugfix', 'security')))
 PY
 }
-s130=$(types ../../.nginx-src/release-1.30.7/docs/xml/nginx/changes.xml 1.30); echo "$s130"
-s131=$(types ../../.nginx-src/release-1.31.9/docs/xml/nginx/changes.xml 1.31); echo "$s131"
+s130=$(types ../../.nginx-src/release-1.30.8/docs/xml/nginx/changes.xml 1.30); echo "$s130"
+s131=$(types ../../.nginx-src/release-1.31.10/docs/xml/nginx/changes.xml 1.31); echo "$s131"
 expect "the stable branch gets no features" "$(grep -o 'feature [0-9]*' <<< "$s130")" "feature 0"
 
 step "modules compiled in"
-mods=../../.nginx-src/release-1.31.9/objs/ngx_modules.c
+mods=../../.nginx-src/release-1.31.10/objs/ngx_modules.c
 for m in ngx_http_tunnel_module ngx_http_proxy_module ngx_http_realip_module ngx_http_json_module \
          ngx_http_dav_module ngx_http_hello_module; do
     printf '%-24s %s\n' "$m" "$(grep -q "^    &$m,$" $mods && echo built-in || echo no)"
@@ -106,3 +106,36 @@ step "defaults compiled into the binary"
 "$NGINX" -h 2>&1 | n | grep 'default'
 expect "the default prefix is --prefix, the config and error log are relative to it" \
     "$("$NGINX" -h 2>&1 | n | grep -c -e 'default: \$ROOT/.nginx/)' -e 'default: logs/error.log)' -e 'default: conf/nginx.conf)')" "3"
+
+step "security fixes after an installed version"
+# Every security entry of the stable branch after 1.30.5, with what has to be in use for it
+# to matter: a module that must be compiled in, or a directive that must be in the config.
+# The last line compares the module conditions with the configure arguments of this build.
+built=$("$NGINX" -V 2>&1 | tr ' ' '\n' | sed -n 's/^--with-//p' | sed 's/_module$//' | tr '\n' ' ')
+echo "--with modules of this build that the entries mention: $(tr ' ' '\n' <<<"$built" | grep -xE 'http_v2|http_v3|mail|stream|stream_ssl_preread' | tr '\n' ' ' | sed 's/ $//')"
+python3 - ../../.nginx-src/release-1.30.8/docs/xml/nginx/changes.xml "$built" <<'PY' | tee out/run/sec.txt
+import re, sys
+text, built = open(sys.argv[1], encoding='utf-8').read(), sys.argv[2].split()
+rows = []
+for m in re.finditer(r'<changes ver="1\.30\.(\d+)" date="[\d-]+">(.*?)</changes>', text, re.S):
+    if int(m.group(1)) <= 5:
+        continue
+    for body in re.findall(r'<change type="security">.*?<para lang="en">(.*?)</para>', m.group(2), re.S):
+        body = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', body))
+        need = []
+        for word, flag in (('HTTP/2', 'http_v2'), ('HTTP/3', 'http_v3'), ('mail proxy', 'mail'),
+                           ('in the stream module', 'stream'), ('ssl_preread', 'stream_ssl_preread'),
+                           ('ssi_filter', 'ssi'), ('SSI page', 'ssi')):
+            if word in body and 'module:' + flag not in need:
+                need.append('module:' + flag)
+        need += ['directive:' + d for d in re.findall(r'"([a-z_]+)"(?= (?:and "[a-z_]+" )?directives?)', body)]
+        rows.append((int(m.group(1)), re.search(r'CVE-[\d-]+', body).group(0), need))
+for minor, cve, need in sorted(rows, key=lambda r: r[0]):
+    print(f'1.30.{minor} {cve} {" ".join(need) or "-"}')
+# ssi is built by default (there is --without-http_ssi_module, not --with-)
+lacking = [cve for _, cve, need in rows
+           if any(n.startswith('module:') and n[7:] != 'ssi' and n[7:] not in built for n in need)]
+print(f'entries: {len(rows)}, need a module this build lacks: {" ".join(lacking) or "none"}')
+PY
+expect "15 security fixes after 1.30.5; only the mail one needs a module this build does not have" \
+    "$(tail -1 out/run/sec.txt)" "entries: 15, need a module this build lacks: CVE-2026-113425"

@@ -2,7 +2,7 @@
 
 > **一句话结论**：limit_req 在共享内存里给每个 key 存两个数：excess（以千分之一个请求为单位的“超出量”）和上次记账的时间。每个请求先按流逝的毫秒把 excess 漏掉 `rate × ms / 1000`，再加 1000；结果超过 `burst × 1000` 就拒绝，而且不写回；超过 `delay × 1000` 的部分按 rate 换算成毫秒，挂到写事件的定时器上。读懂 `ngx_http_limit_req_lookup` 里的二十几行，就能手算任何配置的放行、拒绝和延迟。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。`ngx_http_limit_req_module.c` 在 1.30.7 与 1.31.9 之间逐字节相同（`diff` 无输出），本篇没有「版本差异」条目。实验：[`labs/dev-08`](../labs/dev-08/)，每个数字都来自它的 debug 日志。运维视角的用法见[运维篇 09](../ops/09-rate-limiting.md)，本篇假定你已经知道 `burst`、`nodelay`、`delay=` 的效果，只回答“源码为什么这样算”。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。`ngx_http_limit_req_module.c` 在 1.30.8 与 1.31.10 之间逐字节相同（`diff` 无输出），本篇没有「版本差异」条目。实验：[`labs/dev-08`](../labs/dev-08/)，每个数字都来自它的 debug 日志。运维视角的用法见[运维篇 09](../ops/09-rate-limiting.md)，本篇假定你已经知道 `burst`、`nodelay`、`delay=` 的效果，只回答“源码为什么这样算”。
 
 ## 导读
 
@@ -64,7 +64,7 @@ typedef struct {
            + key->len;
 ```
 
-在 64 位系统上，两个 `offsetof` 分别是 32 和 48（用同样的结构定义编译一个小程序打印得到），所以 `$binary_remote_addr` 做 key 时（IPv4 4 字节）一个节点要 84 字节。slab 分配器按 2 的幂取整，实际占一个 128 字节的槽。红黑树的键是 key 的 crc32（[`ngx_crc32_short`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L244)），哈希相同再比 `data`。
+在 64 位系统上，两个 `offsetof` 分别是 32 和 48（用同样的结构定义编译一个小程序打印得到），所以 `$binary_remote_addr` 做 key 时（IPv4 4 字节）一个节点要 84 字节。slab 分配器按 2 的幂取整，实际占一个 128 字节的槽。红黑树的键是 key 的 crc32（[`ngx_crc32_short`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L244)），哈希相同再比 `data`。
 
 ![每个 key 的红黑树节点和 LRU 队列共享同一块内存](../figures/dev-08/01.svg)
 
@@ -72,7 +72,7 @@ typedef struct {
 
 ## 2. 配置解析把 rate、burst、delay 都换成千分之一：1r/m 存成 16
 
-`limit_req_zone` 的 `rate=` 参数在 [`ngx_http_limit_req_zone`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L833) 里解析，只认 `r/s` 和 `r/m` 两种后缀：
+`limit_req_zone` 的 `rate=` 参数在 [`ngx_http_limit_req_zone`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L833) 里解析，只认 `r/s` 和 `r/m` 两种后缀：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:903-924
@@ -174,7 +174,7 @@ ok - drained = 16 * ms / 1000: 1r/m is stored as 16, not 16.667
 
 间隔 6 秒多时，两种 rate 预测的漏出量相差 4 个千分之一以上，日志里的值只和 16 对得上。对运维的含义是：`r/m` 写法的实际速率最多比字面值低 1/1000 r/s，`1r/m` 低了 4%；需要精确时改写成能整除的形式（`30r/m`）或直接用 `r/s`。
 
-同一节还要提一句继承：`limit_req` 是数组型指令，[merge](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L808) 时子级只要写了一条，父级的就全部不要：
+同一节还要提一句继承：`limit_req` 是数组型指令，[merge](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L808) 时子级只要写了一条，父级的就全部不要：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:813-826
@@ -200,7 +200,7 @@ ok - drained = 16 * ms / 1000: 1r/m is stored as 16, not 16.667
 
 ## 3. lookup 先漏后加：excess = 旧 excess − rate × ms / 1000 + 1000，超过 burst 就拒绝且不写回
 
-[`ngx_http_limit_req_lookup`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L405) 在持有 zone 互斥锁的情况下被调用。找到已有节点之后的逻辑是本模块的核心：
+[`ngx_http_limit_req_lookup`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L405) 在持有 zone 互斥锁的情况下被调用。找到已有节点之后的逻辑是本模块的核心：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:441-484
@@ -259,7 +259,7 @@ ok - drained = 16 * ms / 1000: 1r/m is stored as 16, not 16.667
 
 另外两处细节处理时钟倒退：`now` 比 `last` 小 60 秒以上时按 1 毫秒算，小于 60 秒时按 0 算；`ms` 为 0 时不更新 `last`，这样时间短暂倒退时 `last` 不会跟着往回走。还要注意第 454 行是整数除法：在 `1r/m` 下，两次被接受的请求相隔不到 63 毫秒时漏出量算出来是 0，而 `last` 照样更新，这段时间的漏出就丢了；被拒绝的请求不更新 `last`，不受影响。
 
-实验用 `rate=1r/m burst=5 nodelay`，连发 8 个请求，打印 debug 日志里每个请求的 `limit_req[n]: rc excess`（[第 253 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L253)的 `ngx_log_debug4`；excess 四舍五入到整数，因为请求之间的几十毫秒在 1r/m 下最多漏掉千分之一）：
+实验用 `rate=1r/m burst=5 nodelay`，连发 8 个请求，打印 debug 日志里每个请求的 `limit_req[n]: rc excess`（[第 253 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L253)的 `ngx_log_debug4`；excess 四舍五入到整数，因为请求之间的几十毫秒在 1r/m 下最多漏掉千分之一）：
 
 ```text
 # labs/dev-08 ## each passed request adds 1000, a rejected one adds nothing
@@ -693,7 +693,7 @@ delay timers (s): 1 2 3
 - `n = 0`：第一轮跳过检查，**无条件删除队尾**，然后按 `n = 1` 的规则再看最多两个。
 - 队尾节点 `count` 不为 0（正被 §5 的占位持有）时直接返回，什么都不删。
 
-所以只要队尾节点没被占位，分配就不会失败，代价是最久没被访问的那个 key 丢掉状态。zone 初始化时还把 `log_nomem` 置 0（[第 758 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L758)），slab 分配失败时不打 “no memory” 日志，这是 1.5.13 的改动。结果是：zone 太小时 error.log 里什么也看不到。
+所以只要队尾节点没被占位，分配就不会失败，代价是最久没被访问的那个 key 丢掉状态。zone 初始化时还把 `log_nomem` 置 0（[第 758 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L758)），slab 分配失败时不打 “no memory” 日志，这是 1.5.13 的改动。结果是：zone 太小时 error.log 里什么也看不到。
 
 实验用 `$arg_k` 做 key、128k 的 zone（16 KB 页上允许的最小值，第 894 行要求至少 8 页），且不写 burst。先让 `victim` 被限住，再用 3000 个不同的 key 各请求一次，然后回头看 `victim`：
 
@@ -816,3 +816,4 @@ rate 存在进程内的 `ctx` 里而不是共享内存里，所以改 rate 后�
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码重写，替代 2018 年的 `dev/04.md`。新增 excess 单位与 1r/m 截断、多 zone 记账与回滚、延迟定时器、LRU 强制淘汰与 zone 容量、reload 复用规则，均附 `labs/dev-08` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

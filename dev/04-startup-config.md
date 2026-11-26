@@ -2,7 +2,7 @@
 
 > **一句话结论**：nginx 的配置解析分三步。`ngx_conf_read_token` 把文件切成词：`#` 只在词首才是注释，`\n`、`\t` 在任何词里都会被展开，`$` 后面的 `{` 不结束词。`ngx_conf_handler` 按模块顺序线性扫描所有指令表（本仓库构建共 675 条，89 个名字被不止一个模块定义），用“当前上下文”这一位挑出唯一的接收者，再按指令的偏移量和模块的 `ctx_index` 算出写进哪个结构体。`http{}` 为每个 HTTP 模块建 main、srv、loc 三个数组，`server{}` 共用 main、新建 srv 和 loc，`location{}` 共用 main 和 srv、只新建 loc；解析完后逐个模块自上而下合并，子级没设的值取父级。几乎所有错误都带文件和行号，唯有未知变量是在整个 `http{}` 解析完才检查的，报错里没有位置。`-g` 是一段先于配置文件解析的配置，所以它和文件里写了同一条指令时，被报“重复”的是文件那一行。reload 时新 cycle 按地址接管旧的监听 socket，地址不变的端口用的是同一个文件描述符。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」两处，都不影响本篇的结论：`ngx_conf_file.c` 在 1.31.9 里多了 `ngx_conf_check_size_nonzero` 这个后置检查（`client_header_buffer_size` 等 17 条指令用它拒绝 0 值）和 control API 开启时保留配置副本的分支；`ngx_http_core_location` 多了 predicate location（`location $var`，1.31.5 起，见[运维篇 04](../ops/04-routing.md) §5）的解析分支。本篇引用的其余代码两个版本逐字相同。实验：[`labs/dev-04`](../labs/dev-04/)，`cf.c` 链接本仓库构建的目标文件（同[开发篇 02](02-data-structures.md)），直接读指令表和 `ngx_init_cycle` 建出的结构。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」两处，都不影响本篇的结论：`ngx_conf_file.c` 在 1.31.10 里多了 `ngx_conf_check_size_nonzero` 这个后置检查（`client_header_buffer_size` 等 17 条指令用它拒绝 0 值）和 control API 开启时保留配置副本的分支；`ngx_http_core_location` 多了 predicate location（`location $var`，1.31.5 起，见[运维篇 04](../ops/04-routing.md) §5）的解析分支。本篇引用的其余代码两个版本逐字相同。实验：[`labs/dev-04`](../labs/dev-04/)，`cf.c` 链接本仓库构建的目标文件（同[开发篇 02](02-data-structures.md)），直接读指令表和 `ngx_init_cycle` 建出的结构。
 
 ## 导读
 
@@ -23,7 +23,7 @@
 
 ## 1. 配置文件先被切成词：引号、转义、#、${ 的规则都在 ngx_conf_read_token 里
 
-[`ngx_conf_read_token`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_conf_file.c#L509) 是一个逐字节的状态机，一次读出一条指令的全部词，遇到 `;` 返回 `NGX_OK`，遇到 `{` 返回 `NGX_CONF_BLOCK_START`，遇到 `}` 返回 `NGX_CONF_BLOCK_DONE`。词首的字符决定了这个词怎么读：
+[`ngx_conf_read_token`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_conf_file.c#L509) 是一个逐字节的状态机，一次读出一条指令的全部词，遇到 `;` 返回 `NGX_OK`，遇到 `{` 返回 `NGX_CONF_BLOCK_START`，遇到 `}` 返回 `NGX_CONF_BLOCK_DONE`。词首的字符决定了这个词怎么读：
 
 ```c
 // src/core/ngx_conf_file.c:673-726
@@ -191,7 +191,7 @@ ok - "#" inside a word is kept; \n and \t are expanded; "{" after "$" stays in t
 
 ## 2. 每条指令在所有模块的指令表里线性查找；同名指令靠上下文位区分
 
-[`ngx_conf_handler`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_conf_file.c#L362) 没有哈希表，它按 `cycle->modules[]` 的顺序遍历每个模块的 `commands[]`，名字相同后再做三项检查：模块类型是否等于当前的 `cf->module_type`（`http{}` 里是 `NGX_HTTP_MODULE`），指令的 `type` 是否包含当前上下文的位（`cf->cmd_type`），参数个数是否符合：
+[`ngx_conf_handler`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_conf_file.c#L362) 没有哈希表，它按 `cycle->modules[]` 的顺序遍历每个模块的 `commands[]`，名字相同后再做三项检查：模块类型是否等于当前的 `cf->module_type`（`http{}` 里是 `NGX_HTTP_MODULE`），指令的 `type` 是否包含当前上下文的位（`cf->cmd_type`），参数个数是否符合：
 
 ```c
 // src/core/ngx_conf_file.c:371-401
@@ -293,7 +293,7 @@ ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     }
 ```
 
-未知变量没有行号，因为变量在解析时只登记名字，[`ngx_http_variables_init_vars`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_variables.c#L2790) 等所有模块都注册完自己的变量之后才逐个核对；这时已经不知道是哪一行引用的了。遇到这个错误，只能按变量名在配置里搜索。
+未知变量没有行号，因为变量在解析时只登记名字，[`ngx_http_variables_init_vars`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_variables.c#L2790) 等所有模块都注册完自己的变量之后才逐个核对；这时已经不知道是哪一行引用的了。遇到这个错误，只能按变量名在配置里搜索。
 
 下图把这些错误放在解析的时间线上，判断是：越晚发现的错误，离出错的那一行越远：
 
@@ -320,7 +320,7 @@ ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     }
 ```
 
-[`ngx_conf_param`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_conf_file.c#L66) 把这段字符串包装成一个 `fd` 为 `NGX_INVALID_FILE` 的“文件”交给 `ngx_conf_parse`，后者据此进入 `parse_param` 状态：遇到 `{` 报错，读到结尾还没有 `;` 报 “unexpected end of parameter”，报错位置写成 “in command line”。
+[`ngx_conf_param`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_conf_file.c#L66) 把这段字符串包装成一个 `fd` 为 `NGX_INVALID_FILE` 的“文件”交给 `ngx_conf_parse`，后者据此进入 `parse_param` 状态：遇到 `{` 报错，读到结尾还没有 `;` 报 “unexpected end of parameter”，报错位置写成 “in command line”。
 
 ```text
 # labs/dev-04 ## -g is parsed before the configuration file
@@ -413,7 +413,7 @@ typedef struct {
 
 ## 6. http{} 为每个模块建三个数组：server 共用 main，location 共用 main 和 srv
 
-[`ngx_http_block`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http.c#L123) 建出 `http{}` 这一级的 ctx，为每个 HTTP 模块调用三个 create 回调：
+[`ngx_http_block`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http.c#L123) 建出 `http{}` 这一级的 ctx，为每个 HTTP 模块调用三个 create 回调：
 
 ```c
 // src/http/ngx_http.c:189-217
@@ -448,7 +448,7 @@ typedef struct {
     }
 ```
 
-`server{}`（[`ngx_http_core_server`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L3016)）复制 main_conf 指针，自己新建 srv_conf 和 loc_conf：
+`server{}`（[`ngx_http_core_server`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L3016)）复制 main_conf 指针，自己新建 srv_conf 和 loc_conf：
 
 ```c
 // src/http/ngx_http_core_module.c:3036-3051
@@ -470,7 +470,7 @@ typedef struct {
     }
 ```
 
-`location{}`（[`ngx_http_core_location`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L3161)）复制 main 和 srv，只新建 loc：
+`location{}`（[`ngx_http_core_location`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L3161)）复制 main 和 srv，只新建 loc：
 
 ```c
 // src/http/ngx_http_core_module.c:3179-3186
@@ -752,3 +752,4 @@ master 自己不处理连接，旧配置对它已经没有用；老 worker 是�
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖分词规则、指令分派与同名指令、错误分层、`-g`、指令写入位置、三级 ctx、合并顺序和 reload 时的监听 socket 交接；实验程序 `labs/dev-04/cf.c` 链接 1.31.9 的目标文件，直接读取 `ngx_init_cycle` 建出的结构。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

@@ -35,5 +35,5 @@
 <rect x="952" y="266.6" width="208" height="87" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
 <text x="1056" y="305.5" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">继承父级</text>
 <text x="1056" y="325.3" font-size="12" fill="#646A73" text-anchor="middle">使用 X-Parent</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_headers_filter_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_headers_filter_module.c（1.31.10）</text>
 </svg>

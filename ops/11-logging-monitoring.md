@@ -2,7 +2,7 @@
 
 > **一句话结论**：access log 默认的转义把双引号、反斜杠、控制字符和所有 0x80 以上的字节写成 `\xHH`，中文 UA 会变成一串 `\xE4...`；要给下游当 JSON 解析，必须写 `escape=json`，它只转义 `"`、`\` 和控制字符，UTF-8 原样保留。`$request_time` 从收到请求的第一批数据算到写日志，`$upstream_header_time` 和 `$upstream_response_time` 从连上后端算到收到响应头、收到完整响应，所以“后端慢在响应头”和“后端慢在响应体”在日志里能分开；一次请求试了几台后端，这几个 `$upstream_*` 变量就有几个用 `, ` 隔开的值。`access_log ... if=` 的值为空或 `0` 时不写；`buffer=` 让日志先进内存，`flush=` 到时才落盘。`stub_status` 的 7 个数字是全局的原子计数器，`Waiting` 是空闲的 keepalive 连接，1.29.7 起 upstream 默认长连接，同一个 nginx 里的反向代理连接也会算进去。`mv` 日志文件之后 nginx 还会往旧文件里写，直到收到 USR1。1.31.5 新增的 `json_set` 是 JSON 解析器，用来从变量里取字段，不是状态输出接口。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：`ngx_http_log_module.c` 和 `ngx_http_stub_status_module.c` 在 1.30.7 和 1.31.9 之间没有差别；`ngx_http_json_module`（`json_set`、`json_max_depth`）是 1.31.5 新增的，1.30.7 的源码树里没有这个模块。upstream 默认长连接（1.29.7）两个版本都有。实验：[`labs/ops-11`](../labs/ops-11/)，单 worker；18220 是前端，18221 是后端，18229 没有进程监听；本仓库的构建带了 `--with-http_stub_status_module` 和 `--with-http_json_module`，这两个模块默认不编译。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：`ngx_http_log_module.c` 和 `ngx_http_stub_status_module.c` 在 1.30.8 和 1.31.10 之间没有差别；`ngx_http_json_module`（`json_set`、`json_max_depth`）是 1.31.5 新增的，1.30.8 的源码树里没有这个模块。upstream 默认长连接（1.29.7）两个版本都有。实验：[`labs/ops-11`](../labs/ops-11/)，单 worker；18220 是前端，18221 是后端，18229 没有进程监听；本仓库的构建带了 `--with-http_stub_status_module` 和 `--with-http_json_module`，这两个模块默认不编译。
 
 ## 导读
 
@@ -144,11 +144,11 @@ ok - a slow body shows in urt and rt only; a delayed header shows in uht as well
 
 ```text
 # labs/ops-11 ## bytes_sent and body_bytes_sent
-log: status=200 bytes_sent=247 body_bytes_sent=11; curl saw a header of 236 bytes
+log: status=200 bytes_sent=248 body_bytes_sent=11; curl saw a header of 237 bytes
 ok - bytes_sent is the header plus the body
 ```
 
-247 = 236 + 11，差值就是 curl 收到的响应头长度。
+248 = 237 + 11，差值就是 curl 收到的响应头长度。
 
 ![四个时间变量的起止点不同，能把慢请求分到不同环节](../figures/ops-11/03.svg)
 
@@ -423,3 +423,4 @@ ok - a path picks one value; broken or missing JSON gives "-"
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖默认转义、`escape=json` 与 `escape=none`、`$request_time` 和三个 `$upstream_*_time` 的起止点、`$bytes_sent`、多次尝试的列表格式、`access_log if=`、`buffer`/`flush`、`log_not_found`、`stub_status` 各计数器、USR1 重新打开日志、1.31.5 的 `json_set`，均附 `labs/ops-11` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。`Server: nginx/1.31.10` 比原来长 1 字节，正文和图里依赖响应长度的数字随之更新。

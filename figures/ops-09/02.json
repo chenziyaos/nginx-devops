@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "超过 burst 才拒绝，超过 delay 只是排队",
  "subtitle": "一个请求在 limit_req 里经过两次比较；红色是唯一返回错误的出口",
- "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+ "source": "来源：ngx_http_limit_req_module.c（1.31.10）",
  "stages": [
   {"name": "算超出量", "nodes": [
     {"id": "a", "title": "按 key 找节点", "sub": "excess = 旧值 − rate × 经过时间 + 1"}]},

@@ -2,7 +2,7 @@
   "type": "stack",
   "title": "master 和 worker 各自睡在一个系统调用上，只被信号或事件唤醒",
   "subtitle": "上面是 master 循环（信号驱动），下面是 worker 循环（事件驱动）；虚线是进程间通道",
-  "source": "来源：src/os/unix/ngx_process_cycle.c（1.31.9）",
+  "source": "来源：src/os/unix/ngx_process_cycle.c（1.31.10）",
   "parts": [
     {
       "label": "master 循环",

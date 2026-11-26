@@ -48,5 +48,5 @@
 <text x="483.4" y="337" font-size="12" fill="#646A73">否</text>
 <text x="969.8" y="337" font-size="12" fill="#646A73">否</text>
 <text x="969.8" y="411" font-size="12" fill="#646A73">是</text>
-<text x="40" y="548" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_log_module.c（1.31.9）</text>
+<text x="40" y="548" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_log_module.c（1.31.10）</text>
 </svg>

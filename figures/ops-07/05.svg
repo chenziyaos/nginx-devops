@@ -31,5 +31,5 @@
 <text x="632" y="301.4" font-size="14" fill="#646A73">不在 C 上的 42 个 key</text>
 <rect x="1020" y="286.4" width="120" height="24" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1" data-role="value-chip"/>
 <text x="1132" y="301.4" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="end">0 个换了机器</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_hash_module.c、labs/ops-07 实验（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_hash_module.c、labs/ops-07 实验（1.31.10）</text>
 </svg>

@@ -34,5 +34,5 @@
 <text x="919.5" y="193.4" font-size="12" fill="#646A73" text-anchor="middle">return</text>
 <text x="909" y="284.4" font-size="12" fill="#646A73">继续</text>
 <text x="600" y="313.4" font-size="12" fill="#646A73" text-anchor="middle">rewrite last</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.h（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.h（1.31.10）</text>
 </svg>

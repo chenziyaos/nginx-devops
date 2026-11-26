@@ -2,7 +2,7 @@
   "type": "graph",
   "title": "指令的书写顺序就是包装顺序，算法指令要写在 sticky 之前",
   "subtitle": "上半部分：解析 upstream{} 时各指令按顺序改写 init_upstream，后面的覆盖前面的；下半部分：init_main_conf 阶段按最终顺序调用包装函数",
-  "source": "来源：ngx_http_upstream_sticky_module.c、ngx_http_upstream_keepalive_module.c（1.31.9）",
+  "source": "来源：ngx_http_upstream_sticky_module.c、ngx_http_upstream_keepalive_module.c（1.31.10）",
   "stages": [
     {
       "name": "解析 upstream{}（按书写顺序）",

@@ -38,17 +38,17 @@
 <text x="703.3" y="433.6" font-size="13" fill="#1F2329">响应头</text>
 <polyline points="693.3,442 868,442" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="868,436 878,442 868,448" fill="#8F959E"/>
-<text x="890" y="474.6" font-size="13" fill="#1F2329">234 字节，暂存</text>
+<text x="890" y="474.6" font-size="13" fill="#1F2329">235 字节，暂存</text>
 <polyline points="880,483 1054.7,483" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="1054.7,477 1064.7,483 1054.7,489" fill="#8F959E"/>
 <text x="703.3" y="515.5" font-size="13" fill="#1F2329">7 字节，last_buf</text>
 <polyline points="693.3,524 868,524" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="868,518 878,524 868,530" fill="#8F959E"/>
-<text x="890" y="556.5" font-size="13" fill="#1F2329">241 字节全部</text>
+<text x="890" y="556.5" font-size="13" fill="#1F2329">242 字节全部</text>
 <polyline points="880,565 1054.7,565" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="1054.7,559 1064.7,565 1054.7,571" fill="#8F959E"/>
 <text x="1056.7" y="597.5" font-size="13" fill="#1F2329" text-anchor="end">写出响应</text>
 <polyline points="1066.7,606 145.3,606" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="145.3,600 135.3,606 145.3,612" fill="#8F959E"/>
-<text x="40" y="660" font-size="12" fill="#646A73" data-role="source">来源：labs/dev-01 实验输出（1.31.9）</text>
+<text x="40" y="660" font-size="12" fill="#646A73" data-role="source">来源：labs/dev-01 实验输出（1.31.10）</text>
 </svg>

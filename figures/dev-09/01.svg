@@ -26,5 +26,5 @@
 <text x="486.9" y="505" font-size="14" fill="#1F2329" text-anchor="middle">round_robin / least_conn</text>
 <rect x="714" y="480" width="430" height="40" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
 <text x="929" y="505" font-size="14" fill="#1F2329" text-anchor="middle">current_weight / effective_weight</text>
-<text x="40" y="576" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.9）</text>
+<text x="40" y="576" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.10）</text>
 </svg>

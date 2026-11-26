@@ -35,5 +35,5 @@
 <rect x="952" y="266" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
 <text x="1056" y="303.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">使用 location 值</text>
 <text x="1056" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">10s</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.h（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.h（1.31.10）</text>
 </svg>

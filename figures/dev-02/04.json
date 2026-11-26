@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "ngx_queue_t 侵入式链表靠偏移量找回",
  "subtitle": "从左到右是 next 方向，虚线回到 head；link 嵌在业务结构里，减去固定偏移就找回 item_t",
- "source": "来源：src/core/ngx_queue.c（1.31.9）、labs/dev-02 实验输出",
+ "source": "来源：src/core/ngx_queue.c（1.31.10）、labs/dev-02 实验输出",
  "stages": [
   {
    "name": "head",

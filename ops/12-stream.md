@@ -2,7 +2,7 @@
 
 > **一句话结论**：stream 模块转发的是字节流，一个会话从 accept 开始、到任意一端关闭或超时结束，日志在结束时才写一行；它不解析上层协议，所以能用来分流的只有监听地址、客户端地址，以及 `ssl_preread` 从 TLS ClientHello 里偷看到的 SNI 和 ALPN。被动健康检查和 HTTP 一样：连接失败一次就把后端摘掉 `fail_timeout`，到期后它的权重从 0 慢慢涨回来，所以不一定是到期后的第一个连接去试。UDP 会话默认不会因为收到回复就结束，要么设 `proxy_responses`，要么等 `proxy_timeout`（默认 10 分钟）。1.25.5 起 stream 也有了 `server_name` 虚拟主机和 `pass` 指令：前者让 preread 到的名字直接选 `server{}`，后者把连接原样交给本机另一个监听端口，不新建 TCP 连接。两者各有一个不报错的陷阱：access 阶段排在切换之前，被选中的 server 里写 `deny all` 不生效；`pass` 找不到目标端口时以状态 200 结束会话。`proxy_protocol` 把客户端地址带给后端，`v2` 是 1.31.4 新增的。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：1.30.7 stable 的 stream 目录比 1.31.9 少一个 `ngx_stream_upstream_least_time_module.c`（`least_time`，1.31.0）；`proxy_ssl_alpn`（1.31.0）和 `proxy_protocol v2`（1.31.4）也只有 mainline 有，1.30.7 的 `proxy_protocol` 仍是 `on`/`off` 开关。虚拟主机和 `pass`（1.25.5）两个版本都有。两个版本 2026-11-18 同时修了两个 stream 漏洞：`ssl_preread` 对畸形 ClientHello 的解析与其他 TLS 实现不一致（CVE-2026-123640），以及 SNI 选中的虚拟主机却用默认 server 的配置校验客户端证书（CVE-2026-120967），用 stream 的都应升级。实验：[`labs/ops-12`](../labs/ops-12/)，单 worker，在 macOS（kqueue）上运行；18240–18254 是各个前端，18250 是一个 HTTP 后端，18251 是带两个证书的 TLS 后端，18253 是读 PROXY 协议的后端，18256 是 UDP 后端，18259 和 18258 没有进程监听。客户端是实验目录里的 `client.py`，它会打印自己用的本地端口。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：1.30.8 stable 的 stream 目录比 1.31.10 少一个 `ngx_stream_upstream_least_time_module.c`（`least_time`，1.31.0）；`proxy_ssl_alpn`（1.31.0）和 `proxy_protocol v2`（1.31.4）也只有 mainline 有，1.30.8 的 `proxy_protocol` 仍是 `on`/`off` 开关。虚拟主机和 `pass`（1.25.5）两个版本都有。两个版本 2026-11-18 同时修了两个 stream 漏洞：`ssl_preread` 对畸形 ClientHello 的解析与其他 TLS 实现不一致（CVE-2026-123640），以及 SNI 选中的虚拟主机却用默认 server 的配置校验客户端证书（CVE-2026-120967），用 stream 的都应升级。实验：[`labs/ops-12`](../labs/ops-12/)，单 worker，在 macOS（kqueue）上运行；18240–18254 是各个前端，18250 是一个 HTTP 后端，18251 是带两个证书的 TLS 后端，18253 是读 PROXY 协议的后端，18256 是 UDP 后端，18259 和 18258 没有进程监听。客户端是实验目录里的 `client.py`，它会打印自己用的本地端口。
 
 ## 导读
 
@@ -21,7 +21,7 @@ stream 和 HTTP 一样按阶段处理，但阶段只有 7 个，而且没有“�
 
 ![stream 能用来分流的名字，要到 preread 阶段才拿到](../figures/ops-12/01.svg)
 
-阶段的顺序来自 [`ngx_stream.h`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream.h#L85) 里的枚举；`$status` 的取值也定义在这个头文件里：200 正常结束、400 客户端数据不对、403 被 access 拒绝、500 内部错误、502 后端连不上、503 被限连。
+阶段的顺序来自 [`ngx_stream.h`](https://github.com/nginx/nginx/blob/release-1.31.10/src/stream/ngx_stream.h#L85) 里的枚举；`$status` 的取值也定义在这个头文件里：200 正常结束、400 客户端数据不对、403 被 access 拒绝、500 内部错误、502 后端连不上、503 被限连。
 
 ## 1. stream 代理只搬字节：两边的字节数在一行日志里对得上
 
@@ -49,12 +49,12 @@ stream {
 
 ```text
 # labs/ops-12 ## a TCP proxy and its log line
-bytes=145 first=HTTP/1.1 200 OK
-18240 TCP 200 sent=145 recv=18 up=[127.0.0.1:18250] upsent=18 uprecv=145
+bytes=146 first=HTTP/1.1 200 OK
+18240 TCP 200 sent=146 recv=18 up=[127.0.0.1:18250] upsent=18 uprecv=146
 ok - bytes_received = upstream_bytes_sent = the 18-byte request; bytes_sent = upstream_bytes_received = what the client got
 ```
 
-stream 不知道这是 HTTP：它从客户端收了 18 字节，原样发给后端；从后端收了 145 字节，原样发给客户端。`$bytes_received` 等于 `$upstream_bytes_sent`、`$bytes_sent` 等于 `$upstream_bytes_received`，是一个纯转发会话的特征；两边对不上，说明会话中途断了，或者前面有 preread、PROXY 协议头这类 nginx 自己加减的字节。
+stream 不知道这是 HTTP：它从客户端收了 18 字节，原样发给后端；从后端收了 146 字节，原样发给客户端。`$bytes_received` 等于 `$upstream_bytes_sent`、`$bytes_sent` 等于 `$upstream_bytes_received`，是一个纯转发会话的特征；两边对不上，说明会话中途断了，或者前面有 preread、PROXY 协议头这类 nginx 自己加减的字节。
 
 会话什么时候结束，由几个超时和计数决定，默认值都在 `ngx_stream_proxy_merge_srv_conf` 里：`proxy_connect_timeout` 60 秒，`proxy_timeout`（两次读写之间的最长空闲）10 分钟，`proxy_buffer_size` 16k，`proxy_next_upstream` 默认开，`proxy_next_upstream_tries` 和 `proxy_next_upstream_timeout` 默认 0（不限）。日志只在会话结束时写，所以一条长连接（数据库连接池、MQTT）可能几个小时都不出现在日志里；排查“现在有哪些连接”要看 `ss`/`netstat`，不能看 access log。
 
@@ -131,7 +131,7 @@ ok - two refused connects, each one disables the server
             return NGX_ERROR;
 ```
 
-失败后，[`ngx_stream_upstream_free_round_robin_peer_locked`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream_upstream_round_robin.c#L807) 做三件事：`fails` 加 1、`checked` 记成现在、`effective_weight` 扣掉 `weight / max_fails`，扣到负数按 0 算：
+失败后，[`ngx_stream_upstream_free_round_robin_peer_locked`](https://github.com/nginx/nginx/blob/release-1.31.10/src/stream/ngx_stream_upstream_round_robin.c#L807) 做三件事：`fails` 加 1、`checked` 记成现在、`effective_weight` 扣掉 `weight / max_fails`，扣到负数按 0 算：
 
 ```c
 // src/stream/ngx_stream_upstream_round_robin.c:841-860
@@ -287,11 +287,11 @@ ok - with proxy_responses the session ends on the reply; without it, at proxy_ti
 # labs/ops-12 ## SNI routing with ssl_preread
 bytes=49 first=A sni=a.test server_port=18251 remote_port=<port> cert=a.test 
 bytes=49 first=B sni=b.test server_port=18251 remote_port=<port> cert=b.test 
-bytes=145 first=HTTP/1.1 200 OK
+bytes=146 first=HTTP/1.1 200 OK
 ok - a.test and b.test reach the TLS server with their own certificate; plain HTTP goes to the default
 ```
 
-TLS 客户端和后端 18251 之间是端到端的握手，证书由后端出示，nginx 只看到了明文的 ClientHello。第三行是往同一个端口发的明文 HTTP 请求，它也被正确送到了 HTTP 后端。原因在 [`ngx_stream_ssl_preread_handler`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream_ssl_preread_module.c#L108) 里：第一个字节不是 0x16（TLS 握手记录），就清掉上下文、返回 `NGX_DECLINED`，会话继续往下走，变量都是空：
+TLS 客户端和后端 18251 之间是端到端的握手，证书由后端出示，nginx 只看到了明文的 ClientHello。第三行是往同一个端口发的明文 HTTP 请求，它也被正确送到了 HTTP 后端。原因在 [`ngx_stream_ssl_preread_handler`](https://github.com/nginx/nginx/blob/release-1.31.10/src/stream/ngx_stream_ssl_preread_module.c#L108) 里：第一个字节不是 0x16（TLS 握手记录），就清掉上下文、返回 `NGX_DECLINED`，会话继续往下走，变量都是空：
 
 ```c
 // src/stream/ngx_stream_ssl_preread_module.c:152-167
@@ -315,7 +315,7 @@ TLS 客户端和后端 18251 之间是端到端的握手，证书由后端出示
 
 所以“一个端口同时接 TLS 和明文协议”可以靠 `map` 的 `default` 实现。要注意 preread 要等到数据：客户端连上后一个字节都不发（SMTP、MySQL 这类由服务端先发数据的协议），preread 会一直等到 `preread_timeout`（默认 30 秒），超时后按“读完了”处理继续往下走，这些协议的首包延迟就多了 30 秒。这类端口不要开 `ssl_preread`。
 
-偷看是怎么做到“不吃掉”数据的：在 kqueue 和支持 `EPOLLRDHUP` 的 epoll 上，[`ngx_stream_preread_peek`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream_core_module.c#L347) 用 `recv(..., MSG_PEEK)` 读，处理完把缓冲区指针拨回去，字节还留在内核里：
+偷看是怎么做到“不吃掉”数据的：在 kqueue 和支持 `EPOLLRDHUP` 的 epoll 上，[`ngx_stream_preread_peek`](https://github.com/nginx/nginx/blob/release-1.31.10/src/stream/ngx_stream_core_module.c#L347) 用 `recv(..., MSG_PEEK)` 读，处理完把缓冲区指针拨回去，字节还留在内核里：
 
 ```c
 // src/stream/ngx_stream_core_module.c:374-382
@@ -362,11 +362,11 @@ TLS 客户端和后端 18251 之间是端到端的握手，证书由后端出示
 ```text
 # labs/ops-12 ## virtual servers selected by the preread name
 bytes=49 first=A sni=a.test server_port=18251 remote_port=<port> cert=a.test 
-bytes=145 first=HTTP/1.1 200 OK
+bytes=146 first=HTTP/1.1 200 OK
 ok - a.test is served by its server{}, anything else by the default one
 ```
 
-会话一开始总是落在这个地址的默认 server（第一个，或带 `default_server` 的那个）。preread 解析出名字后，[`ngx_stream_ssl_preread_servername`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream_ssl_preread_module.c#L547) 先校验主机名，再查虚拟主机表，查到了就把整个会话的 `srv_conf` 换成那个 server 的：
+会话一开始总是落在这个地址的默认 server（第一个，或带 `default_server` 的那个）。preread 解析出名字后，[`ngx_stream_ssl_preread_servername`](https://github.com/nginx/nginx/blob/release-1.31.10/src/stream/ngx_stream_ssl_preread_module.c#L547) 先校验主机名，再查虚拟主机表，查到了就把整个会话的 `srv_conf` 换成那个 server 的：
 
 ```c
 // src/stream/ngx_stream_ssl_preread_module.c:566-586
@@ -393,7 +393,7 @@ ok - a.test is served by its server{}, anything else by the default one
     s->srv_conf = cscf->ctx->srv_conf;
 ```
 
-[`ngx_stream_find_virtual_server`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream_core_module.c#L668) 和 HTTP 的查找一样，先查精确名和通配名的组合哈希，再按顺序试正则：
+[`ngx_stream_find_virtual_server`](https://github.com/nginx/nginx/blob/release-1.31.10/src/stream/ngx_stream_core_module.c#L668) 和 HTTP 的查找一样，先查精确名和通配名的组合哈希，再按顺序试正则：
 
 ```c
 // src/stream/ngx_stream_core_module.c:668-686
@@ -510,7 +510,7 @@ ok - pass: same port, no log line for 18247; proxy_pass: nginx's port
 ok - a pass to an unknown address ends with status 200
 ```
 
-经过 18247 的 `pass`，18251 看到的远端端口就是客户端的端口，`$remote_addr` 也是客户端的地址，后端的 `allow`/`deny`、`limit_conn`、日志都按真实客户端算，不需要 PROXY 协议。日志也有区别：经 `proxy_pass` 的会话写了两行（18244 一行、18251 一行），经 `pass` 的只有 18251 一行。原因在 [`ngx_stream_pass_handler`](https://github.com/nginx/nginx/blob/release-1.31.9/src/stream/ngx_stream_pass_module.c#L72)：找到匹配的监听 socket 后，它重置连接的缓冲区和日志，把本地地址改成目标地址，直接调用那个监听 socket 的 handler，原来的会话没有走到 finalize：
+经过 18247 的 `pass`，18251 看到的远端端口就是客户端的端口，`$remote_addr` 也是客户端的地址，后端的 `allow`/`deny`、`limit_conn`、日志都按真实客户端算，不需要 PROXY 协议。日志也有区别：经 `proxy_pass` 的会话写了两行（18244 一行、18251 一行），经 `pass` 的只有 18251 一行。原因在 [`ngx_stream_pass_handler`](https://github.com/nginx/nginx/blob/release-1.31.10/src/stream/ngx_stream_pass_module.c#L72)：找到匹配的监听 socket 后，它重置连接的缓冲区和日志，把本地地址改成目标地址，直接调用那个监听 socket 的 handler，原来的会话没有走到 finalize：
 
 ```c
 // src/stream/ngx_stream_pass_module.c:144-170
@@ -587,7 +587,7 @@ static ngx_conf_enum_t  ngx_stream_proxy_protocol_versions[] = {
 };
 ```
 
-「版本差异」：1.30.7 的这条指令用 `ngx_conf_set_flag_slot`，只接受 `on`/`off`，写 `v2` 会在 `nginx -t` 时报错。实验的两个前端分别发 v1 和 v2，后端回显它读到的地址和 TCP 层面的远端地址：
+「版本差异」：1.30.8 的这条指令用 `ngx_conf_set_flag_slot`，只接受 `on`/`off`，写 `v2` 会在 `nginx -t` 时报错。实验的两个前端分别发 v1 和 v2，后端回显它读到的地址和 TCP 层面的远端地址：
 
 ```nginx
 # lab: labs/ops-12/conf/nginx.conf
@@ -626,15 +626,15 @@ ok - both versions carry the client port; a connection without the header gets 4
 
 **小结**：跨进程、跨机器传客户端地址用 PROXY 协议，两端必须同时配置；v2 是二进制格式、能带 TLV 扩展，需要 1.31.4 以上的 mainline，stable 1.30.x 只能发 v1。
 
-## 8. 开源版只有被动检查；作者 2017 年的主动检查模块在 1.31.9 上不能直接打补丁
+## 8. 开源版只有被动检查；主动检查要给核心打补丁，补丁跟着 nginx 版本走
 
-§2 的被动检查只能在真实流量连接失败时发现问题。开源 nginx 的 stream 模块到 1.31.9 仍然没有主动探测（定时向后端发请求、根据结果上下线）的指令。本系列作者 2017 年写过一个第三方模块 [zyaochen/ngx_stream_upstream_check_module](https://github.com/zyaochen/ngx_stream_upstream_check_module)，以下只陈述可以核对的事实：
+§2 的被动检查只能在真实流量连接失败时发现问题。开源 nginx 的 stream 模块到 1.31.10 仍然没有主动探测（定时向后端发请求、根据结果上下线）的指令。本系列作者 2017 年写过一个第三方模块 [zyaochen/ngx_stream_upstream_check_module](https://github.com/zyaochen/ngx_stream_upstream_check_module)，2026-11-22 按当前版本重新整理过。以下只陈述可以核对的事实：
 
-- 仓库创建于 2017-12-13，最后一次推送是 2017-12-25，不是 fork；文件是 `README.md`、`build.sh`、`config`、`nginx-stable-1.12+.patch`、`ngx_stream_upstream_check_module.c`、`.h`。
-- README 说明它为 stream upstream 提供主动健康检查，检查类型支持 TCP、UDP、HTTP，配置写在 `upstream` 块里，例如 `check interval=3000 rise=2 fall=5 timeout=5000 default_down=true type=tcp;`，HTTP 类型另有 `check_http_send` 和 `check_http_expect_alive`。
-- 它需要给 nginx 源码打补丁 `nginx-stable-1.12+.patch`，补丁改 4 个文件：stream 的 hash、least_conn、round_robin 三个 `.c` 和 `ngx_stream_upstream_round_robin.h`，在 peer 结构体里加一个 `check_index` 字段，并在选后端时跳过被检查判为下线的 peer。
+- README 说明它为 stream upstream 提供主动健康检查，检查类型支持 TCP、UDP、HTTP，配置写在 `upstream` 块里，例如 `check interval=3000 rise=2 fall=5 timeout=5000 default_down=true type=tcp;`，另带一个输出 HTML、CSV、JSON 的状态页。
+- 它要在 peer 结构体里加一个字段，并让每种负载均衡算法跳过被判为下线的 peer，所以必须给 nginx 源码打补丁、静态编译，不能做成动态模块。
+- 补丁按版本分成几份：`patch/nginx-1.31.patch` 用于 1.31.x，覆盖 round robin、hash、least_conn、random、least_time；`patch/nginx-1.28-1.30.patch` 用于 1.28–1.30；`patch/nginx-1.24-1.26.patch` 用于 1.24–1.26；2017 年的原始补丁移到了 `patch/legacy/`，只适用于 1.12–1.22。
 
-2026-11-21 在 1.31.9 源码的副本上做了两种 dry-run：`git apply --check` 对 hash、round_robin 的 `.c` 和 `.h` 三个文件报 `patch does not apply`；`patch -p1 --dry-run` 能把三个 `.c` 文件的所有 hunk 带偏移和 fuzz 套上，但 `ngx_stream_upstream_round_robin.h` 的唯一 hunk 失败。失败的原因可以从结构体看出来：补丁假定 `next` 字段后面紧跟 `NGX_COMPAT_BEGIN(25)`，而 1.31.9 在两者之间加了 `least_time`（1.31.0）用的 7 个统计字段，兼容占位也从 25 变成了 7：
+为什么不能一份补丁用到底，看 1.31 的 peer 结构体就明白。2017 年的补丁假定 `next` 字段后面紧跟 `NGX_COMPAT_BEGIN(25)`，而 1.31.0 在两者之间加了 `least_time` 用的 7 个统计字段，兼容占位也从 25 变成了 7，旧补丁的这个 hunk 就对不上了：
 
 ```c
 // src/stream/ngx_stream_upstream_round_robin.h:73-88
@@ -655,15 +655,15 @@ ok - both versions carry the client port; a connection without the header gets 4
 };
 ```
 
-也就是说，要在 1.31.9 上用这个模块，至少要手工改 `.h` 的补丁；1.31.0 新增的 `least_time` 均衡器也没有被补丁覆盖，用它的 upstream 不会跳过被检查判为下线的后端。改完能否编译、运行是否正确，本篇没有验证。
+2026-11-26 在 Ubuntu 24.04 容器里用模块自带的 `build.sh` 和 `tests/run_tests.py` 核对了本篇的两个基线：1.31.10 用 1.31 补丁、1.30.8 用 1.28–1.30 补丁，GNU patch 都没有报偏移或 fuzz，编译通过，13 个测试全部通过。模块的 README 还提醒了一点：版本对不上时 GNU patch 会报错，macOS 自带的 `patch` 和 `git apply` 却可能把补丁打到别的位置而不报错，所以打补丁要用 GNU patch，并且每次升级 nginx 都重新编译、跑一遍测试。
 
-在没有主动检查的前提下，可行的做法有三类：接受被动检查，把 `proxy_connect_timeout` 从默认 60 秒调到秒级，让“连接超时”这种最慢的失败尽快换机器；由外部的检查程序根据探测结果改配置并 reload（或者用 `upstream` 的 `zone` 加 `resolve`，让 DNS 决定后端列表）；或者用带主动检查的发行版、第三方模块，并为每次 nginx 升级预留补丁适配的工作量。
+在没有主动检查的前提下，可行的做法有三类：接受被动检查，把 `proxy_connect_timeout` 从默认 60 秒调到秒级，让“连接超时”这种最慢的失败尽快换机器；由外部的检查程序根据探测结果改配置并 reload（或者用 `upstream` 的 `zone` 加 `resolve`，让 DNS 决定后端列表）；或者用带主动检查的发行版、第三方模块，并为每次 nginx 升级预留选补丁、重编、跑测试的工作量。
 
 下图把三种做法放在“发现故障靠什么”这一条轴上比较，判断是：开源版能做的只是让被动检查更快生效，主动探测都要在 nginx 之外或补丁里实现：
 
 ![开源版能做的只是加快被动检查生效，主动探测要靠补丁或 nginx 外部](../figures/ops-12/09.svg)
 
-**小结**：stream 的健康检查要按“连不上、连上但不可用”两类故障分别设计；后一类开源版看不见，选第三方模块时先在目标版本上 dry-run 补丁，作者 2017 年的模块在 1.31.9 上就过不了这一步。
+**小结**：stream 的健康检查要按“连不上、连上但不可用”两类故障分别设计；后一类开源版看不见；用打补丁的第三方模块时，补丁要和 nginx 版本对上，升级 nginx 就要重新编译并跑测试。
 
 ## 已知局限与待核实
 
@@ -671,10 +671,11 @@ ok - both versions carry the client port; a connection without the header gets 4
 - 实验客户端用的是系统自带的 Python（LibreSSL），握手是 TLS 1.2；TLS 1.3 的 ClientHello 在 preread 下的表现只读了源码。`$ssl_preread_alpn_protocols` 和 `$ssl_preread_protocol` 没有打印。
 - `preread_timeout` 到期后继续往下走（不是断开）来自 `ngx_stream_core_preread_phase` 的源码，没有构造一个不说话的客户端去等 30 秒。
 - 正则 `server_name`、通配名、`default_server` 显式标记在 stream 里的行为只读了源码。§5 的 `deny all` 反例只做了 `ssl_preread` 切换的情形；`listen ... ssl` 由握手 SNI 切换时，access 阶段同样排在 ssl 阶段之前，由此推断结论相同，没有实验。
-- `proxy_protocol v2` 的头只看了后端读出的地址，没有抓包核对二进制格式和 TLV；1.30.7 拒绝 `v2` 是从它的指令表推出的，没有用 1.30.7 跑 `nginx -t`。
-- 作者的模块只做了补丁 dry-run，没有编译，也没有在旧版本上验证它本身的功能。
+- `proxy_protocol v2` 的头只看了后端读出的地址，没有抓包核对二进制格式和 TLV；1.30.8 拒绝 `v2` 是从它的指令表推出的，没有用 1.30.8 跑 `nginx -t`。
+- §8 的模块编译和测试是在 Ubuntu 24.04 容器里用模块仓库自带的脚本做的，不在 `labs/ops-12` 里，也没有在 macOS 上编译。
 - `limit_conn`、`proxy_upload_rate`/`proxy_download_rate`、`proxy_half_close`、`least_time`、stream 的 `zone` 和 `resolve` 本篇没有实验。
 
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖 stream 的阶段与 `$status`、TCP 代理的字节计数、被动健康检查与到期后的权重恢复、UDP 会话与 `proxy_responses`、`ssl_preread` 按 SNI 分流、1.25.5 的虚拟主机和 `pass`、`proxy_protocol` v1/v2（1.31.4），以及作者 2017 年 stream 主动检查模块在 1.31.9 上的补丁 dry-run 结果，均附 `labs/ops-12` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。`Server: nginx/1.31.10` 比原来长 1 字节，正文和图里依赖响应长度的数字随之更新。§8 改写为按 nginx 版本分份的主动检查补丁，并记录 1.31.10、1.30.8 上打补丁、编译与测试的结果。

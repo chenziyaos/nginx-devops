@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "open_file_cache 有效期内不重新打开文件，发布后可能返回旧内容",
  "subtitle": "从上到下是两次文件请求的时间顺序；蓝色是缓存取用、红色是缓存返回旧内容",
- "source": "来源：ngx_open_file_cache.c、ngx_http_core_module.c（1.31.9）",
+ "source": "来源：ngx_open_file_cache.c、ngx_http_core_module.c（1.31.10）",
  "actors": [
   {
    "name": "客户端"

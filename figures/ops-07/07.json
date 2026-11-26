@@ -2,7 +2,7 @@
   "type": "sequence",
   "title": "sticky cookie：第一个请求分配 cookie，之后的请求一直去同一台",
   "subtitle": "从上到下：浏览器 → nginx → 后端的三方交互；后端地址的 MD5 值作为 cookie",
-  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）",
   "actors": [
     "浏览器",
     "nginx（sticky）",

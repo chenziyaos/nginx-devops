@@ -27,5 +27,5 @@
 <polygon points="729.6,225 739.6,231 729.6,237" fill="#8F959E"/>
 <polyline points="930.8,231 964.8,231" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="964.8,225 974.8,231 964.8,237" fill="#8F959E"/>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c（1.31.10）</text>
 </svg>

@@ -26,5 +26,5 @@
 <text x="810" y="441.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">生产问题</text>
 <text x="810" y="461.2" font-size="12" fill="#646A73" text-anchor="middle">不开 debug、info 级 error_log、</text>
 <text x="810" y="480.2" font-size="12" fill="#646A73" text-anchor="middle">access_log 变量</text>
-<text x="40" y="547" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_log.h、src/event/ngx_event_accept.c、labs/dev-01 实验（1.31.9）</text>
+<text x="40" y="547" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_log.h、src/event/ngx_event_accept.c、labs/dev-01 实验（1.31.10）</text>
 </svg>

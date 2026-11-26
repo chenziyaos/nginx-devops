@@ -2,7 +2,7 @@
   "type": "graph",
   "title": "500 要写进 proxy_next_upstream 才会换机器；POST 发出后不会重试",
   "subtitle": "从上到下四层判断：500 是否要换机、已发 POST 是否允许重试、是否还有后端可试",
-  "source": "来源：ngx_http_upstream.c、ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）",
+  "source": "来源：ngx_http_upstream.c、ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）",
   "stages": [
     {
       "name": "状态码",

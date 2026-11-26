@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "日志先进内存缓冲，flush 定时器到期后才落盘",
  "subtitle": "纵轴是时间顺序；0.2 秒时文件为空，3 秒后日志进磁盘",
- "source": "来源：ngx_http_log_module.c（1.31.9）、labs/ops-11 实验输出",
+ "source": "来源：ngx_http_log_module.c（1.31.10）、labs/ops-11 实验输出",
  "actors": [
   {"name": "客户端"},
   {"name": "worker"},

@@ -29,5 +29,5 @@
 <text x="487.7" y="305.1" font-size="14" fill="#1F2329" text-anchor="middle">494</text>
 <text x="716.2" y="305.1" font-size="14" fill="#2EA121" font-weight="bold" text-anchor="middle">400</text>
 <text x="852.7" y="305.1" font-size="14" fill="#1F2329">too large request</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.10）</text>
 </svg>

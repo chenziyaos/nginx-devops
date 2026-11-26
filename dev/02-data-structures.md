@@ -2,7 +2,7 @@
 
 > **一句话结论**：nginx 的基础结构都假定内存来自内存池、用完整池释放，所以它们几乎没有“删除元素”和“缩容”的接口。`ngx_str_t` 是长度加指针，切片不复制也不以 NUL 结尾；`ngx_array_t` 满了以后，若自己正好是池里最后一次分配就原地加一格，否则翻倍复制，旧内存不归还；`ngx_list_t` 只追加新段，元素地址永不变化，请求头和响应头都用它；`ngx_queue_t` 是嵌入业务结构的双链表，`ngx_queue_sort` 是稳定的归并排序；`ngx_hash_t` 在配置期一次建好、之后只读，桶的大小限制了单个键的长度，通配名按标签反转后存进另一张哈希，查找顺序是精确、前缀通配、后缀通配；`ngx_rbtree_t` 的节点嵌在业务结构里，键相等时往右放，定时器用的插入函数按有符号差值比较，所以计数器回绕也不会乱序；`ngx_radix_tree_t` 按位走到底，返回最后一个有值的节点，只有 geo 模块在用。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。本篇涉及的 `src/core` 文件（`ngx_string.h`、`ngx_array.*`、`ngx_list.*`、`ngx_queue.*`、`ngx_hash.*`、`ngx_rbtree.*`、`ngx_radix_tree.c`）在 1.30.7 和 1.31.9 之间逐字节相同，没有「版本差异」条目。实验：[`labs/dev-02`](../labs/dev-02/)。实验程序 `ds.c` 直接调用这些结构的 API，由 [`labs/ctest.sh`](../labs/ctest.sh) 链接到本仓库构建出的 nginx 目标文件上（除 `nginx.o` 外全部链接，`nginx.c` 重新编译并改名 `main`），所以测的就是 1.31.9 的实现，不是重写的模型。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。本篇涉及的 `src/core` 文件（`ngx_string.h`、`ngx_array.*`、`ngx_list.*`、`ngx_queue.*`、`ngx_hash.*`、`ngx_rbtree.*`、`ngx_radix_tree.c`）在 1.30.8 和 1.31.10 之间逐字节相同，没有「版本差异」条目。实验：[`labs/dev-02`](../labs/dev-02/)。实验程序 `ds.c` 直接调用这些结构的 API，由 [`labs/ctest.sh`](../labs/ctest.sh) 链接到本仓库构建出的 nginx 目标文件上（除 `nginx.o` 外全部链接，`nginx.c` 重新编译并改名 `main`），所以测的就是 1.31.10 的实现，不是重写的模型。
 
 ## 导读
 
@@ -64,7 +64,7 @@ typedef struct {
 } ngx_array_t;
 ```
 
-扩容逻辑全在 [`ngx_array_push`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_array.c#L48) 里：
+扩容逻辑全在 [`ngx_array_push`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_array.c#L48) 里：
 
 ```c
 // src/core/ngx_array.c:47-91
@@ -157,7 +157,7 @@ typedef struct {
 } ngx_list_t;
 ```
 
-链表由若干段组成，每段固定 `nalloc` 个元素；[`ngx_list_push`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_list.c#L31) 在最后一段满了时新分配一段挂上，已有的元素从不移动：
+链表由若干段组成，每段固定 `nalloc` 个元素；[`ngx_list_push`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_list.c#L31) 在最后一段满了时新分配一段挂上，已有的元素从不移动：
 
 ```c
 // src/core/ngx_list.c:31-63
@@ -240,7 +240,7 @@ struct ngx_queue_s {
     (type *) ((u_char *) q - offsetof(type, link))
 ```
 
-这种“侵入式”链表的好处是插入删除不需要额外分配，一个结构里放几个 `ngx_queue_t` 成员就能同时挂在几条链上（例如 limit_req 的节点同时在红黑树和 LRU 队列里，见[开发篇 08](08-limit-req.md)）。排序用 [`ngx_queue_sort`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_queue.c#L55)：找中点、拆成两半、递归排序、合并：
+这种“侵入式”链表的好处是插入删除不需要额外分配，一个结构里放几个 `ngx_queue_t` 成员就能同时挂在几条链上（例如 limit_req 的节点同时在红黑树和 LRU 队列里，见[开发篇 08](08-limit-req.md)）。排序用 [`ngx_queue_sort`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_queue.c#L55)：找中点、拆成两半、递归排序、合并：
 
 ```c
 // src/core/ngx_queue.c:54-106
@@ -335,7 +335,7 @@ typedef struct {
 } ngx_hash_t;
 ```
 
-它只在配置解析时由 [`ngx_hash_init`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_hash.c#L252) 建一次，之后只读，所以可以把元素紧凑地排在一起、不留增删的余地。每个元素占 `NGX_HASH_ELT_SIZE` 字节，建表前先检查每个键能否单独放进一个桶：
+它只在配置解析时由 [`ngx_hash_init`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_hash.c#L252) 建一次，之后只读，所以可以把元素紧凑地排在一起、不留增删的余地。每个元素占 `NGX_HASH_ELT_SIZE` 字节，建表前先检查每个键能否单独放进一个桶：
 
 ```c
 // src/core/ngx_hash.c:248-289
@@ -467,8 +467,8 @@ ok - exact first, then *.name (any depth), .name (bare and any depth), name.*; n
 逐项看：
 
 - **桶数**。起点是 `4 / ((64 - 8) / 16) = 1`；1 个桶时 4 个元素共 120 字节，超过 56；2 个桶时 `example.com`、`api.example.com`、`static.example.com` 的哈希值都是奇数，落进同一个桶，共 88 字节，仍然超；3 个桶时最满的桶 56 字节，正好放下。run.sh 用 Python 按同样的循环重算了一遍，结果一致。
-- **通配名的存法**。[`ngx_hash_add_key`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_hash.c#L738) 把 `*.example.com` 的标签反转成 `com.example.`，末尾的点表示“只匹配子域”；`.example.org` 存成 `org.example`，没有末尾的点，表示裸域名和子域都匹配；后缀通配 `www.example.*` 去掉 `.*` 存进另一张表。它还会就地把键转成小写，所以实验程序要先复制一份可写的字符串，不能直接传字面量。
-- **查找顺序**。[`ngx_hash_find_combined`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_hash.c#L211) 依次查精确表、前缀通配表、后缀通配表，先命中的为准；前缀通配表是逐级的：先用最后一个标签 `com` 查到下一级哈希，再用 `example` 查，查到的值的低两位编码了“是否允许裸域名”“是否还有下一级”，所以哈希里存的值指针必须 4 字节对齐。
+- **通配名的存法**。[`ngx_hash_add_key`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_hash.c#L738) 把 `*.example.com` 的标签反转成 `com.example.`，末尾的点表示“只匹配子域”；`.example.org` 存成 `org.example`，没有末尾的点，表示裸域名和子域都匹配；后缀通配 `www.example.*` 去掉 `.*` 存进另一张表。它还会就地把键转成小写，所以实验程序要先复制一份可写的字符串，不能直接传字面量。
+- **查找顺序**。[`ngx_hash_find_combined`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_hash.c#L211) 依次查精确表、前缀通配表、后缀通配表，先命中的为准；前缀通配表是逐级的：先用最后一个标签 `com` 查到下一级哈希，再用 `example` 查，查到的值的低两位编码了“是否允许裸域名”“是否还有下一级”，所以哈希里存的值指针必须 4 字节对齐。
 - **大小写**。`EXAMPLE.com` 查不到，`ngx_hash_find` 逐字节比较，不做大小写转换；HTTP 在查 `server_name` 之前，由 `ngx_http_validate_host` 把 Host 转成小写。
 
 前缀通配查找里关于低两位的注释原文如下：
@@ -660,7 +660,7 @@ ok - insert_timer_value compares signed differences
 
 ## 7. ngx_radix_tree_t 按位走到底，返回最后一个有值的节点
 
-基数树按 IP 地址的二进制位从高到低分叉，每个节点可能带一个值。[`ngx_radix32tree_find`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_radix_tree.c#L237) 一路往下走，记住经过的最后一个有值的节点，这就是最长前缀匹配：
+基数树按 IP 地址的二进制位从高到低分叉，每个节点可能带一个值。[`ngx_radix32tree_find`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_radix_tree.c#L237) 一路往下走，记住经过的最后一个有值的节点，这就是最长前缀匹配：
 
 ```c
 // src/core/ngx_radix_tree.c:236-263
@@ -755,3 +755,4 @@ ok - the radix tree is used only by the geo modules
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写，替代 2018 年版 `dev/03.md`（基本数据类型与 buf/chain；buf/chain 移到开发篇 03）。覆盖 `ngx_str_t`、`ngx_array_t` 的原地扩容与翻倍、`ngx_list_t` 的分段、`ngx_queue_t` 与稳定归并排序、`ngx_hash_t` 的建表、通配名存储与桶大小限制、`ngx_rbtree_t` 的插入函数与定时器比较、`ngx_radix_tree_t` 的最长前缀匹配；实验程序 `labs/dev-02/ds.c` 链接 1.31.9 的目标文件直接调用这些 API。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

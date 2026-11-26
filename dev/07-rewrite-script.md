@@ -2,7 +2,7 @@
 
 > **一句话结论**：配置里用到的每个变量在解析时就分到一个下标，请求里的 `r->variables[下标]` 存它的值；取值默认有缓存，只有标了 `NOCACHEABLE` 的（`$uri`、`$args`、`$arg_*` 等）每次重新计算，所以在 rewrite 阶段读一个响应头变量，会让 access log 里这个变量变成 `-`。rewrite 模块把一个 location 里的 `rewrite`、`set`、`if`、`return`、`break` 按顺序编进同一个字节码数组，执行时是一个带值栈的解释器：`if` 的条件把结果压栈、`if` 指令弹栈判断，`if` 体就编在数组里，条件为假时用 `next` 跳过。`rewrite` 的替换串分两遍处理，先算长度、再一次分配并拷贝。`last` 和 `break` 都是在这条 `rewrite` 后面插一个停止指令，区别只在是否置 `uri_changed`：前者让 POST_REWRITE 重新匹配 location，后者留在当前 location。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：`ngx_http_script.[ch]` 和 `ngx_http_rewrite_module.c` 与 1.30.7 逐字相同；`ngx_http_variables.c` 只有 `$request_id` 的生成方式不同，1.31.2 起用 SipHash-2-4 对计数器取值（`CHANGES`：“now the $request_id variable uses SipHash-2-4”），1.30.7 每个请求调用一次 `RAND_bytes`。实验：[`labs/dev-07`](../labs/dev-07/)，`rw.c` 链接本仓库构建的目标文件，把每个 location 的字节码和已编号的变量打印出来；其余步骤读 `rewrite_log` 和 debug 日志。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：`ngx_http_script.[ch]` 和 `ngx_http_rewrite_module.c` 与 1.30.8 逐字相同；`ngx_http_variables.c` 只有 `$request_id` 的生成方式不同，1.31.2 起用 SipHash-2-4 对计数器取值（`CHANGES`：“now the $request_id variable uses SipHash-2-4”），1.30.8 每个请求调用一次 `RAND_bytes`。实验：[`labs/dev-07`](../labs/dev-07/)，`rw.c` 链接本仓库构建的目标文件，把每个 location 的字节码和已编号的变量打印出来；其余步骤读 `rewrite_log` 和 debug 日志。
 
 ## 导读
 
@@ -45,7 +45,7 @@ struct ngx_http_variable_s {
 };
 ```
 
-定义和使用是分开登记的。模块用 `ngx_http_add_variable` 定义变量（进 `variables_keys`，最后建成哈希表）；配置里每出现一次 `$name`，解析它的模块调用 [`ngx_http_get_variable_index`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_variables.c#L559)，在 `cmcf->variables` 里找到或追加一项，返回下标，字节码里存的就是这个下标。整个 `http{}` 解析完后，[`ngx_http_variables_init_vars`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_variables.c#L2790) 把每个用到的变量和定义配对：先按全名找，找不到再按前缀（`http_`、`arg_`、`cookie_`、`sent_http_` 等）取最长匹配，都找不到就是 [开发篇 04](04-startup-config.md) §3 里那条没有行号的 `unknown "..." variable`。
+定义和使用是分开登记的。模块用 `ngx_http_add_variable` 定义变量（进 `variables_keys`，最后建成哈希表）；配置里每出现一次 `$name`，解析它的模块调用 [`ngx_http_get_variable_index`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_variables.c#L559)，在 `cmcf->variables` 里找到或追加一项，返回下标，字节码里存的就是这个下标。整个 `http{}` 解析完后，[`ngx_http_variables_init_vars`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_variables.c#L2790) 把每个用到的变量和定义配对：先按全名找，找不到再按前缀（`http_`、`arg_`、`cookie_`、`sent_http_` 等）取最长匹配，都找不到就是 [开发篇 04](04-startup-config.md) §3 里那条没有行号的 `unknown "..." variable`。
 
 实验打印本配置的已编号变量：
 
@@ -163,7 +163,7 @@ ngx_http_get_flushed_variable(ngx_http_request_t *r, ngx_uint_t index)
 }
 ```
 
-脚本引擎读变量时会先刷新不可缓存的变量：`push_var` 直接用后者，`copy_var` 在没有预先刷新时也用后者（`ngx_http_script.c` 第 985–990 行）；access log 用的是前者，但每写一行之前先调用 `ngx_http_script_flush_no_cacheable_variables`，把日志格式里不可缓存的变量作废（[`ngx_http_log_module.c` 第 302 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_log_module.c#L302)），所以日志里只有可缓存的变量会沿用早先算出的值。`no_cacheable` 来自定义里的 `NGX_HTTP_VAR_NOCACHEABLE`，§1 的输出里 `$uri`、`$args`、`$arg_mode` 有，`$sent_http_content_type` 没有。实验用两个 location 对比：
+脚本引擎读变量时会先刷新不可缓存的变量：`push_var` 直接用后者，`copy_var` 在没有预先刷新时也用后者（`ngx_http_script.c` 第 985–990 行）；access log 用的是前者，但每写一行之前先调用 `ngx_http_script_flush_no_cacheable_variables`，把日志格式里不可缓存的变量作废（[`ngx_http_log_module.c` 第 302 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_log_module.c#L302)），所以日志里只有可缓存的变量会沿用早先算出的值。`no_cacheable` 来自定义里的 `NGX_HTTP_VAR_NOCACHEABLE`，§1 的输出里 `$uri`、`$args`、`$arg_mode` 有，`$sent_http_content_type` 没有。实验用两个 location 对比：
 
 ```text
 # labs/dev-07 ## nocacheable variables are read again, cacheable ones are not
@@ -665,7 +665,7 @@ ngx_http_script_if_code(ngx_http_script_engine_t *e)
     }
 ```
 
-`ngx_http_add_variable` 发现同名变量已存在且没有 `NGX_HTTP_VAR_CHANGEABLE` 时报错（[`ngx_http_variables.c` 第 455–459 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_variables.c#L455)），所以 `$uri`、`$host` 这类内置变量不能 `set`：
+`ngx_http_add_variable` 发现同名变量已存在且没有 `NGX_HTTP_VAR_CHANGEABLE` 时报错（[`ngx_http_variables.c` 第 455–459 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_variables.c#L455)），所以 `$uri`、`$host` 这类内置变量不能 `set`：
 
 ```text
 # labs/dev-07 ## set cannot overwrite a built-in variable
@@ -765,8 +765,9 @@ SERVER_REWRITE（下标 1）执行时 `r->loc_conf` 还是 server 级的配置�
 - `rw.c` 按本仓库构建（arm64，指针 8 字节）里的结构体大小遍历字节码，偏移和 `copy` 的字节数在 32 位平台上不同；它认识的指令只覆盖本篇配置里出现的种类，遇到别的指令会退出。
 - §2 只验证了 `$sent_http_content_type` 一个可缓存变量的提前读取；“`$upstream_*` 中可缓存的那些”是按同一机制推断的，没有逐个检查标志位。
 - `map`、`geo`、`split_clients` 等模块定义的变量走同一套下标机制，本篇没有展开它们的取值函数。
-- 1.30.7 的 `$request_id` 生成方式只读了源码，没有在 1.30.7 上运行。
+- 1.30.8 的 `$request_id` 生成方式只读了源码，没有在 1.30.8 上运行。
 
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖变量下标与配对、取值缓存与 `NOCACHEABLE`、rewrite 字节码与解释器、替换串的两遍处理与参数、`last`/`break`/`redirect` 的实现、`if` 的编译与配置切换、`set` 与未初始化变量、server 级与 location 级规则的执行时机；实验 `labs/dev-07` 用 `rw.c` 打印字节码。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

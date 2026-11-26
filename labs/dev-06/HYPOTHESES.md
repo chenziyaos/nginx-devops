@@ -14,7 +14,7 @@
    the 30 bytes of "GET /a.txt HTTP/1.1\r\nHost: x\r\n") = 994 bytes. A 5000-byte line does not
    fit in one large buffer: NGX_HTTP_REQUEST_HEADER_TOO_LARGE (494), sent and logged as 400.
 4. max_headers 10: the 11th header line is "too many header lines" (494, 400). A header line
-   without a colon is "invalid header line" (400) in 1.31.9. After the last line,
+   without a colon is "invalid header line" (400) in 1.31.10. After the last line,
    ngx_http_process_request_header rejects HTTP/1.1 without Host and Content-Length together
    with Transfer-Encoding: chunked, both 400.
 5. rewrite ... last: the rewrite handler changes the URI, post_rewrite (4) sees uri_changed and

@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "被第二条规则拒绝时，第一条的 excess 不变",
  "subtitle": "同一个 location 写了两条 limit_req；前面的规则只预检，最后一条通过后才统一写回",
- "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+ "source": "来源：ngx_http_limit_req_module.c（1.31.10）",
  "actors": [
   {"name": "limit_req handler", "tone": "main"},
   {"name": "perip", "sub": "第 1 条"},

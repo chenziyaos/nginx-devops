@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "缓冲决定的是后端连接能多早释放，代价是磁盘写入",
  "subtitle": "从左到右：先看要不要升级，再看要不要缓冲；只有缓冲路径能在后端读完后马上放回连接",
- "source": "来源：ngx_http_upstream_send_response、ngx_http_upstream.c（1.31.9）",
+ "source": "来源：ngx_http_upstream_send_response、ngx_http_upstream.c（1.31.10）",
  "stages": [
   {
    "name": "send_response",

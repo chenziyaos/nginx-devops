@@ -39,5 +39,5 @@
 <text x="1056" y="430.2" font-size="12" fill="#646A73" text-anchor="middle">关闭连接，connect → get</text>
 <text x="919.5" y="269" font-size="12" fill="#646A73" text-anchor="middle">任意成立</text>
 <text x="919.5" y="433" font-size="12" fill="#646A73" text-anchor="middle">全不成立</text>
-<text x="40" y="506.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_next、ngx_http_upstream.c（1.31.9）</text>
+<text x="40" y="506.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_next、ngx_http_upstream.c（1.31.10）</text>
 </svg>

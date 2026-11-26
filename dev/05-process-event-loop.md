@@ -2,7 +2,7 @@
 
 > **一句话结论**：master 的信号处理函数只置一个标志，主循环在 `sigsuspend` 里睡着，醒来按标志做事；它给 worker 下命令先写 channel（一对 socketpair），写失败才用 `kill`。worker 启动时一次分配 `worker_connections` 个连接和两倍数量的事件结构，之后只在一个循环里转：算出最近的定时器还剩多久，把它作为 `kevent`/`epoll_wait` 的超时，回来后依次处理新连接、到期定时器和投递队列。nginx 没有每秒一次的时钟滴答，空闲 worker 会一直睡到下一个定时器到期；流水线请求、`keepalive` 后的下一个请求都是通过投递队列在同一轮末尾接着处理的。多个 worker 分连接有三种方式：默认大家都监听同一个 socket；`accept_mutex` 让一个 worker 独占监听，持有者带着锁睡在 `kevent` 里；`reuseport` 让每个 worker 有自己的 socket。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：1.31.9 的源码树里没有了 `ngx_iocp_module.c`/`.h`（1.30.7 还有），`ngx_event.c`、`ngx_event_accept.c` 里的 IOCP 分支也一并删掉，`CHANGES` 里没有对应条目，不影响 Unix 平台；master 主循环多了 control API 的 `ngx_sigio` 分支（1.31.5 起，见[运维篇 03](../ops/03-processes-signals.md) §7）。本篇引用的定时器、投递队列、epoll、channel 代码两个版本逐字相同。实验：[`labs/dev-05`](../labs/dev-05/)，在 macOS 上读一个 worker 的 debug 日志（事件方法是 kqueue），`ev.c` 链接本仓库构建的目标文件打印结构体大小。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：1.31.10 的源码树里没有了 `ngx_iocp_module.c`/`.h`（1.30.8 还有），`ngx_event.c`、`ngx_event_accept.c` 里的 IOCP 分支也一并删掉，`CHANGES` 里没有对应条目，不影响 Unix 平台；master 主循环多了 control API 的 `ngx_sigio` 分支（1.31.5 起，见[运维篇 03](../ops/03-processes-signals.md) §7）。本篇引用的定时器、投递队列、epoll、channel 代码两个版本逐字相同。实验：[`labs/dev-05`](../labs/dev-05/)，在 macOS 上读一个 worker 的 debug 日志（事件方法是 kqueue），`ev.c` 链接本仓库构建的目标文件打印结构体大小。
 
 ## 导读
 
@@ -64,7 +64,7 @@
 
 ```
 
-信号处理函数 [`ngx_signal_handler`](https://github.com/nginx/nginx/blob/release-1.31.9/src/os/unix/ngx_process.c#L319) 对 master 只做一件事，把信号翻译成全局标志：
+信号处理函数 [`ngx_signal_handler`](https://github.com/nginx/nginx/blob/release-1.31.10/src/os/unix/ngx_process.c#L319) 对 master 只做一件事，把信号翻译成全局标志：
 
 ```c
 // src/os/unix/ngx_process.c:342-372
@@ -163,7 +163,7 @@
     }
 ```
 
-命令值定义在 [`ngx_process_cycle.h`](https://github.com/nginx/nginx/blob/release-1.31.9/src/os/unix/ngx_process_cycle.h#L16)：`NGX_CMD_OPEN_CHANNEL` 1、`NGX_CMD_CLOSE_CHANNEL` 2、`NGX_CMD_QUIT` 3、`NGX_CMD_TERMINATE` 4、`NGX_CMD_REOPEN` 5。然后对每个 worker 先写 channel，写成功就跳过 `kill`：
+命令值定义在 [`ngx_process_cycle.h`](https://github.com/nginx/nginx/blob/release-1.31.10/src/os/unix/ngx_process_cycle.h#L16)：`NGX_CMD_OPEN_CHANNEL` 1、`NGX_CMD_CLOSE_CHANNEL` 2、`NGX_CMD_QUIT` 3、`NGX_CMD_TERMINATE` 4、`NGX_CMD_REOPEN` 5。然后对每个 worker 先写 channel，写成功就跳过 `kill`：
 
 ```c
 // src/os/unix/ngx_process_cycle.c:518-545
@@ -219,7 +219,7 @@ channel 是 `ngx_spawn_process` 在 fork 之前建的一对 socketpair，worker 
             break;
 ```
 
-标志在 [`ngx_worker_process_cycle`](https://github.com/nginx/nginx/blob/release-1.31.9/src/os/unix/ngx_process_cycle.c#L729) 处理完这一轮事件后检查（§4）。实验给 master 发 `USR1`，在 worker 的日志里看到它收到的命令：
+标志在 [`ngx_worker_process_cycle`](https://github.com/nginx/nginx/blob/release-1.31.10/src/os/unix/ngx_process_cycle.c#L729) 处理完这一轮事件后检查（§4）。实验给 master 发 `USR1`，在 worker 的日志里看到它收到的命令：
 
 ```text
 # labs/dev-05 ## the master talks to workers over the channel
@@ -233,7 +233,7 @@ ok - USR1 becomes channel command 5 (NGX_CMD_REOPEN)
 
 ## 3. worker 启动时一次分配全部连接和事件：每个连接 248 + 2 × 104 字节
 
-[`ngx_event_process_init`](https://github.com/nginx/nginx/blob/release-1.31.9/src/event/ngx_event.c#L632) 是事件模块的 `init_process`，每个 worker fork 之后调用一次。它按 `worker_connections`（默认值见 [`DEFAULT_CONNECTIONS`](https://github.com/nginx/nginx/blob/release-1.31.9/src/event/ngx_event.c#L13)，512）一次分配三个数组：
+[`ngx_event_process_init`](https://github.com/nginx/nginx/blob/release-1.31.10/src/event/ngx_event.c#L632) 是事件模块的 `init_process`，每个 worker fork 之后调用一次。它按 `worker_connections`（默认值见 [`DEFAULT_CONNECTIONS`](https://github.com/nginx/nginx/blob/release-1.31.10/src/event/ngx_event.c#L13)，512）一次分配三个数组：
 
 ```c
 // src/event/ngx_event.c:750-796
@@ -634,7 +634,7 @@ ngx_event_add_timer(ngx_event_t *ev, ngx_msec_t timer)
 }
 ```
 
-同一个事件重新设置定时器时，新旧到期时刻相差不到 [`NGX_TIMER_LAZY_DELAY`](https://github.com/nginx/nginx/blob/release-1.31.9/src/event/ngx_event_timer.h#L19)（300 ms）就沿用旧的，不动红黑树。一条持续收发数据的快连接每次读写都会“刷新”超时，这个处理让它大部分时候不用删除再插入。代价是实际触发时刻和配置值最多相差不到 300 ms。
+同一个事件重新设置定时器时，新旧到期时刻相差不到 [`NGX_TIMER_LAZY_DELAY`](https://github.com/nginx/nginx/blob/release-1.31.10/src/event/ngx_event_timer.h#L19)（300 ms）就沿用旧的，不动红黑树。一条持续收发数据的快连接每次读写都会“刷新”超时，这个处理让它大部分时候不用删除再插入。代价是实际触发时刻和配置值最多相差不到 300 ms。
 
 如果配置了 `timer_resolution`，第一步不再查红黑树，等待超时设为无限，改由周期性的时钟把 worker 叫醒、更新时间、再检查到期定时器：支持内核定时器事件的方法（kqueue 的 `EVFILT_TIMER`）直接用它，其余方法用 `setitimer`（`ngx_event.c` 第 200–203 行、第 696–719 行）。没配时，时间只在每次 `kevent` 返回后更新一次（`NGX_UPDATE_TIME`）。
 
@@ -811,7 +811,7 @@ ngx_kqueue_set_event(ngx_event_t *ev, ngx_int_t filter, ngx_uint_t flags)
     kev->udata = NGX_KQUEUE_UDATA_T ((uintptr_t) ev | ev->instance);
 ```
 
-列表满了（`kqueue_changes`，默认 512）才单独提交一次，正常情况下随下一次 `kevent` 等待一起交给内核。这就是 §4 日志里 accept 那一轮登记、下一轮 `changes: 1` 的原因，也省掉了每个连接一次的系统调用。epoll 没有批量接口，[`ngx_epoll_add_event`](https://github.com/nginx/nginx/blob/release-1.31.9/src/event/modules/ngx_epoll_module.c#L579) 每次直接调用 `epoll_ctl`。
+列表满了（`kqueue_changes`，默认 512）才单独提交一次，正常情况下随下一次 `kevent` 等待一起交给内核。这就是 §4 日志里 accept 那一轮登记、下一轮 `changes: 1` 的原因，也省掉了每个连接一次的系统调用。epoll 没有批量接口，[`ngx_epoll_add_event`](https://github.com/nginx/nginx/blob/release-1.31.10/src/event/modules/ngx_epoll_module.c#L579) 每次直接调用 `epoll_ctl`。
 
 日志里的 `fl` 是 kevent 的标志：`0x0001` 是 `EV_ADD`，`0x0004` 是 `EV_ENABLE`，`0x0020` 是 `EV_CLEAR`，返回时的 `0x8000` 是 `EV_EOF`。
 
@@ -838,7 +838,7 @@ ngx_kqueue_set_event(ngx_event_t *ev, ngx_int_t filter, ngx_uint_t flags)
         }
 ```
 
-`NGX_CLEAR_EVENT` 在 kqueue 下是 `EV_CLEAR`，在 epoll 下是 `EPOLLET`（[`ngx_event.h`](https://github.com/nginx/nginx/blob/release-1.31.9/src/event/ngx_event.h#L331)）。边沿触发下内核只在状态变化时通知一次，处理函数必须读到 `EAGAIN` 或确认读完；kqueue 返回时的 `data` 字段（日志里的 `d:71`）是可读字节数，nginx 存进 `ev->available`，用它判断是否读完。
+`NGX_CLEAR_EVENT` 在 kqueue 下是 `EV_CLEAR`，在 epoll 下是 `EPOLLET`（[`ngx_event.h`](https://github.com/nginx/nginx/blob/release-1.31.10/src/event/ngx_event.h#L331)）。边沿触发下内核只在状态变化时通知一次，处理函数必须读到 `EAGAIN` 或确认读完；kqueue 返回时的 `data` 字段（日志里的 `d:71`）是可读字节数，nginx 存进 `ev->available`，用它判断是否读完。
 
 `kevent` 返回的每个事件带着注册时的 `udata`：事件结构的指针，最低位借来存 `instance` 位。处理时先检查它：
 
@@ -1045,3 +1045,4 @@ ok - four sockets for the reuseport listener, one for the shared one
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖 master 的信号与 `sigsuspend` 主循环、channel 命令、worker 的预分配、事件循环一轮的顺序、定时器红黑树与 300 ms 懒更新、投递队列与流水线请求、kqueue 批量注册与触发方式、`instance` 位，以及 `accept_mutex`、`ngx_accept_disabled` 和 `reuseport`；实验 `labs/dev-05` 读 worker 的 debug 日志。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

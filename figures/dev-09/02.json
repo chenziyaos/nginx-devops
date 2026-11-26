@@ -2,7 +2,7 @@
   "type": "graph",
   "title": "upstream 的每一步都由事件驱动，函数返回就意味着在等下一个事件",
   "subtitle": "从上到下：init_request → connect → send_request → process_header → send_response，然后按 buffering 分为两条路径最后都到 finalize",
-  "source": "来源：ngx_http_upstream.c、ngx_http_upstream_handler（1.31.9）",
+  "source": "来源：ngx_http_upstream.c、ngx_http_upstream_handler（1.31.10）",
   "stages": [
     {
       "name": "请求建立与连接",

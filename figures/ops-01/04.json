@@ -2,7 +2,7 @@
  "type": "flow",
  "title": "nginx -t 创建 *_temp 目录和空 pid 文件，像真正启动一样走初始化",
  "subtitle": "从上到下是执行顺序；蓝色圆圈是关键副作用",
- "source": "来源：src/core/ngx_cycle.c（1.31.9）",
+ "source": "来源：src/core/ngx_cycle.c（1.31.10）",
  "numbered": true,
  "steps": [
   {

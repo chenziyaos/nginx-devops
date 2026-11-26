@@ -2,7 +2,7 @@
 
 > **一句话结论**：每个异常状态码在 error.log 里都有一句固定的原文，排障就是“access log 的状态码 → error.log 的原文 → 对应的配置项”。但客户端请求本身出错（400、414、408、499）的原文都是 info 级，`error_log` 不写级别时默认是 error，这些行一条都不会出现；排查“用户说 400，日志里什么都没有”之前，先把级别调到 info。几个状态码的对外表现和日志记录也不一致：请求头行太长内部是 494，对外和日志里都是 400；408 不给客户端发任何响应；499 是 nginx 自己的代码，表示客户端在后端回应之前断开。502 至少有五种原因（连接被拒、后端不回响应就关闭、后端发 RST、响应头超过 `proxy_buffer_size`、整组后端被摘除），504 是等后端超时（读超时和连接超时都算）。`nginx -T` 能打印本次实际读到的所有配置文件，debug 日志能看到一个请求经过的每个阶段和最终选中的 location。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：本篇涉及的错误原文和状态码映射在 1.30.7 和 1.31.9 中相同；`max_headers`（请求头行数上限，默认 1000，超过时报 `client sent too many header lines`）是 1.29.8 新增的，1.30.7 也有。实验：[`labs/ops-13`](../labs/ops-13/)，单 worker，在 macOS（kqueue）上运行；18260 是前端，18261 是后端，18262 写 debug 日志，18275 是一个接受连接后立即关闭的 stream server，18278 和 18279 没有进程监听。实验同时配了两份 error_log：`logs/error.log info` 和不写级别的 `logs/error-default.log`。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：本篇涉及的错误原文和状态码映射在 1.30.8 和 1.31.10 中相同；`max_headers`（请求头行数上限，默认 1000，超过时报 `client sent too many header lines`）是 1.29.8 新增的，1.30.8 也有。实验：[`labs/ops-13`](../labs/ops-13/)，单 worker，在 macOS（kqueue）上运行；18260 是前端，18261 是后端，18262 写 debug 日志，18275 是一个接受连接后立即关闭的 stream server，18278 和 18279 没有进程监听。实验同时配了两份 error_log：`logs/error.log info` 和不写级别的 `logs/error-default.log`。
 
 ## 导读
 
@@ -80,7 +80,7 @@ an underscore in a header name: 200 x_token=[]
 ok - the space is fatal, the underscore header is dropped; the default error log has none of the three
 ```
 
-三种情况在默认级别的日志里都是 0 行。后两种的结果不同，原因在 [`ngx_http_parse_header_line`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_parse.c#L871) 解析头名字的状态里：字母数字和 `-` 正常累加；下划线在 `underscores_in_headers off`（默认）时只打一个 `invalid_header` 标记；空格、控制字符直接返回解析错误：
+三种情况在默认级别的日志里都是 0 行。后两种的结果不同，原因在 [`ngx_http_parse_header_line`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_parse.c#L871) 解析头名字的状态里：字母数字和 `-` 正常累加；下划线在 `underscores_in_headers off`（默认）时只打一个 `invalid_header` 标记；空格、控制字符直接返回解析错误：
 
 ```c
 // src/http/ngx_http_parse.c:960-1010
@@ -166,7 +166,7 @@ ok - the space is fatal, the underscore header is dropped; the default error log
 ok - a long URI gets 414; a long header line gets 494, sent and logged as 400
 ```
 
-URI 太长是标准的 414。头行太长时，代码里 finalize 的是 nginx 自定义的 494（`NGX_HTTP_REQUEST_HEADER_TOO_LARGE`），但发给客户端之前，[`ngx_http_special_response_handler`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_special_response.c#L424) 把 494、495、496、497 这几个内部码的对外状态都改成 400，只保留各自的错误页文案（494 是 “Request Header Or Cookie Too Large”）：
+URI 太长是标准的 414。头行太长时，代码里 finalize 的是 nginx 自定义的 494（`NGX_HTTP_REQUEST_HEADER_TOO_LARGE`），但发给客户端之前，[`ngx_http_special_response_handler`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_special_response.c#L424) 把 494、495、496、497 这几个内部码的对外状态都改成 400，只保留各自的错误页文案（494 是 “Request Header Or Cookie Too Large”）：
 
 ```c
 // src/http/ngx_http_special_response.c:510-528
@@ -274,7 +274,7 @@ ok - nginx closes without a reply and logs 408
 ok - the status is 499 and the upstream status is empty
 ```
 
-nginx 在等后端响应时也在监视客户端连接（`proxy_ignore_client_abort off`，默认），发现客户端关闭就主动断开后端连接，以 499 结束请求，原文同样是 info 级。Linux 的 epoll 上原文开头是 `epoll_wait() reported that`。这段逻辑在 [`ngx_http_upstream_check_broken_connection`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream.c#L1372) 里：
+nginx 在等后端响应时也在监视客户端连接（`proxy_ignore_client_abort off`，默认），发现客户端关闭就主动断开后端连接，以 499 结束请求，原文同样是 info 级。Linux 的 epoll 上原文开头是 `epoll_wait() reported that`。这段逻辑在 [`ngx_http_upstream_check_broken_connection`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_upstream.c#L1372) 里：
 
 ```c
 // src/http/ngx_http_upstream.c:1428-1450
@@ -410,7 +410,7 @@ front: 504
 ok - the backend holds the request, the proxy gives up after 1 s
 ```
 
-超时在 [`ngx_http_upstream_next`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream.c#L4613) 里被映射成 504；同一个 `NGX_HTTP_UPSTREAM_FT_TIMEOUT` 也用于连接超时，所以 504 的原文后缀可能是 `while connecting to upstream`（`proxy_connect_timeout`，默认 60 秒，常见于后端机器宕机、防火墙丢包）或者 `while reading response header from upstream`（后端处理慢）。除了几类明确的 HTTP 状态码，其余失败都落到 502：
+超时在 [`ngx_http_upstream_next`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_upstream.c#L4613) 里被映射成 504；同一个 `NGX_HTTP_UPSTREAM_FT_TIMEOUT` 也用于连接超时，所以 504 的原文后缀可能是 `while connecting to upstream`（`proxy_connect_timeout`，默认 60 秒，常见于后端机器宕机、防火墙丢包）或者 `while reading response header from upstream`（后端处理慢）。除了几类明确的 HTTP 状态码，其余失败都落到 502：
 
 ```c
 // src/http/ngx_http_upstream.c:4650-4690
@@ -565,3 +565,4 @@ ok - the request line, the phases and the finalize call are all there
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖 error_log 默认级别与 info 级的客户端错误、头名字中的空格和下划线、414/494/413、408 与 499、403/404/500、502 的五种原文、504 与 503、`nginx -T`、debug 日志的读法，以及前面各篇配置误区的汇总，均附 `labs/ops-13` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

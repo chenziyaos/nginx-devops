@@ -42,5 +42,5 @@
 <text x="1056" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">处理三类事件</text>
 <text x="1056" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">accept → 定时器 → 投递队列</text>
 <text x="600" y="467" font-size="12" fill="#646A73" text-anchor="middle">循环</text>
-<text x="40" y="544" font-size="12" fill="#646A73" data-role="source">来源：src/event/ngx_event.c（1.31.9）</text>
+<text x="40" y="544" font-size="12" fill="#646A73" data-role="source">来源：src/event/ngx_event.c（1.31.10）</text>
 </svg>

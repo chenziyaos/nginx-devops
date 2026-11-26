@@ -2,7 +2,7 @@
  "type": "compare",
  "title": "有 zone 时所有 worker 共享一份 peers；没有 zone 时各算各的",
  "subtitle": "同一个 upstream，两个 worker 看到的权重、失败计数和连接数是否相同",
- "source": "来源：ngx_http_upstream_round_robin.c（1.31.9）",
+ "source": "来源：ngx_http_upstream_round_robin.c（1.31.10）",
  "cards": [
   {
    "id": "①",

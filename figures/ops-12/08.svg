@@ -29,5 +29,5 @@
 <text x="590" y="407.6" font-size="13" fill="#1F2329" text-anchor="end">原样转发</text>
 <polyline points="600,416 238.7,416" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="238.7,410 228.7,416 238.7,422" fill="#8F959E"/>
-<text x="40" y="470" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_proxy_module.c（1.31.9）</text>
+<text x="40" y="470" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_proxy_module.c（1.31.10）</text>
 </svg>

@@ -1,20 +1,26 @@
 #!/usr/bin/env bash
 # Build the nginx used by every lab in this repo into ./.nginx (no root needed).
 #
-#   tools/build.sh            # fetch release-1.31.9, configure, make, install
-#   NGINX_REF=release-1.30.7 tools/build.sh   # build another tag (labs are verified on 1.31.9 only)
+#   tools/build.sh            # fetch release-1.31.10, configure, make, install
+#   NGINX_REF=release-1.30.8 tools/build.sh   # build another tag (labs are verified on 1.31.10 only)
 #
 # Source goes to ./.nginx-src/<ref>, the install prefix is ./.nginx.
 # Every module under modules/ (the tutorial's own code) is built as a dynamic module.
 set -Eeuo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-REF=${NGINX_REF:-release-1.31.9}
+REF=${NGINX_REF:-release-1.31.10}
 SRC="$ROOT/.nginx-src/$REF"
 PREFIX="$ROOT/.nginx"
 
 if [[ ! -d "$SRC" ]]; then
     git clone --quiet --depth 1 --branch "$REF" https://github.com/nginx/nginx.git "$SRC"
+fi
+# The stable branch is only read, not built: ops-01 and ops-04 compare its changes.xml and
+# source with the mainline ones.
+STABLE_SRC="$ROOT/.nginx-src/release-1.30.8"
+if [[ ! -d "$STABLE_SRC" ]]; then
+    git clone --quiet --depth 1 --branch release-1.30.8 https://github.com/nginx/nginx.git "$STABLE_SRC"
 fi
 
 cc_opt="-O0 -g"

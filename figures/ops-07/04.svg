@@ -51,5 +51,5 @@
 <text x="716.6" y="191" font-size="12" fill="#646A73" text-anchor="middle">否</text>
 <text x="851.2" y="269" font-size="12" fill="#646A73">有</text>
 <text x="959.8" y="191" font-size="12" fill="#646A73" text-anchor="middle">无</text>
-<text x="40" y="422.1" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）</text>
+<text x="40" y="422.1" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）</text>
 </svg>

@@ -2,7 +2,7 @@
 
 > **一句话结论**：upstream 默认用平滑加权轮询，权重 5/1/1 时每 7 个请求的顺序是 A A B A C A A，可以按源码逐步算出来。nginx 的健康检查是被动的：一次连接失败（`max_fails=1` 的默认值）就把这台后端在 `fail_timeout`（默认 10 秒）内摘掉，到期后放一个请求去试；只有一台后端的 upstream 永远不会被摘掉；整组都被摘掉时，下一个请求不再连接，直接 502 并记 `no live upstreams`。后端返回 500 默认原样交给客户端，也不算失败，要写进 `proxy_next_upstream` 才会换机器并计数，而且已经发出去的 POST 不会重试。`hash ... consistent` 摘掉一台只影响这台的 key；`least_time`（1.31.0）按平均响应时间挑后端；`sticky cookie`（1.29.6）的 cookie 值是后端地址的 MD5。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：`least_time` 是 1.31.0 新增的，`ngx_http_upstream_least_time_module.c` 只在 1.31.x 的源码树里，1.30.7 没有；`sticky`（1.29.6）、`server ... resolve`（1.27.3）两个版本都有。`ngx_http_upstream_round_robin.c` 在两个版本之间只有加锁方式和 SSL 会话缓存的改动，选择算法相同。实验：[`labs/ops-07`](../labs/ops-07/)，单 worker；18141、18142、18143、18144、18146 是只回答自己端口号的后端（下文记作 A、B、C、E、D），18144 以 50 KB/s 发文件，18158、18159 没有进程监听。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：`least_time` 是 1.31.0 新增的，`ngx_http_upstream_least_time_module.c` 只在 1.31.x 的源码树里，1.30.8 没有；`sticky`（1.29.6）、`server ... resolve`（1.27.3）两个版本都有。`ngx_http_upstream_round_robin.c` 在两个版本之间只有加锁方式和 SSL 会话缓存的改动，选择算法相同。实验：[`labs/ops-07`](../labs/ops-07/)，单 worker；18141、18142、18143、18144、18146 是只回答自己端口号的后端（下文记作 A、B、C、E、D），18144 以 50 KB/s 发文件，18158、18159 没有进程监听。
 
 ## 导读
 
@@ -442,3 +442,4 @@ ok - server ... resolve is rejected unless the upstream has a zone
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖平滑加权轮询的手算与实测、`max_fails`/`fail_timeout` 的摘除与试探、单台 upstream 不摘除、`no live upstreams`、backup 与 down、`proxy_next_upstream` 对 500 与 POST 的处理、`hash`/`hash consistent`/`ip_hash` 的公式、`least_conn`、1.31.0 的 `least_time`、1.29.6 的 `sticky cookie`、`zone` 与 `resolve`，均附 `labs/ops-07` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

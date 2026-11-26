@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "radix 树返回查找路上最后一个有值的节点，即最长前缀匹配",
  "subtitle": "从根按地址位逐层下降；查 10.2.0.1 时路上最后一个有值的节点是 /8，答案就是值 1",
- "source": "来源：src/core/ngx_radix_tree.c（1.31.9）、labs/dev-02 实验输出",
+ "source": "来源：src/core/ngx_radix_tree.c（1.31.10）、labs/dev-02 实验输出",
  "stages": [
   {
    "name": "树根",

@@ -2,7 +2,7 @@
   "type": "graph",
   "title": "失败的惩罚在几次选择之内就被自动收回，不需要定时器",
   "subtitle": "从左到右：第 1 次请求失败降权，第 2 次请求重新参与计算，第 3 次请求权重已恢复。每个框展示 effective_weight 变化和选择结果",
-  "source": "来源：ngx_http_upstream_round_robin.c、labs/dev-09 实验输出（1.31.9）",
+  "source": "来源：ngx_http_upstream_round_robin.c、labs/dev-09 实验输出（1.31.10）",
   "stages": [
     {
       "name": "请求 1",

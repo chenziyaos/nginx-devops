@@ -2,7 +2,7 @@
  "type": "compare",
  "title": "pass 保留客户端连接和地址，proxy_pass 新建本机连接",
  "subtitle": "左右两种把连接交给 18251 的方式；蓝色是同一个 nginx 内分流时优先用的 pass",
- "source": "来源：ngx_stream_pass_module.c（1.31.9）",
+ "source": "来源：ngx_stream_pass_module.c（1.31.10）",
  "cards": [
   {
    "title": "proxy_pass",

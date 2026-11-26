@@ -6,7 +6,7 @@ none:    61 22 62 5c 63 01 64 c3 a9 0a (hex bytes)
 ok - default writes \xHH for " \ control bytes and bytes >= 0x80; json uses \" \\ \u0001 and keeps UTF-8
 
 ## bytes_sent and body_bytes_sent
-log: status=200 bytes_sent=247 body_bytes_sent=11; curl saw a header of 236 bytes
+log: status=200 bytes_sent=248 body_bytes_sent=11; curl saw a header of 237 bytes
 ok - bytes_sent is the header plus the body
 
 ## request_time and upstream times

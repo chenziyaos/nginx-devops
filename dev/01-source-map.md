@@ -2,7 +2,7 @@
 
 > **一句话结论**：nginx 的源码分三层：`src/core` 是与协议无关的基础设施，`src/event` 是事件循环，`src/http`、`src/stream`、`src/mail` 是协议实现。按 `.c` 行数算，HTTP 相关的四个目录占 52.7%。`configure` 生成三样要看的东西：`objs/Makefile`、`objs/ngx_auto_config.h` 里的宏、`objs/ngx_modules.c` 里的模块数组。模块在这个数组里的位置，决定了它的 `index`、初始化顺序、它在每个 HTTP 阶段里的位置，以及它在过滤器链里的位置。带 `--with-debug` 编译后，一个 `GET /` 的 debug 日志里，`phase: N` 的每一个 N 都能和由模块数组推出来的阶段引擎下标逐个对上。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：`main()` 里的 `ngx_control_preinit()` 和 `-l` 参数属于 1.31.5 新增的 control API，1.30.7 没有；`ngx_http_json_module.c`、`ngx_http_tunnel_module.c`、`ngx_http_upstream_least_time_module.c` 三个文件只在 1.31.9 的源码树里。`ngx_module_t` 的结构体、`ngx_module.c`、`ngx_http_init_phase_handlers` 和 `auto/modules` 里的过滤器顺序注释，两个版本逐字相同（`diff` 无输出）。实验：[`labs/dev-01`](../labs/dev-01/)，用的是 `tools/build.sh` 编出来的 nginx（`--with-debug`，`-O0 -g`）。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：`main()` 里的 `ngx_control_preinit()` 和 `-l` 参数属于 1.31.5 新增的 control API，1.30.8 没有；`ngx_http_json_module.c`、`ngx_http_tunnel_module.c`、`ngx_http_upstream_least_time_module.c` 三个文件只在 1.31.10 的源码树里。`ngx_module_t` 的结构体、`ngx_module.c`、`ngx_http_init_phase_handlers` 和 `auto/modules` 里的过滤器顺序注释，两个版本逐字相同（`diff` 无输出）。实验：[`labs/dev-01`](../labs/dev-01/)，用的是 `tools/build.sh` 编出来的 nginx（`--with-debug`，`-O0 -g`）。
 
 ## 导读
 
@@ -17,7 +17,7 @@
 | 一个请求的 debug 日志怎么读 | §7 |
 | 只给一个客户端开 debug，调试器怎么附着 | §8 |
 
-源码路径都相对于 nginx 源码根目录（实验里是 `.nginx-src/release-1.31.9`）。实验在 macOS arm64 上运行，单 worker。
+源码路径都相对于 nginx 源码根目录（实验里是 `.nginx-src/release-1.31.10`）。实验在 macOS arm64 上运行，单 worker。
 
 ## 1. 源码分核心、事件、协议三层，HTTP 相关目录占 .c 代码的一半多
 
@@ -25,11 +25,11 @@
 
 ```text
 # labs/dev-01 ## the source tree
-src/core        43 .c files  30829 lines
+src/core        43 .c files  30831 lines
 src/event       10 .c files  15201 lines
 src/event/modules   8 .c files   4686 lines
 src/event/quic  16 .c files  16157 lines
-src/http        18 .c files  38579 lines
+src/http        18 .c files  38580 lines
 src/http/modules  60 .c files  70961 lines
 src/http/v2      5 .c files   7831 lines
 src/http/v3      8 .c files   6926 lines
@@ -80,7 +80,7 @@ ok - --with-debug becomes NGX_DEBUG in ngx_auto_config.h
 
 ![configure 生成 Makefile、ngx_auto_config.h、ngx_modules.c 三样](../figures/dev-01/02.svg)
 
-改了 `configure` 参数就要重新跑 `configure`；只改了 `.c` 文件时直接 `make` 即可。本仓库的 `tools/build.sh` 把源码 clone 到 `.nginx-src/release-1.31.9`，安装到 `.nginx/`，`modules/` 下的教程模块以 `--add-dynamic-module` 编成 `.so`（开发篇 10 用）。
+改了 `configure` 参数就要重新跑 `configure`；只改了 `.c` 文件时直接 `make` 即可。本仓库的 `tools/build.sh` 把源码 clone 到 `.nginx-src/release-1.31.10`，安装到 `.nginx/`，`modules/` 下的教程模块以 `--add-dynamic-module` 编成 `.so`（开发篇 10 用）。
 
 **小结**：遇到“这段代码到底编没编进去”的问题，先查 `objs/ngx_auto_config.h` 里对应的宏，再查 `objs/ngx_modules.c` 里有没有这个模块。
 
@@ -274,7 +274,7 @@ ngx_http_header_filter_init(ngx_conf_t *cf)
 
 ## 5. main() 依次做三件事：解析命令行，用配置建出 cycle，进入进程循环
 
-`src/core/nginx.c` 的 `main()` 有 200 多行，按顺序是这几步（行号是 1.31.9 的）：
+`src/core/nginx.c` 的 `main()` 有 200 多行，按顺序是这几步（行号是 1.31.10 的）：
 
 | 行 | 调用 | 作用 |
 |---|---|---|
@@ -288,7 +288,7 @@ ngx_http_header_filter_init(ngx_conf_t *cf)
 | 357、382 | `ngx_daemon`、`ngx_create_pidfile` | 转后台、写 pid 文件 |
 | 400、403 | 进程循环 | single 或 master |
 
-1.31.9 在第 296 行之前多了 control API 的初始化：
+1.31.10 在第 296 行之前多了 control API 的初始化：
 
 ```c
 // src/core/nginx.c:292-300
@@ -542,11 +542,11 @@ debug lines for one GET /: 101
 *1 content phase: 15
 *1 content phase: 16
 *1 content phase: 17
-*1 http write filter: l:0 f:0 s:234
+*1 http write filter: l:0 f:0 s:235
 *1 http output filter "/index.html?"
 *1 http copy filter: "/index.html?"
 *1 http postpone filter "/index.html?" PTR
-*1 http write filter: l:1 f:0 s:241
+*1 http write filter: l:1 f:0 s:242
 *1 http finalize request: 0, "/index.html?" a:1, c:2
 *1 http finalize request: -4, "/index.html?" a:1, c:1
 *1 set http keepalive handler
@@ -567,7 +567,7 @@ ok - the debug log shows every handler index of the rebuilt engine except find-c
 - 0 到 13 的模块在这个配置下都没有事做，逐个放行。下标 14 是 index 模块。URI 是 `/`，它找到 `html/index.html`，调用 `ngx_http_internal_redirect` 把 URI 换成 `/index.html`，于是有了 `internal redirect: "/index.html?"`。
 - 第二遍从下标 1 开始，没有 0。内部跳转后 `ngx_http_handler` 把 `r->phase_handler` 设成 `server_rewrite_index`（`ngx_http_core_module.c` 第 878 行），`POST_READ` 阶段只在请求刚读完头时运行一次。
 - 第二遍走到 CONTENT 时，14（index）、15（autoindex）、16（gzip_static）都因为 URI 不以 `/` 结尾、或者没开 `gzip_static`，返回 `NGX_DECLINED`，直到 17（static）打开文件并发送。
-- 之后是过滤器。第一行 `http write filter: l:0 f:0 s:234` 来自 header_filter：它把 234 字节的响应头交给 write filter。`l:0`（不是最后一块）、`f:0`（不要求 flush），而且 234 字节小于 `postpone_output` 的默认值 1460，于是 write filter 把它留在 `r->out` 里，直接返回：
+- 之后是过滤器。第一行 `http write filter: l:0 f:0 s:235` 来自 header_filter：它把 235 字节的响应头交给 write filter。`l:0`（不是最后一块）、`f:0`（不要求 flush），而且 235 字节小于 `postpone_output` 的默认值 1460，于是 write filter 把它留在 `r->out` 里，直接返回：
 
 ```c
 // src/http/ngx_http_write_filter_module.c:213-220
@@ -581,7 +581,7 @@ ok - the debug log shows every handler index of the rebuilt engine except find-c
         return NGX_OK;
 ```
 
-- 响应体从 `http output filter` 进入，依次经过 copy filter、postpone filter（§4 的执行顺序），最后到 write filter：`l:1`，`s:241`，正好是 234 字节的头加 7 字节的体。这一次带着 last 标记，write filter 才把头和体一起写出去。
+- 响应体从 `http output filter` 进入，依次经过 copy filter、postpone filter（§4 的执行顺序），最后到 write filter：`l:1`，`s:242`，正好是 235 字节的头加 7 字节的体。这一次带着 last 标记，write filter 才把头和体一起写出去。
 - `finalize request: -4` 里的 -4 是 `NGX_DONE`，然后连接进入 keepalive，等待下一个请求。
 
 ![GET / 走两遍阶段引擎，第一次触发内部跳转，第二次才到 static](../figures/dev-01/07.svg)
@@ -654,7 +654,7 @@ children of the nginx process: 0
 ok - master_process off: one process serves requests, nothing is forked
 ```
 
-这样启动后，可以在调试器里直接运行 nginx，或附着这一个进程，在 `ngx_http_core_run_phases`、`ngx_http_static_handler` 之类的函数上设断点。single 模式只用于开发：它不支持 reload 时的 worker 交接，1.31.9 里 control API 在这个模式下也不可用（`nginx.c` 会打一条 `control API unavailable in single process mode` 的 warn）。
+这样启动后，可以在调试器里直接运行 nginx，或附着这一个进程，在 `ngx_http_core_run_phases`、`ngx_http_static_handler` 之类的函数上设断点。single 模式只用于开发：它不支持 reload 时的 worker 交接，1.31.10 里 control API 在这个模式下也不可用（`nginx.c` 会打一条 `control API unavailable in single process mode` 的 warn）。
 
 ![debug 由编译期宏控制，可用 debug_connection 限定客户端](../figures/dev-01/08.svg)
 
@@ -666,8 +666,9 @@ ok - master_process off: one process serves requests, nothing is forked
 - §1 的比例只统计了表中 11 个目录的 `.c` 文件，不含 `.h`、`src/os/win32`、`src/misc` 等，是近似口径。
 - §8 用调试器附着单进程的做法没有在实验里自动化验证，实验只验证了 `master_process off` 时没有子进程、请求能被正常处理。lldb/gdb 的具体命令请以各自文档为准。
 - §6 的阶段数组是按本仓库的构建选项推出来的；加了 `--with-http_sub_module`、第三方模块或去掉某些默认模块时，下标会变化，要按同样的规则重新推。
-- `ngx_module.h` 里 1.31.9 去掉了 `NGX_HAVE_IOCP` 分支下的签名定义，变更日志里没有对应条目，本篇没有展开它的影响。
+- `ngx_module.h` 里 1.31.10 去掉了 `NGX_HAVE_IOCP` 分支下的签名定义，变更日志里没有对应条目，本篇没有展开它的影响。
 
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写，替换掉一版自动生成、未经实验核对的草稿。覆盖源码分层、`configure` 产物、`ngx_module_t` 与模块类型、`ngx_modules[]` 顺序与过滤器链、`main()` 与 `ngx_init_cycle`、阶段引擎的构造与驱动、一个请求的 debug 日志逐行解读、`debug_connection` 与单进程调试，均附 `labs/dev-01` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。`Server: nginx/1.31.10` 比原来长 1 字节，正文和图里依赖响应长度的数字随之更新。

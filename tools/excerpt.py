@@ -8,14 +8,14 @@ Usage:
 
 A line range prints exactly those lines. A function name prints the function from its
 return-type line to the closing brace and reports the range on stderr, so you can narrow it.
-Paths under src/ are read from the pinned source (.nginx-src/release-1.31.9).
+Paths under src/ are read from the pinned source (.nginx-src/release-1.31.10).
 """
 import os
 import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, '.nginx-src', 'release-1.31.9')
+SRC = os.path.join(ROOT, '.nginx-src', 'release-1.31.10')
 
 
 def find_function(lines, name):

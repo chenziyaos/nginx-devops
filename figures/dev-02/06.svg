@@ -41,5 +41,5 @@
 <line x1="632" y1="337" x2="1140" y2="337" stroke="#EFF0F1" stroke-width="1"/>
 <text x="632" y="361" font-size="14" fill="#646A73">最小</text>
 <text x="1140" y="361" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">a</text>
-<text x="40" y="431" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_rbtree.c（1.31.9）、labs/dev-02 实验输出</text>
+<text x="40" y="431" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_rbtree.c（1.31.10）、labs/dev-02 实验输出</text>
 </svg>

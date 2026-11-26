@@ -106,7 +106,8 @@ grep -a "$main " logs/error.log > out/run/page.log
 trace() { grep -aE "$1" out/run/page.log | sed -E -e 's/^[0-9\/]+ [0-9:]+ \[[a-z]+\] [0-9]+#[0-9]+: //' -e 's/^\*[0-9]+ //' -e 's/ [0-9A-F]{16}$//'; }
 trace 'http subrequest|posted request|http finalize request|wake parent|postpone filter (output|wake)|http upstream connect:|writev|http chunk'
 # ngx_http_subrequest: count++ per subrequest; c->data moves to the first one; output of a
-# request that is not c->data is kept by the postpone filter until its turn
+# request that is not c->data is kept by the postpone filter until its turn; the 78-byte
+# writev is the request to the backend, every other writev goes to the client
 expect "two subrequests, three references, one writev to the client" \
-    "$(trace 'http subrequest' | wc -l | tr -d ' ') $(trace 'http finalize request: 0, "/page.shtml\?" a:0' | sed -E 's/.* (c:[0-9]+)/\1/') $(trace 'writev: 201 of 201' | wc -l | tr -d ' ')" \
+    "$(trace 'http subrequest' | wc -l | tr -d ' ') $(trace 'http finalize request: 0, "/page.shtml\?" a:0' | sed -E 's/.* (c:[0-9]+)/\1/') $(( $(trace 'writev: ' | wc -l) - $(trace 'writev: 78 of 78' | wc -l) ))" \
     "2 c:3 1"

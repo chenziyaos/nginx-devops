@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "worker 之间、reload 前后都不共享静态变量，要共享就得用共享内存",
  "subtitle": "从左到右：master 先后 fork 两代 worker，每个进程有自己的一份计数；虚线表示进程退出",
- "source": "来源：本文整理（1.31.9）",
+ "source": "来源：本文整理（1.31.10）",
  "stages": [
   {
    "name": "master",

@@ -2,7 +2,7 @@
   "type": "flow",
   "title": "least_time 按平均时间乘以 (1 + 连接数) 选最小值",
   "subtitle": "从左到右：收集平均响应时间 → 离散化 → 加权 → 比较选最小",
-  "source": "来源：ngx_http_upstream_least_time_module.c、ngx_http_upstream_round_robin.h、labs/ops-07 实验（1.31.9）",
+  "source": "来源：ngx_http_upstream_least_time_module.c、ngx_http_upstream_round_robin.h、labs/ops-07 实验（1.31.10）",
   "steps": [
     {
       "title": "平均时间",

@@ -29,5 +29,5 @@
 <text x="963.3" y="485.6" font-size="13" fill="#1F2329" text-anchor="end">给老 worker 发 QUIT</text>
 <polyline points="973.3,494 947.3,494 947.3,512 959.3,512" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="959.3,506 969.3,512 959.3,518" fill="#8F959E"/>
-<text x="40" y="574" font-size="12" fill="#646A73" data-role="source">来源：src/os/unix/ngx_process.c、ngx_process_cycle.c（1.31.9）</text>
+<text x="40" y="574" font-size="12" fill="#646A73" data-role="source">来源：src/os/unix/ngx_process.c、ngx_process_cycle.c（1.31.10）</text>
 </svg>

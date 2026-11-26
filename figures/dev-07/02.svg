@@ -20,5 +20,5 @@
 <text x="810" y="359.7" font-size="12" fill="#646A73" text-anchor="middle">值 + valid / not_found</text>
 <text x="398" y="272" font-size="12" fill="#646A73">init_vars 配对</text>
 <text x="595" y="335.5" font-size="12" fill="#646A73" text-anchor="middle">下标</text>
-<text x="40" y="428" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_variables.c、ngx_http_variables.h（1.31.9）</text>
+<text x="40" y="428" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_variables.c、ngx_http_variables.h（1.31.10）</text>
 </svg>

@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "内置模块查不到就尝试用 load_module 加载",
  "subtitle": "配置里出现指令 X 时 nginx 依次检查；红色是 error.log 里会看到的报错",
- "source": "来源：src/core/nginx.c、src/core/ngx_module.c（1.31.9）",
+ "source": "来源：src/core/nginx.c、src/core/ngx_module.c（1.31.10）",
  "stages": [
   {
    "name": "内置模块",

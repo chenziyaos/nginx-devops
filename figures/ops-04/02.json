@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "location 先查前缀树，再试正则和 predicate，最后回到前缀",
  "subtitle": "绿色是查找结束的出口；正则和 predicate 都按书写顺序，第一个成立的胜出",
- "source": "来源：ngx_http_core_module.c（1.31.9）",
+ "source": "来源：ngx_http_core_module.c（1.31.10）",
  "stages": [
   {
    "name": "静态 location 树",

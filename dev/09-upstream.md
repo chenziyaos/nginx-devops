@@ -2,7 +2,7 @@
 
 > **一句话结论**：upstream 是挂在请求上的一个状态机，每走一步就把 `u->read_event_handler`、`u->write_event_handler` 换成下一步的函数，事件来了由 `ngx_http_upstream_handler` 分派。选后端只经过 `u->peer` 上的 `get` 和 `free` 两个函数指针：负载均衡算法在配置阶段登记 `init_upstream`，请求开始时由它填好 `get`/`free`，sticky 和 keepalive 再各包一层。平滑加权轮询的全部状态是每台后端的 `current_weight` 和 `effective_weight` 两个整数，实验直接调用本仓库构建里的 `ngx_http_upstream_get_round_robin_peer`：权重 5/1/1 时 7 次选择之后三个 `current_weight` 回到 0；一次失败让 `effective_weight` 减去 `weight / max_fails`，之后每参与一次计算加回 1。一次请求里每台后端最多试一次（`tried` 位图），`tries` 用完、错误类型不在 `proxy_next_upstream` 里、或者超过 `proxy_next_upstream_timeout`，就不再换机器。1.29.7 起 upstream 块默认带 32 条连接的缓存，而且是 `local` 的：同一个 upstream 被两个 location 使用时，连接不共用；`proxy_pass` 直接写地址时没有这份缓存。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：`ngx_http_upstream_keepalive_module.c`、`ngx_http_upstream_sticky_module.c`、`ngx_http_upstream_least_conn_module.c` 与 1.30.7 逐字相同；`least_time` 的 `ngx_http_upstream_least_time_module.c` 只在 1.31.x 里。1.31.x 把 `ngx_http_upstream_free_round_robin_peer` 拆出一个不加锁的 `_locked` 版本，供 `least_time` 在自己持锁时调用；`proxy_socket_sndbuf`/`proxy_socket_rcvbuf` 是 1.31.3 新增的（`changes.xml`）。upstream 块默认开启 keepalive 是 1.29.7 的改动，1.30.7 也有。实验：[`labs/dev-09`](../labs/dev-09/)，单 worker；19181、19182 是同一个 nginx 里只回答自己端口号的后端，19198 没有进程监听；只有前端 server（19180）的日志是 debug 级，写在 `logs/front.log`；后端日志里的 `c=` 是 `$connection_requests`，即这条后端连接上的第几个请求。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：`ngx_http_upstream_keepalive_module.c`、`ngx_http_upstream_sticky_module.c`、`ngx_http_upstream_least_conn_module.c` 与 1.30.8 逐字相同；`least_time` 的 `ngx_http_upstream_least_time_module.c` 只在 1.31.x 里。1.31.x 把 `ngx_http_upstream_free_round_robin_peer` 拆出一个不加锁的 `_locked` 版本，供 `least_time` 在自己持锁时调用；`proxy_socket_sndbuf`/`proxy_socket_rcvbuf` 是 1.31.3 新增的（`changes.xml`）。upstream 块默认开启 keepalive 是 1.29.7 的改动，1.30.8 也有。实验：[`labs/dev-09`](../labs/dev-09/)，单 worker；19181、19182 是同一个 nginx 里只回答自己端口号的后端，19198 没有进程监听；只有前端 server（19180）的日志是 debug 级，写在 `logs/front.log`；后端日志里的 `c=` 是 `$connection_requests`，即这条后端连接上的第几个请求。
 
 ## 导读
 
@@ -23,7 +23,7 @@
 
 ## 1. upstream 是挂在请求上的状态机：每一步只是换掉下一次事件的处理函数
 
-proxy 模块的 content handler 调用 `ngx_http_read_client_request_body`，把 `ngx_http_upstream_init` 作为请求体读完后的回调（[`ngx_http_proxy_module.c` 第 970 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_proxy_module.c#L970)）。`ngx_http_upstream_init_request` 生成发给后端的请求（`u->create_request`），调用 upstream 块的 `peer.init`，然后进入 `ngx_http_upstream_connect`。从这里开始，后端连接上的读写事件都交给同一个函数：
+proxy 模块的 content handler 调用 `ngx_http_read_client_request_body`，把 `ngx_http_upstream_init` 作为请求体读完后的回调（[`ngx_http_proxy_module.c` 第 970 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_proxy_module.c#L970)）。`ngx_http_upstream_init_request` 生成发给后端的请求（`u->create_request`），调用 upstream 块的 `peer.init`，然后进入 `ngx_http_upstream_connect`。从这里开始，后端连接上的读写事件都交给同一个函数：
 
 ```c
 // src/http/ngx_http_upstream.c:1323-1354
@@ -106,7 +106,7 @@ ok - a new connection: connect returns NGX_AGAIN (-2), the request waits for the
 逐行对照源码：
 
 - `http upstream connect: -2` 是 `ngx_event_connect_peer` 返回的 `NGX_AGAIN`：非阻塞 `connect()` 还没完成，`ngx_http_upstream_connect` 给写事件加上 `proxy_connect_timeout` 的定时器后返回。
-- 连接建立后写事件到来，`send request handler` → `send request` 把请求写出去。写完后 `u->write_event_handler` 换成 `ngx_http_upstream_dummy_handler`，读事件加上 `proxy_read_timeout`（[第 2256 行、第 2277 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream.c#L2256)）。后面那行 `dummy handler` 就是一次没事可做的写事件。
+- 连接建立后写事件到来，`send request handler` → `send request` 把请求写出去。写完后 `u->write_event_handler` 换成 `ngx_http_upstream_dummy_handler`，读事件加上 `proxy_read_timeout`（[第 2256 行、第 2277 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_upstream.c#L2256)）。后面那行 `dummy handler` 就是一次没事可做的写事件。
 - 读事件到来，`process header` 调用 proxy 模块的 `process_header` 解析状态行和头（`http proxy status 200`），头齐了进入 `ngx_http_upstream_send_response`，把头交给 [开发篇 06](06-http-request.md) §6 的 header filter 链。
 - `process upstream` 是缓冲模式下读响应体的函数（§8）。响应体读完，`finalize http upstream request: 0` 先调用 proxy 的 `finalize_request`，再调用 `u->peer.free`，最后关闭或保留连接。
 
@@ -215,7 +215,7 @@ free rr peer 1 0
 ok - no connect, NGX_DONE (-4), the request is sent at once
 ```
 
-没有 `connect to` 行，`http upstream connect: -4` 是 `NGX_DONE`。连接已经可写，`ngx_http_upstream_connect` 跳过等待写事件，直接调用 `send request`（[第 1750 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream.c#L1750)）。下图是两个阶段各自做的事，判断是：算法模块在配置阶段只登记函数，所有的选择都发生在请求里：
+没有 `connect to` 行，`http upstream connect: -4` 是 `NGX_DONE`。连接已经可写，`ngx_http_upstream_connect` 跳过等待写事件，直接调用 `send request`（[第 1750 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_upstream.c#L1750)）。下图是两个阶段各自做的事，判断是：算法模块在配置阶段只登记函数，所有的选择都发生在请求里：
 
 ![算法模块在配置阶段只登记函数，所有的选择都发生在请求里](../figures/dev-09/03.svg)
 
@@ -323,7 +323,7 @@ A 的 `effective_weight` 从 5 减去 5 / 2（整数除法得 2）变成 3，`fa
 
 ![失败的惩罚在几次选择之内就被自动收回，不需要定时器](../figures/dev-09/04.svg)
 
-`fails` 的清零条件是 `accessed < checked`：失败时两者都记成当前秒，`checked` 只在距上次超过 `fail_timeout` 后被选中时才更新（[第 924–926 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream_round_robin.c#L924)），所以失败之后 `fail_timeout` 之内的成功不会清掉 `fails`，这段时间里再失败一次就达到 `max_fails=2`。
+`fails` 的清零条件是 `accessed < checked`：失败时两者都记成当前秒，`checked` 只在距上次超过 `fail_timeout` 后被选中时才更新（[第 924–926 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_upstream_round_robin.c#L924)），所以失败之后 `fail_timeout` 之内的成功不会清掉 `fails`，这段时间里再失败一次就达到 `max_fails=2`。
 
 **小结**：轮询的选择是确定的，给定权重和失败序列可以逐步算出结果，`rr.c` 就是这样核对的。`max_fails` 同时控制两件事：失败几次摘除，以及每次失败扣多少权重（`weight / max_fails`）；`max_fails=1`（默认）时一次失败就把 `effective_weight` 扣到 0。
 
@@ -341,7 +341,7 @@ A 的 `effective_weight` 从 5 减去 5 / 2（整数除法得 2）变成 3，`fa
         }
 ```
 
-`tries` 的初值是 `ngx_http_upstream_tries(peers)`，即主组和 backup 组里没有标 `down` 的后端数之和（[第 14–15 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream_round_robin.c#L14)），`proxy_next_upstream_tries` 可以把它调小。`free` 每次把它减 1。实验让三台权重相同的后端在同一个请求里依次失败：
+`tries` 的初值是 `ngx_http_upstream_tries(peers)`，即主组和 backup 组里没有标 `down` 的后端数之和（[第 14–15 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_upstream_round_robin.c#L14)），`proxy_next_upstream_tries` 可以把它调小。`free` 每次把它减 1。实验让三台权重相同的后端在同一个请求里依次失败：
 
 ```text
 # labs/dev-09 ## one request tries each server once
@@ -398,7 +398,7 @@ ok - free rr peer 2 4 after the refused connect, the second request goes straigh
 
 ![四个条件任一成立就结束请求，否则换机器重试](../figures/dev-09/05.svg)
 
-有一个例外：从缓存里取出的连接如果报 `NGX_HTTP_UPSTREAM_FT_ERROR`，`ngx_http_upstream_next` 会把 `tries` 加回 1（[第 4650–4653 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_upstream.c#L4650)），因为后端可能只是关掉了空闲连接，这次失败不该算在后端头上。
+有一个例外：从缓存里取出的连接如果报 `NGX_HTTP_UPSTREAM_FT_ERROR`，`ngx_http_upstream_next` 会把 `tries` 加回 1（[第 4650–4653 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_upstream.c#L4650)），因为后端可能只是关掉了空闲连接，这次失败不该算在后端头上。
 
 **小结**：一个请求最多尝试的次数是“非 down 后端数”和 `proxy_next_upstream_tries` 的较小值，每台最多一次；排查“为什么没有重试”时，先在 debug 日志里找 `http next upstream` 的 ft_type，再对照 `proxy_next_upstream` 的配置和 `get rr peer, try:` 的计数。
 
@@ -826,3 +826,4 @@ ok - only the buffered request spills to a temp file; all three get 4194304 byte
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖 upstream 状态机与事件分派、peer 接口（`init_upstream`/`init`/`get`/`free`）、平滑加权轮询与 `effective_weight` 的恢复、`tried`/`tries`/`proxy_next_upstream` 的重试路径、keepalive 模块的包装与默认 `local` 缓存、放回缓存的条件、sticky 的包装顺序与 hint 计权、least_conn 与 least_time 的比较量、缓冲与非缓冲的响应体路径；实验 `labs/dev-09` 用 `rr.c` 直接调用轮询的 `get`/`free`。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

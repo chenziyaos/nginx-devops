@@ -11,6 +11,7 @@ LAB=$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)
 ROOT=$(cd "$LAB/../.." && pwd)
 NS=lab-$(basename "$LAB")
 IMAGE=nginx-devops/nginx:1.31.10
+PATH=$ROOT/.cloud-tools/bin:$PATH   # tools/cloud_addons.sh installs ingress2gateway here
 cd "$LAB"
 
 # Refuse to touch anything but a kind cluster. Exit code 77 makes verify_labs.sh report SKIP.

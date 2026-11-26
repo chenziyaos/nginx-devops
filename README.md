@@ -1,6 +1,6 @@
 # nginx-devops
 
-一套基于 nginx 1.31.10 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）、开发篇（10 章）和云原生篇（写作中，已有 2 章）。每章的结论都配有一个可以复现的实验（云原生篇的实验跑在本地 kind 集群里），引用的源码片段逐行核对过 1.31.10 的源码。适合三类读者：要配置和排查线上 nginx 的，要读 nginx 源码或者自己写模块的，要把 nginx 跑在 Kubernetes 里的。
+一套基于 nginx 1.31.10 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）、开发篇（10 章）和云原生篇（写作中，已有 4 章）。每章的结论都配有一个可以复现的实验（云原生篇的实验跑在本地 kind 集群里），引用的源码片段逐行核对过 1.31.10 的源码。适合三类读者：要配置和排查线上 nginx 的，要读 nginx 源码或者自己写模块的，要把 nginx 跑在 Kubernetes 里的。
 
 这里不是 nginx 官方文档的翻译，也不覆盖全部指令。每章挑一个主题，讲清楚 nginx 在源码里实际怎么做，以及默认值和容易误解的行为。2018 年的旧版教程保留在 tag [`legacy-2018`](https://github.com/zyaochen/nginx-devops/tree/legacy-2018)。
 
@@ -75,6 +75,8 @@ ok - without burst only the first request fits
 |---|---|
 | [01](cloud/01-containers.md) | 容器里的 nginx：worker 数、停止信号和下线时序都要自己对齐 |
 | [02](cloud/02-service-discovery.md) | 服务发现与动态上游：让 nginx 看见每个 Pod，用 headless Service 加 resolve |
+| [03](cloud/03-gateway-api.md) | 从 Ingress 到 Gateway API：注解换成了有 schema 的字段，路由的每次变化仍是一次 reload |
+| [04](cloud/04-config-delivery.md) | 配置下发：ConfigMap 要等一分钟多才落到 Pod 里，reload 的成败用 control API 拿回来 |
 
 每章的开头是一句话结论、适用版本（含与 1.30.8 stable 的差异）和对应的实验目录；结尾是“已知局限与待核实”，列出只读了源码、没有用实验验证的说法。
 
@@ -117,7 +119,7 @@ $ python3 tools/excerpt.py src/http/ngx_http_upstream_round_robin.c 884-889
 ```
 ````
 
-**检查章节。** `tools/check_docs.py` 检查每章的源码片段与源码逐行一致、引用的实验输出与 `expected.txt` 一致、GitHub 源码链接指向 1.31.10 里存在的行，且链接文字里的标识符确实出现在那几行；每张图的 SVG 和 spec 都存在，图片的替代文字等于 spec 里的标题。
+**检查章节。** `tools/check_docs.py` 检查每章的源码片段与源码逐行一致、引用的实验输出与 `expected.txt` 一致、GitHub 源码链接指向 1.31.10 里存在的行，且链接文字里的标识符确实出现在那几行；每张图的 SVG 和 spec 都存在，图片的替代文字等于 spec 里的标题。云原生篇还引用 NGINX Gateway Fabric、ingress2gateway 等外部项目的源码，版本钉在 `tools/ext.py` 里，`python3 tools/ext.py fetch` 把它们浅克隆到 `.ext-src/`（不进 git），check_docs 用同样的规则核对这些片段和链接；`tools/excerpt.py nginx-gateway-fabric:<路径> <行号>` 生成对应的片段。
 
 **改图。** 每章的图在 `figures/<篇>-<章>/`：`NN.json` 是 spec，只写内容（一句结论做标题、节点、连线、哪个是主角哪个是风险），`NN.svg` 是生成结果，章节按顺序引用 `01.svg`、`02.svg`……。版式和配色由 lark-figure 排版引擎计算，这个引擎不在本仓库里：
 
@@ -149,9 +151,11 @@ python3 tools/build_figures.py --check         # 检查提交的 SVG 是否和 s
 ```bash
 tools/cloud_up.sh                  # 重建 kind 集群 lab（1 个控制面 + 2 个 worker，Kubernetes 1.37.0），构建并加载实验镜像
 tools/verify_labs.sh cloud-00      # 冒烟实验：镜像版本、Pod 里的进程、经 Service 的一次请求
+tools/cloud_addons.sh              # 云原生篇 03 起需要：Gateway API v1.7.0 CRD、NGINX Gateway Fabric v2.9.1、ingress2gateway v1.2.0
 ```
 
 - 实验镜像 `nginx-devops/nginx:1.31.10` 由 `labs/cloud-images/nginx/Dockerfile` 从 nginx.org 的源码包构建（校验 sha256），模块与 `tools/build.sh` 相同，路径、运行用户、日志软链接和 `STOPSIGNAL SIGQUIT` 照搬官方镜像。`tools/cloud_images.sh` 只重建镜像并 `kind load` 到各节点；环境变量里的 `http_proxy` 等代理设置会传给 `docker build`。
+- `tools/cloud_addons.sh` 可重复执行（`helm upgrade --install`、`kubectl apply`）；ingress2gateway 装在仓库下的 `.cloud-tools/bin`（不进 git），`labs/cloud-lib.sh` 会把它加进 PATH。
 - 每个实验独占命名空间 `lab-cloud-NN`，开始时删掉重建，退出时删除。`labs/cloud-lib.sh` 只在 kubectl 当前 context 以 `kind-` 开头时运行，否则以退出码 77 结束，`verify_labs.sh` 记为 SKIP，不算通过。
 - 云原生篇的实验在 Debian 9（Linux 4.19，cgroup v1）、docker 29.10.1、kind v0.33.0 上跑过。cgroup v1 主机上 kind 的节点镜像默认拒绝启动，`labs/cloud-images/kind.yaml` 里的补丁关掉了这项检查，并让 kubelet 和 containerd 都用 cgroupfs 驱动；cgroup v2 主机用同一份配置也能运行，但没有在那样的机器上验证过。
 

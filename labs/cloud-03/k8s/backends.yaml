@@ -1,0 +1,66 @@
+# Two versions of a backend: v1 with 2 pods, v2 with 1. Each pod answers with its name.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: v1}
+  template:
+    metadata:
+      labels: {app: v1}
+    spec:
+      containers:
+        - name: nginx
+          image: nginx-devops/nginx:1.31.10
+          readinessProbe:
+            httpGet: {path: /, port: 80}
+            periodSeconds: 1
+          volumeMounts:
+            - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: backend.conf}
+      volumes:
+        - name: conf
+          configMap: {name: lab-conf}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: v2}
+  template:
+    metadata:
+      labels: {app: v2}
+    spec:
+      containers:
+        - name: nginx
+          image: nginx-devops/nginx:1.31.10
+          readinessProbe:
+            httpGet: {path: /, port: 80}
+            periodSeconds: 1
+          volumeMounts:
+            - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: backend.conf}
+      volumes:
+        - name: conf
+          configMap: {name: lab-conf}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: v1
+spec:
+  selector: {app: v1}
+  ports:
+    - port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: v2
+spec:
+  selector: {app: v2}
+  ports:
+    - port: 80

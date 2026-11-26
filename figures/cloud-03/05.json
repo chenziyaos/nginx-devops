@@ -1,0 +1,44 @@
+{
+ "type": "table",
+ "title": "ingress2gateway 的输出要再过实现这一关",
+ "subtitle": "实验那组 ingress-nginx 注解的去向；高亮一行是两道关都没有报错、实际值却变了的超时",
+ "source": "来源：labs/cloud-03 实验输出；ingress2gateway v1.2.0 emitter.go；NGF v2.9.1 validation/common.go",
+ "columns": [
+  "注解",
+  "ingress2gateway v1.2.0",
+  "NGF v2.9.1"
+ ],
+ "rows": [
+  [
+   "canary-weight: 20",
+   "权重 v1 80、v2 20",
+   "生效"
+  ],
+  [
+   "enable-cors",
+   "CORS filter",
+   "生效"
+  ],
+  [
+   "use-regex",
+   "RegularExpression，加 (?i) 前缀",
+   "UnsupportedValue，整条 route 不生效"
+  ],
+  [
+   "proxy-read-timeout: 30",
+   "timeouts.request 5m0s（最大值乘 10）",
+   "UnsupportedField，忽略，用 nginx 默认 60 秒"
+  ],
+  [
+   "rewrite-target: /$2",
+   "丢弃，告警",
+   "-"
+  ],
+  [
+   "limit-rps、configuration-snippet、proxy-body-size",
+   "丢弃，告警",
+   "-"
+  ]
+ ],
+ "highlight_row": 3
+}

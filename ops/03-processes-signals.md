@@ -219,7 +219,7 @@ workers unchanged: yes
 ok - the signaller parses the config itself and does not send HUP
 ```
 
-这个行为对语法错误有效，但它只覆盖信号发送者能发现的问题。端口已被占用、证书文件读不了、共享内存区大小冲突这类错误，要等 master 在 `ngx_init_cycle` 里真正打开资源时才出现，`nginx -s reload` 返回 0，失败只记在 error.log。因此发布脚本的稳妥做法是三步：`nginx -t` 检查；`nginx -s reload`；再确认 error.log 里出现了这次的 `reconfiguring` 和 `start worker process`，或者 worker 的 pid 已经变化。§7 的 control API 把第三步变成了同步返回值。
+这个行为对语法错误有效，但它只覆盖信号发送者能发现的问题。信号发送者把配置完整解析一遍（证书在解析阶段加载，读不了也会在这里失败），然后在 [`ngx_cycle.c` 第 316 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_cycle.c#L316) 返回，不打开日志文件、不建共享内存、不监听端口。日志目录不存在、端口已被占用、共享内存区大小冲突这类错误，要等 master 在 `ngx_init_cycle` 里真正打开资源时才出现，`nginx -s reload` 返回 0，失败只记在 error.log（[云原生篇 04](../cloud/04-config-delivery.md) 在 Pod 里实测了日志目录和证书两种情况）。因此发布脚本的稳妥做法是三步：`nginx -t` 检查；`nginx -s reload`；再确认 error.log 里出现了这次的 `reconfiguring` 和 `start worker process`，或者 worker 的 pid 已经变化。§7 的 control API 把第三步变成了同步返回值。
 
 两条路径的差别在于错误在哪个进程里被发现：
 
@@ -409,7 +409,7 @@ control API 没有认证，拿到它就能替换配置，所以只能监听在 `
 
 - 实验只在 macOS 上运行；Linux 上 `ngx_ncpu`、进程标题的显示方式可能不同，结论来自源码。
 - 容器配额与 `worker_processes auto` 的关系是按 `ngx_ncpu` 的来源推断的，本篇没有在容器里实测。
-- “端口占用、证书读不了时 `nginx -s reload` 返回 0、只在 error.log 报错”是根据信号发送者不打开监听端口、不加载证书推断的，实验只验证了语法错误一种情况。
+- “端口占用、共享内存区冲突时 `nginx -s reload` 返回 0、只在 error.log 报错”是根据信号发送者在 `ngx_init_cycle` 打开资源之前返回推断的；日志目录不存在（返回 0）和证书文件缺失（返回 1）两种情况在云原生篇 04 实测过。
 - systemd 与二进制升级的配合只给出注意点，没有提供经过验证的服务单元文件。
 - control API 的 `GET /1/control/config` 返回格式本篇没有展示。
 
@@ -417,3 +417,4 @@ control API 没有认证，拿到它就能替换配置，所以只能监听在 `
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写，替换掉一版自动生成、输出与实验不符的草稿。覆盖进程结构与 `auto`、reload 的源码步骤与 in-flight 请求、错误配置的两种 reload 路径、`worker_shutdown_timeout` 取自老配置、TERM/QUIT、USR1、worker 重生、USR2/WINCH/QUIT 升级与回滚、1.31.5 control API，均附 `labs/ops-03` 实验。
 - 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。reload 实验改为按进程分组打印旧 worker 的日志，两个 worker 的日志交错时输出也保持一致。
+- 2026-11-26：更正 §3 对证书的说法：信号发送者解析配置时就加载证书，证书读不了时 `nginx -s reload` 返回 1，不是 0；依据是云原生篇 04 的实验和 `ngx_cycle.c` 第 316 行。

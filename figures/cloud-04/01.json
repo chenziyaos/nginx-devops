@@ -1,0 +1,43 @@
+{
+ "type": "flow",
+ "title": "ConfigMap 的更新经过 kubelet、sidecar、control API 才进入 nginx",
+ "subtitle": "从 kubectl apply 到 nginx 用上新配置；红色一段是最长的等待，间隔来自 kubelet 的同步周期",
+ "source": "来源：labs/cloud-04 实验输出；kubelet pod_workers.go（v1.37.0）；ngx_control.c（1.31.10）",
+ "steps": [
+  {
+   "title": "ConfigMap 更新",
+   "lines": [
+    "kubectl apply"
+   ]
+  },
+  {
+   "title": "kubelet 同步 Pod",
+   "tone": "risk",
+   "lines": [
+    "下一次同步才写文件",
+    "等 0 到 90 秒"
+   ]
+  },
+  {
+   "title": "..data 切换",
+   "lines": [
+    "新时间戳目录",
+    "所有键一起换"
+   ]
+  },
+  {
+   "title": "sidecar 发现",
+   "lines": [
+    "每秒读一次 ..data"
+   ]
+  },
+  {
+   "title": "PATCH 配置",
+   "tone": "good",
+   "lines": [
+    "同步 reload",
+    "200 或 422 加日志行"
+   ]
+  }
+ ]
+}

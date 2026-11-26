@@ -1,0 +1,24 @@
+# Three rules: a header match on /api, an 80/20 split on /, and a backend that does not exist.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: shop
+spec:
+  parentRefs:
+    - name: gw
+  rules:
+    - matches:
+        - path: {type: PathPrefix, value: /api}
+          headers:
+            - {name: x-env, value: canary}
+      backendRefs:
+        - {name: v2, port: 80}
+    - matches:
+        - path: {type: PathPrefix, value: /}
+      backendRefs:
+        - {name: v1, port: 80, weight: 80}
+        - {name: v2, port: 80, weight: 20}
+    - matches:
+        - path: {type: PathPrefix, value: /missing}
+      backendRefs:
+        - {name: nosuch, port: 80}

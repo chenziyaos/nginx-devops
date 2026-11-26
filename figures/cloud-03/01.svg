@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 566" width="1200" height="566">
+<rect x="0" y="0" width="1200" height="566" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="25" fill="#1F2329" font-weight="bold" data-role="title">注解是字符串，Gateway API 是有 schema 的资源；两者最后都落到 nginx 配置</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">上面是 Ingress 的路径，下面是 Gateway API 加 NGF 的路径；红色是没人校验的环节，绿色是会报错或写 status 的环节</text>
+<text x="144" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">用户写的</text>
+<text x="448" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">API server</text>
+<text x="752" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">控制器</text>
+<text x="1056" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">结果</text>
+<polyline points="252,200 293,200 293,252 330,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,246 340,252 330,258" fill="#8F959E"/>
+<polyline points="252,304 293,304 293,252 330,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,246 340,252 330,258" fill="#8F959E"/>
+<polyline points="252,408 330,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="330,402 340,408 330,414" fill="#8F959E"/>
+<polyline points="556,252 634,252" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,246 644,252 634,258" fill="#8F959E"/>
+<polyline points="556,408 634,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="634,402 644,408 634,414" fill="#8F959E"/>
+<polyline points="860,252 938,252" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="938,246 948,252 938,258" fill="#8F959E"/>
+<polyline points="860,408 901,408 901,356 938,356" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,350 948,356 938,362" fill="#8F959E"/>
+<polyline points="860,408 901,408 901,460 938,460" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="938,454 948,460 938,466" fill="#8F959E"/>
+<rect x="40" y="158" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Ingress</text>
+<text x="144" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">host、path、后端</text>
+<rect x="40" y="262" width="208" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="144" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">注解</text>
+<text x="144" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">nginx.ingress.kubernetes.io/*</text>
+<rect x="40" y="366" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="144" y="393.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">HTTPRoute</text>
+<text x="144" y="413.7" font-size="12" fill="#646A73" text-anchor="middle">matches、backendRefs、</text>
+<text x="144" y="432.7" font-size="12" fill="#646A73" text-anchor="middle">filters</text>
+<rect x="344" y="210" width="208" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="448" y="247.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">字符串照收</text>
+<text x="448" y="267.2" font-size="12" fill="#646A73" text-anchor="middle">不知道哪个控制器认哪些键</text>
+<rect x="344" y="366" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="448" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">CRD schema</text>
+<text x="448" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">未知字段、错误枚举直接拒绝</text>
+<rect x="648" y="210" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="247.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">ingress-nginx</text>
+<text x="752" y="267.2" font-size="12" fill="#646A73" text-anchor="middle">仓库已归档</text>
+<rect x="648" y="366" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="752" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">NGF 控制面</text>
+<text x="752" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">生成配置，gRPC 下发</text>
+<rect x="952" y="210" width="208" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="247.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">拼错的键</text>
+<text x="1056" y="267.2" font-size="12" fill="#646A73" text-anchor="middle">被忽略，没有报错</text>
+<rect x="952" y="314" width="208" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="341.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">route status</text>
+<text x="1056" y="361.7" font-size="12" fill="#646A73" text-anchor="middle">不支持的字段、找不到的后端写</text>
+<text x="1056" y="380.7" font-size="12" fill="#646A73" text-anchor="middle">在这里</text>
+<rect x="952" y="418" width="208" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1056" y="445.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx + agent</text>
+<text x="1056" y="465.7" font-size="12" fill="#646A73" text-anchor="middle">每个 Gateway 一个 Pod，</text>
+<text x="1056" y="484.7" font-size="12" fill="#646A73" text-anchor="middle">agent 发 SIGHUP reload</text>
+<text x="40" y="542" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-03 实验输出；NGF v2.9.1 源码</text>
+</svg>

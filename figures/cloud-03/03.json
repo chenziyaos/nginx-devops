@@ -1,0 +1,12 @@
+{
+ "type": "flow",
+ "title": "header 匹配只在同一个 path 的规则里找",
+ "subtitle": "请求 /api/x 不带 x-env；红色是 v2.9.1 实测的结果，绿色是给 / 规则补上 PathPrefix /api 之后",
+ "source": "来源：labs/cloud-03 实验输出；NGF v2.9.1 httpmatches.js、configuration.go",
+ "steps": [
+  {"title": "nginx 选 location", "lines": ["最长前缀：location /api/"]},
+  {"title": "njs 取匹配列表", "lines": ["只有 /api 这一组登记的规则"]},
+  {"title": "没有兜底时", "tone": "risk", "lines": ["只有带 header 的规则", "不中，返回 404"]},
+  {"title": "补上兜底后", "tone": "good", "lines": ["多一条 any:true", "跳到 / 规则，200"]}
+ ]
+}

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 548" width="1200" height="548">
+<rect x="0" y="0" width="1200" height="548" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">ingress2gateway 的输出要再过实现这一关</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">实验那组 ingress-nginx 注解的去向；高亮一行是两道关都没有报错、实际值却变了的超时</text>
+<rect x="40" y="128" width="1120" height="356" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="129" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="160" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="41" y="318" width="1118" height="62" fill="#F0FBEF"/>
+<line x1="40" y1="172" x2="1160" y2="172" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="214" x2="1159" y2="214" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1159" y2="256" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="318" x2="1159" y2="318" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="380" x2="1159" y2="380" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="422" x2="1159" y2="422" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="318" x2="1159" y2="318" stroke="#8EE085" stroke-width="1"/>
+<line x1="41" y1="380" x2="1159" y2="380" stroke="#8EE085" stroke-width="1"/>
+<rect x="40" y="128" width="1120" height="356" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="155" font-size="14" fill="#1F2329" font-weight="bold">注解</text>
+<text x="491.5" y="155" font-size="14" fill="#1F2329" font-weight="bold">ingress2gateway v1.2.0</text>
+<text x="818.6" y="155" font-size="14" fill="#1F2329" font-weight="bold">NGF v2.9.1</text>
+<text x="58" y="197.9" font-size="14" fill="#1F2329">canary-weight: 20</text>
+<text x="491.5" y="197.9" font-size="14" fill="#1F2329">权重 v1 80、v2 20</text>
+<text x="818.6" y="197.9" font-size="14" fill="#1F2329">生效</text>
+<text x="58" y="239.9" font-size="14" fill="#1F2329">enable-cors</text>
+<text x="491.5" y="239.9" font-size="14" fill="#1F2329">CORS filter</text>
+<text x="818.6" y="239.9" font-size="14" fill="#1F2329">生效</text>
+<text x="58" y="291.9" font-size="14" fill="#1F2329">use-regex</text>
+<text x="491.5" y="291.9" font-size="14" fill="#1F2329">RegularExpression，加 (?i) 前缀</text>
+<text x="818.6" y="280.9" font-size="14" fill="#1F2329">UnsupportedValue，整条 route 不</text>
+<text x="818.6" y="302.9" font-size="14" fill="#1F2329">生效</text>
+<text x="58" y="353.9" font-size="14" fill="#2EA121" font-weight="bold">proxy-read-timeout: 30</text>
+<text x="491.5" y="342.9" font-size="14" fill="#2EA121" font-weight="bold">timeouts.request 5m0s（最大值</text>
+<text x="491.5" y="364.9" font-size="14" fill="#2EA121" font-weight="bold">乘 10）</text>
+<text x="818.6" y="342.9" font-size="14" fill="#2EA121" font-weight="bold">UnsupportedField，忽略，用 nginx 默</text>
+<text x="818.6" y="364.9" font-size="14" fill="#2EA121" font-weight="bold">认 60 秒</text>
+<text x="58" y="405.9" font-size="14" fill="#1F2329">rewrite-target: /$2</text>
+<text x="491.5" y="405.9" font-size="14" fill="#1F2329">丢弃，告警</text>
+<text x="818.6" y="405.9" font-size="14" fill="#1F2329">-</text>
+<text x="58" y="446.9" font-size="14" fill="#1F2329">limit-rps、configuration-snippet、</text>
+<text x="58" y="468.9" font-size="14" fill="#1F2329">proxy-body-size</text>
+<text x="491.5" y="457.9" font-size="14" fill="#1F2329">丢弃，告警</text>
+<text x="818.6" y="457.9" font-size="14" fill="#1F2329">-</text>
+<text x="40" y="524" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-03 实验输出；ingress2gateway v1.2.0 emitter.go；NGF v2.9.1 validation/common.go</text>
+</svg>

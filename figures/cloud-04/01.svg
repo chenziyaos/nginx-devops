@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="27" fill="#1F2329" font-weight="bold" data-role="title">ConfigMap 的更新经过 kubelet、sidecar、control API 才进入 nginx</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">从 kubectl apply 到 nginx 用上新配置；红色一段是最长的等待，间隔来自 kubelet 的同步周期</text>
+<rect x="40" y="160.8" width="179.2" height="146" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">ConfigMap</text>
+<text x="60" y="229.1" font-size="18" fill="#1F2329" font-weight="bold">更新</text>
+<text x="60" y="258.7" font-size="14" fill="#646A73">kubectl apply</text>
+<rect x="275.2" y="160.8" width="179.2" height="146" rx="12" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="step"/>
+<text x="295.2" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">kubelet 同步</text>
+<text x="295.2" y="229.1" font-size="18" fill="#1F2329" font-weight="bold">Pod</text>
+<text x="295.2" y="258.7" font-size="14" fill="#646A73">下一次同步才写文件</text>
+<text x="295.2" y="280.7" font-size="14" fill="#646A73">等 0 到 90 秒</text>
+<rect x="510.4" y="160.8" width="179.2" height="146" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="530.4" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">..data 切换</text>
+<text x="530.4" y="230.7" font-size="14" fill="#646A73">新时间戳目录</text>
+<text x="530.4" y="252.7" font-size="14" fill="#646A73">所有键一起换</text>
+<rect x="745.6" y="160.8" width="179.2" height="146" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="765.6" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">sidecar 发现</text>
+<text x="765.6" y="230.7" font-size="14" fill="#646A73">每秒读一次 ..data</text>
+<rect x="980.8" y="160.8" width="179.2" height="146" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="1000.8" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">PATCH 配置</text>
+<text x="1000.8" y="230.7" font-size="14" fill="#646A73">同步 reload</text>
+<text x="1000.8" y="252.7" font-size="14" fill="#646A73">200 或 422 加日</text>
+<text x="1000.8" y="274.7" font-size="14" fill="#646A73">志行</text>
+<polyline points="225.2,233.8 259.2,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="259.2,227.8 269.2,233.8 259.2,239.8" fill="#8F959E"/>
+<polyline points="460.4,233.8 494.4,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="494.4,227.8 504.4,233.8 494.4,239.8" fill="#8F959E"/>
+<polyline points="695.6,233.8 729.6,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="729.6,227.8 739.6,233.8 729.6,239.8" fill="#8F959E"/>
+<polyline points="930.8,233.8 964.8,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="964.8,227.8 974.8,233.8 964.8,239.8" fill="#8F959E"/>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-04 实验输出；kubelet pod_workers.go（v1.37.0）；ngx_control.c（1.31.10）</text>
+</svg>

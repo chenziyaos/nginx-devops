@@ -1,0 +1,15 @@
+{
+ "type": "table",
+ "title": "sidecar 用 nginx -s reload 和用 control API 的前提条件",
+ "subtitle": "同一个 Pod 里，另一个容器要让 nginx reload 需要什么；高亮一行是两者差别最大的地方",
+ "source": "来源：labs/cloud-04 实验；ngx_cycle.c、ngx_control.c（1.31.10）",
+ "columns": ["", "nginx -s reload", "PATCH /1/control/config"],
+ "rows": [
+  ["看见 nginx 的进程", "要开 shareProcessNamespace", "不需要"],
+  ["sidecar 里的程序", "nginx 可执行文件", "curl"],
+  ["配置和证书", "和 nginx 容器相同的路径", "不需要"],
+  ["拿到的结果", "退出码，只覆盖解析阶段", "200 或 422，带日志行"],
+  ["谁能调用", "能给 master 发信号的进程", "能访问 socket 所在卷的容器"]
+ ],
+ "highlight_row": 3
+}

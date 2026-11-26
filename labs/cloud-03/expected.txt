@@ -1,0 +1,93 @@
+
+## a Gateway gets its own data plane
+provisioned for gw: deployment.apps/gw-nginx service/gw-nginx 
+image: ghcr.io/nginx/nginx-gateway-fabric/nginx:2.9.1
+nginx version: nginx/1.31.10
+{entrypoint.sh} /bin/bash /agent/entrypoint.sh
+nginx: master process /usr/sbin/nginx -g daemon off;
+nginx-agent
+workers: 8, online CPUs of the node: the same
+SIGHUP sent by the agent: yes
+ok - one pod runs nginx 1.31.10 and nginx-agent, and the agent reloads nginx
+
+## what the API server checks
+Ingress typo stored with annotations:  nginx.ingress.kubernetes.io/rewrite-targt=/ 
+HTTPRoute in version "v1" cannot be handled as a HTTPRoute: strict decoding error: unknown field "spec.rules[0].backendRef"
+spec.rules[0].matches[0].path.type: Unsupported value: "Prefix": supported values: "Exact", "PathPrefix", "RegularExpression"
+ok - a misspelled annotation is stored; a misspelled field and a wrong enum value are rejected
+
+## an HTTPRoute in nginx.conf
+locations:
+  location /
+  location /_ngf-internal-rule1-route0
+  location /api/
+  location /missing/
+  location /stub_status
+  location = /api
+  location = /missing
+upstreams: invalid-backend-ref lab-cloud-03_v1_80 lab-cloud-03_v2_80 
+upstream lab-cloud-03_v1_80: random two least_conn; zone lab-cloud-03_v1_80 ...; 
+its servers are the v1 pod IPs: yes
+split_clients $request_id $group_... {
+    80.00% lab-cloud-03_v1_80;
+    20.00% lab-cloud-03_v2_80;
+}
+Accepted=True Accepted: The Route is accepted
+ResolvedRefs=False BackendNotFound: spec.rules[2].backendRefs[0].name: Not found: "nosuch"
+GET /missing: 500
+ok - upstream servers are pod IPs; weights are split_clients; a missing backend is a status and a 500
+
+## 80/20 weights over 1000 requests
+answers: 1000, from: v1 v2
+v2 share between 14 % and 26 %: yes
+ok - split_clients on $request_id keeps close to 80/20
+
+## a header match does not fall back to another path
+/api/x without x-env: 404
+/api/x with x-env: canary: v2 200
+/other without x-env: 200
+matches.json: {"1_1":[{"redirectPath":"/_ngf-internal-rule1-route0","headers":["x-env:Exact:canary"]}]}
+with PathPrefix /api added to the / rule:
+matches.json: {"1_1":[{"redirectPath":"/_ngf-internal-rule1-route0","headers":["x-env:Exact:canary"]},{"redirectPath":"/_ngf-internal-rule1-route1","any":true}]}
+/api/x without x-env: 200
+/api/x with x-env: canary: v2 200
+ok - without a rule registered under /api the request gets 404; with one it is routed
+
+## a route change is a reload
+SIGHUP: +1, master PID unchanged: yes, workers all new: yes
+ok - the agent reloads nginx for a route change
+
+## an endpoint change is a reload too
+the new pod in the upstream within 10 s of being ready: yes
+SIGHUP: +1, master PID unchanged: yes
+an old worker still serving the download: yes
+worker_shutdown_timeout in the generated config: 0
+download: 200, all 7 MB
+ok - scaling v1 reloads nginx; the download in flight finishes on the old worker
+
+## ingress2gateway on an ingress-nginx Ingress
+exit code: 0
+warnings:
+  Failed to apply [].shop.metadata.annotations."nginx.ingress.kubernetes.io/proxy-body-size" from /shop: Most Gateway API implementations have reasonable body size and buffering defaults
+  Failed to apply metadata.annotations."nginx.ingress.kubernetes.io/rewrite-target" from rewrite-target from Ingress /shop: Path rewrites with capture group references are not supported
+  Gateway API does not support configuring URL normalization (RFC 3986, Section 6). Please check if this matters for your use case and consult implementation-specific details.
+  Ingress NGINX serves TLS traffic for host "shop.example.com" with a self-signed certificate. This behavior will not be translated and the host will not be accessible via HTTPS.
+  Unsupported annotation nginx.ingress.kubernetes.io/configuration-snippet
+  Unsupported annotation nginx.ingress.kubernetes.io/limit-rps
+  Using case-insensitive regex path matches. You may want to change this.
+  ingress-nginx only supports TCP-level timeouts; i2gw has made a best-effort translation to Gateway API timeouts.request. Please verify that this meets your needs. See documentation: https://gateway-api.sigs.k8s.io/guides/http-timeouts/
+rule 0: match RegularExpression (?i)/api(/|$)(.*).*; backends v1; filters CORS; timeouts.request 5m0s
+rule 1: match RegularExpression (?i)/.*; backends v1 80, v2 20; filters CORS; timeouts.request 5m0s
+ok - exit code 0 while 4 annotations are dropped
+
+## applying the conversion
+Accepted=False UnsupportedValue: All rules are invalid: ...
+ResolvedRefs=True ResolvedRefs: All references are resolved
+invalid paths: (?i)/api(/|$)(.*).* (?i)/.* 
+GET /api/x with Host shop.example.com: 404
+with the paths as PathPrefix:
+Accepted=True UnsupportedField: The following unsupported parameters were ignored: [spec.rules[0].timeouts: Forbidden: Timeouts, spec.rules[1].timeouts: Forbidden: Timeouts]
+ResolvedRefs=True ResolvedRefs: All references are resolved
+HTTP/1.1 200 OK
+Access-Control-Allow-Origin: https://a.example
+ok - the converted route is rejected for its regex; with PathPrefix it is accepted and its timeouts are ignored

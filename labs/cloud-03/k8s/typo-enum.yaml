@@ -1,0 +1,13 @@
+# PathPrefix written as Prefix, the spelling of Ingress.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: typo-enum
+spec:
+  parentRefs:
+    - name: gw
+  rules:
+    - matches:
+        - path: {type: Prefix, value: /t}
+      backendRefs:
+        - {name: v1, port: 80}

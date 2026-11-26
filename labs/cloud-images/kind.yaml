@@ -1,0 +1,21 @@
+# The kind cluster of the cloud-native labs: one control plane and two workers.
+# tools/cloud_up.sh creates it with a pinned node image.
+#
+# The patches let kubelet run on a cgroup v1 host (the labs were run on one): kind's node
+# image refuses cgroup v1 by default, and kubelet and containerd must agree on the cgroupfs
+# driver. They are harmless on a cgroup v2 host.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+kubeadmConfigPatches:
+  - |
+    kind: KubeletConfiguration
+    failCgroupV1: false
+    cgroupDriver: cgroupfs
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.cri.v1.runtime".containerd.runtimes.runc.options]
+      SystemdCgroup = false
+nodes:
+  - role: control-plane
+  - role: worker
+  - role: worker

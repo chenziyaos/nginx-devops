@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 446" width="1200" height="446">
+<rect x="0" y="0" width="1200" height="446" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">sidecar 用 nginx -s reload 和用 control API 的前提条件</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">同一个 Pod 里，另一个容器要让 nginx reload 需要什么；高亮一行是两者差别最大的地方</text>
+<rect x="40" y="128" width="1120" height="254" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="129" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="160" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="41" y="298" width="1118" height="42" fill="#F0FBEF"/>
+<line x1="40" y1="172" x2="1160" y2="172" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="214" x2="1159" y2="214" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1159" y2="256" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="298" x2="1159" y2="298" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="340" x2="1159" y2="340" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="298" x2="1159" y2="298" stroke="#8EE085" stroke-width="1"/>
+<line x1="41" y1="340" x2="1159" y2="340" stroke="#8EE085" stroke-width="1"/>
+<rect x="40" y="128" width="1120" height="254" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="155" font-size="14" fill="#1F2329" font-weight="bold"></text>
+<text x="361.3" y="155" font-size="14" fill="#1F2329" font-weight="bold">nginx -s reload</text>
+<text x="784.4" y="155" font-size="14" fill="#1F2329" font-weight="bold">PATCH /1/control/config</text>
+<text x="58" y="197.9" font-size="14" fill="#1F2329">看见 nginx 的进程</text>
+<text x="361.3" y="197.9" font-size="14" fill="#1F2329">要开 shareProcessNamespace</text>
+<text x="784.4" y="197.9" font-size="14" fill="#1F2329">不需要</text>
+<text x="58" y="239.9" font-size="14" fill="#1F2329">sidecar 里的程序</text>
+<text x="361.3" y="239.9" font-size="14" fill="#1F2329">nginx 可执行文件</text>
+<text x="784.4" y="239.9" font-size="14" fill="#1F2329">curl</text>
+<text x="58" y="281.9" font-size="14" fill="#1F2329">配置和证书</text>
+<text x="361.3" y="281.9" font-size="14" fill="#1F2329">和 nginx 容器相同的路径</text>
+<text x="784.4" y="281.9" font-size="14" fill="#1F2329">不需要</text>
+<text x="58" y="323.9" font-size="14" fill="#2EA121" font-weight="bold">拿到的结果</text>
+<text x="361.3" y="323.9" font-size="14" fill="#2EA121" font-weight="bold">退出码，只覆盖解析阶段</text>
+<text x="784.4" y="323.9" font-size="14" fill="#2EA121" font-weight="bold">200 或 422，带日志行</text>
+<text x="58" y="365.9" font-size="14" fill="#1F2329">谁能调用</text>
+<text x="361.3" y="365.9" font-size="14" fill="#1F2329">能给 master 发信号的进程</text>
+<text x="784.4" y="365.9" font-size="14" fill="#1F2329">能访问 socket 所在卷的容器</text>
+<text x="40" y="422" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-04 实验；ngx_cycle.c、ngx_control.c（1.31.10）</text>
+</svg>

@@ -1,0 +1,44 @@
+{
+ "type": "table",
+ "title": "HTTPRoute 的每个字段在 nginx 配置里都有落点",
+ "subtitle": "实验的 route 在数据面 nginx -T 里对应的配置；绿色一行是本篇反复用到的事实",
+ "source": "来源：labs/cloud-03 实验输出；NGF v2.9.1 upstreams.go、split_clients_template.go",
+ "columns": [
+  "HTTPRoute 里写的",
+  "nginx 配置里的",
+  "说明"
+ ],
+ "rows": [
+  [
+   "PathPrefix /api",
+   "location /api/ 和 location = /api",
+   "按路径段匹配"
+  ],
+  [
+   "backendRefs: v1",
+   "upstream 命名空间_v1_80",
+   "server 是 Pod IP，不经过 kube-proxy"
+  ],
+  [
+   "负载均衡",
+   "random two least_conn",
+   "NGF 的默认值"
+  ],
+  [
+   "v1 80、v2 20",
+   "split_clients $request_id",
+   "逐请求随机，1000 个请求 v2 落在 14% 到 26%"
+  ],
+  [
+   "header 条件",
+   "js_content httpmatches.redirect",
+   "njs 查 matches.json 后内部跳转"
+  ],
+  [
+   "不存在的 Service",
+   "upstream invalid-backend-ref",
+   "status 写 BackendNotFound，请求得到 500"
+  ]
+ ],
+ "highlight_row": 1
+}

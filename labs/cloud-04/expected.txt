@@ -1,0 +1,58 @@
+
+## a ConfigMap mounted as a directory
+..data -> ..<timestamp>
+nginx.conf -> ..data/nginx.conf
+files nginx loaded, from GET /1/control/config: "name":"/etc/nginx/live/nginx.conf" 
+answers: plain v1, web v1
+ok - nginx runs the file the ConfigMap's ..data link points to
+
+## an update reaches the directory mount, not the subPath mount
+directory mount of plain shows v2 within 120 s: yes
+subPath mount of plain: v1
+ok - kubelet updates the directory at its next sync; the subPath file stays
+
+## nginx keeps running the old config
+plain: file v2, running v1, answers v1
+PATCH /1/control/config: 200
+plain: file v2, running v2, answers v2
+ok - the new file is used only after a reload
+
+## a sidecar that reloads through the control API
+reloader: reload: 200 {"logs":[]}
+web answers: v2
+ok - the sidecar's PATCH loads v2 into web
+
+## a misspelled directive
+plain, nginx -s reload: exit 1
+  [emerg] unknown directive "proxy_read_timeot" in /etc/nginx/live/nginx.conf:13
+web, reload: 422 {"logs":["[emerg] unknown directive \"proxy_read_timeot\" in /etc/nginx/live/nginx.conf:13\n"]}
+answers: plain v2, web v2
+ok - both ways refuse it; the old config keeps serving
+
+## a certificate that is not there
+plain, nginx -s reload: exit 1
+  [emerg] cannot load certificate "/etc/nginx/certs/tls.crt": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/nginx/certs/tls.crt, r) error:10000080:BIO routines::no such file)
+web, reload: 422 {"logs":["[emerg] cannot load certificate \"/etc/nginx/certs/tls.crt\": BIO_new_file() failed (SSL: error:80000002:system library::No such file or directory:calling fopen(/etc/nginx/certs/tls.crt, r) error:10000080:BIO routines::no such file)\n"]}
+answers: plain v2, web v2
+ok - the signaller loads certificates too, so both ways refuse it
+
+## a log directory that does not exist
+plain, nginx -s reload: exit 0
+  [notice] signal process started
+plain, nginx's own log:
+  [emerg] open() "/var/log/ngnix/access.log" failed (2: No such file or directory)
+web, reload: 422 {"logs":["[emerg] open() \"/var/log/ngnix/access.log\" failed (2: No such file or directory)\n"]}
+answers: plain v2, web v2
+ok - nginx -s reload exits 0 while the reload fails; PATCH reports it
+
+## a restart after a failed reload
+plain: file bad-log, running v2
+plain after nginx -s stop: last exit code 1
+  [emerg] open() "/var/log/ngnix/access.log" failed (2: No such file or directory)
+answers: plain none, web v2
+ok - nginx starts from the bad file and fails; web, not restarted, still serves v2
+
+## a good config after the failures
+web, reload: 200
+answers: plain v3, web v3
+ok - the sidecar loads v3; plain starts again once its file is good

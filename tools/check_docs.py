@@ -22,10 +22,17 @@ Rules (each fenced block must declare where it comes from on its first line):
                                                  section of labs/ops-05/expected.txt; "..." elides.
   ```yaml   # lab: labs/cloud-02/k8s/web.yaml   Kubernetes manifests and Dockerfiles: lines must appear
   ```dockerfile                                  in that file, in order; "# ..." elides. Or "# 示意".
+  ```bash   # lab: labs/cloud-04/conf/reload.sh   the same for a lab script; a bash block without
+                                                 that header is not checked.
+
+  ```go     // nginx-gateway-fabric v2.9.1: internal/x.go:10-20   a project pinned in tools/ext.py
+                                                 (also ```c, ```js, ```rust): checked like nginx
+                                                 excerpts against .ext-src (tools/ext.py fetch).
 
 Links to https://github.com/nginx/nginx/blob/<ref>/<path>#Ln[-Lm] must use the pinned ref,
 point at an existing line, and when the link text is a `code` identifier, that identifier
-must occur within lines n..max(m, n+2). Relative links must point at existing files. A figure is an image link
+must occur within lines n..max(m, n+2); the same holds for links into a project of
+tools/ext.py, pinned to its tag. Relative links must point at existing files. A figure is an image link
 ![<title>](../figures/<chapter>/NN.svg) whose text equals the title of its spec NN.json.
 Chapters under ops/, dev/ and cloud/ must also follow the skeleton in spec: 一句话结论, 导读,
 5-9 numbered sections each with a **小结** line, 已知局限与待核实, 修订记录, at least one
@@ -44,6 +51,8 @@ import subprocess
 import sys
 import tempfile
 
+import ext
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REF = 'release-1.31.10'
 SRC = os.path.join(ROOT, '.nginx-src', REF)
@@ -53,6 +62,7 @@ GH = 'https://github.com/nginx/nginx/blob/'
 FENCE = re.compile(r'^```(\w*)[^\n]*\n(.*?)^```\s*$', re.M | re.S)
 LINK = re.compile(r'\[([^\]]*)\]\(([^)\s]+)\)')
 FIGURE = re.compile(r'!\[([^\]]*)\]\((\.\./figures/[\w-]+/\d\d\.svg)\)')
+EXT_HDR = re.compile(r'^//\s*([\w-]+)\s+([\w.-]+):\s*([\w./-]+):(\d+)-(\d+)\s*$')
 SRC_HDR = re.compile(r'^//\s*((?:src|modules|labs)/[\w./-]+):(\d+)-(\d+)\s*$')
 CONF_LAB = re.compile(r'^#\s*lab:\s*(labs/[\w./-]+)\s*$')
 CONF_CTX = re.compile(r'^#\s*context:\s*(main|http|server|location|stream|upstream)\s*$')
@@ -94,10 +104,21 @@ def subsequence(want, have):
     return None
 
 
-def check_excerpt(body, hdr, elide):
+def check_ext_excerpt(body, hdr, elide):
+    name, tag, path, a, b = hdr
+    if name not in ext.EXT:
+        return f'{name}: not a project of tools/ext.py'
+    if tag != ext.EXT[name][1]:
+        return f'{name} {tag}: pinned tag is {ext.EXT[name][1]}'
+    if not os.path.isdir(ext.path(name)):
+        return f'{name}: no checkout; run python3 tools/ext.py fetch'
+    return check_excerpt(body, (path, a, b), elide, ext.path(name))
+
+
+def check_excerpt(body, hdr, elide, base=None):
     """Body lines (minus elisions/blank lines) must appear in order inside the cited lines."""
     path, a, b = hdr
-    full = os.path.join(SRC if path.startswith('src/') else ROOT, path)
+    full = os.path.join(base or (SRC if path.startswith('src/') else ROOT), path)
     if not os.path.isfile(full):
         return f'{path}: no such file'
     src = lines_of(full)
@@ -152,6 +173,16 @@ def check_block(lang, body, errors, stats):
         return 'fenced block without a language; use text, bash, c or nginx'
     if lang == 'mermaid':
         return 'mermaid block; draw it as figures/<id>/NN.json and build it with tools/build_figures.py'
+    if lang in ('c', 'go', 'js', 'rust'):
+        m = EXT_HDR.match(first)
+        if m:
+            stats['c'] += 1
+            return check_ext_excerpt(rest, m.groups(), lambda x: x.strip() in ('/* ... */', '// ...'))
+    if lang in ('go', 'js', 'rust'):
+        if SKETCH.match(first):
+            stats['sketch'] += 1
+            return None
+        return f'{lang} block without a "// <project> <tag>: <file>:<a>-<b>" or "// 示意" header'
     if lang == 'c':
         m = SRC_HDR.match(first)
         if m:
@@ -181,7 +212,9 @@ def check_block(lang, body, errors, stats):
             stats['sketch'] += 1
             return None
         return 'nginx block without "# lab: <file>", "# context: <ctx>" or "# 示意" header'
-    if lang in ('yaml', 'dockerfile'):
+    if lang == 'bash' and not CONF_LAB.match(first):
+        return None
+    if lang in ('yaml', 'dockerfile', 'bash'):
         m = CONF_LAB.match(first)
         if m:
             path = os.path.join(ROOT, m.group(1))
@@ -209,7 +242,33 @@ def check_block(lang, body, errors, stats):
     return None
 
 
+def check_ext_link(name, ref, path, a, b, text, url):
+    if ref != ext.EXT[name][1]:
+        return f'link not pinned to {name} {ext.EXT[name][1]}: {url}'
+    if not os.path.isdir(ext.path(name)):
+        return f'{name}: no checkout; run python3 tools/ext.py fetch'
+    return check_lines(os.path.join(ext.path(name), path), path, a, b, text)
+
+
+def check_lines(full, path, a, b, text):
+    if not os.path.exists(full):
+        return f'source link to missing path {path}'
+    if a and os.path.isfile(full):
+        src = lines_of(full)
+        a = int(a)
+        b = int(b) if b else a + 2
+        if a > len(src):
+            return f'{path}#L{a}: beyond end of file ({len(src)} lines)'
+        ident = re.fullmatch(r'`([A-Za-z_][\w]*)(?:\(\))?`', text.strip())
+        if ident and ident.group(1) not in '\n'.join(src[a - 1:b]):
+            return f'{path}#L{a}: `{ident.group(1)}` not found on the linked lines'
+    return None
+
+
 def check_link(md, text, url):
+    m = re.match(r'https://github\.com/([\w.-]+/[\w.-]+)/blob/([^/]+)/([^#]+)(?:#L(\d+)(?:-L(\d+))?)?$', url)
+    if m and not url.startswith(GH) and ext.by_repo(m.group(1)):
+        return check_ext_link(ext.by_repo(m.group(1)), *m.groups()[1:], text, url)
     if url.startswith(GH):
         m = re.match(re.escape(GH) + r'([^/]+)/([^#]+)(?:#L(\d+)(?:-L(\d+))?)?$', url)
         if not m:
@@ -217,19 +276,7 @@ def check_link(md, text, url):
         ref, path, a, b = m.groups()
         if ref != REF:
             return f'source link not pinned to {REF}: {url}'
-        full = os.path.join(SRC, path)
-        if not os.path.exists(full):
-            return f'source link to missing path {path}'
-        if a and os.path.isfile(full):
-            src = lines_of(full)
-            a = int(a)
-            b = int(b) if b else a + 2
-            if a > len(src):
-                return f'{path}#L{a}: beyond end of file ({len(src)} lines)'
-            ident = re.fullmatch(r'`([A-Za-z_][\w]*)(?:\(\))?`', text.strip())
-            if ident and ident.group(1) not in '\n'.join(src[a - 1:b]):
-                return f'{path}#L{a}: `{ident.group(1)}` not found on the linked lines'
-        return None
+        return check_lines(os.path.join(SRC, path), path, a, b, text)
     if re.match(r'^[a-z]+:', url) or url.startswith('#'):
         return None
     target = os.path.normpath(os.path.join(os.path.dirname(md), url.split('#')[0]))

@@ -1,0 +1,11 @@
+# rewrite-target misspelled: annotations are free-form strings, so the API server keeps it.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: typo
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-targt: /
+spec:
+  ingressClassName: nginx
+  defaultBackend:
+    service: {name: v1, port: {number: 80}}

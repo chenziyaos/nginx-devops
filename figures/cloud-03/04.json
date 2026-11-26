@@ -1,0 +1,28 @@
+{
+ "type": "sequence",
+ "title": "路由或端点每变一次，agent 就 reload 一次",
+ "subtitle": "时间从上向下：上半段改 HTTPRoute，下半段把 v1 从 2 个 Pod 扩到 3 个，期间有一个限速下载",
+ "source": "来源：labs/cloud-03 实验输出；NGF v2.9.1 agent.go",
+ "actors": [
+  "kubectl",
+  {"name": "NGF 控制面", "sub": "nginx-gateway"},
+  {"name": "nginx-agent", "sub": "数据面 Pod"},
+  {"name": "nginx master", "sub": "PID 不变"},
+  {"name": "worker", "sub": "旧的和新的"}
+ ],
+ "messages": [
+  {"from": "kubectl", "to": "NGF 控制面", "text": "apply HTTPRoute"},
+  {"from": "NGF 控制面", "to": "nginx-agent", "text": "新配置文件（gRPC）"},
+  {"from": "nginx-agent", "to": "nginx master", "text": "SIGHUP"},
+  {"from": "nginx master", "to": "worker", "text": "起新 worker，旧 worker 退出"},
+  {"from": "kubectl", "to": "NGF 控制面", "text": "scale v1 到 3，EndpointSlice 变化"},
+  {"from": "NGF 控制面", "to": "nginx-agent", "text": "upstream 多一个 server"},
+  {"from": "nginx-agent", "to": "nginx master", "text": "SIGHUP"},
+  {"from": "nginx master", "to": "worker", "text": "起新 worker"},
+  {"from": "worker", "to": "worker", "text": "旧 worker shutting down，送完 7 MB 下载才退出"}
+ ],
+ "sections": [
+  {"at": 0, "label": "改路由"},
+  {"at": 4, "label": "扩容"}
+ ]
+}

@@ -1,0 +1,13 @@
+{
+ "type": "table",
+ "title": "三种坏配置在两种 reload 方式下的结果",
+ "subtitle": "plain 用 nginx -s reload，web 由 sidecar 调 PATCH；三次之后两个 Pod 都还在用 v2 服务；高亮一行是 -s reload 漏掉的错误",
+ "source": "来源：labs/cloud-04 实验输出",
+ "columns": ["坏配置", "出错的阶段", "nginx -s reload", "PATCH"],
+ "rows": [
+  ["proxy_read_timeot", "解析", "退出 1，打印 emerg", "422，emerg"],
+  ["证书文件不存在", "解析（加载证书）", "退出 1，打印 emerg", "422，emerg"],
+  ["access_log 目录不存在", "master 打开日志文件", "退出 0，emerg 只在 nginx 日志里", "422，emerg"]
+ ],
+ "highlight_row": 2
+}

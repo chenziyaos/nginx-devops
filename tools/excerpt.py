@@ -5,14 +5,18 @@ Usage:
   python3 tools/excerpt.py src/http/ngx_http_core_module.c 1446-1470
   python3 tools/excerpt.py src/http/ngx_http_core_module.c ngx_http_core_find_location
   python3 tools/excerpt.py modules/ngx_http_hello_module/ngx_http_hello_module.c 10-30
+  python3 tools/excerpt.py nginx-gateway-fabric:internal/controller/nginx/config/upstreams.go 25-30
 
 A line range prints exactly those lines. A function name prints the function from its
 return-type line to the closing brace and reports the range on stderr, so you can narrow it.
-Paths under src/ are read from the pinned source (.nginx-src/release-1.31.10).
+Paths under src/ are read from the pinned source (.nginx-src/release-1.31.10); NAME:path
+reads the pinned checkout of another project (tools/ext.py) and prints a block in its language.
 """
 import os
 import re
 import sys
+
+import ext
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, '.nginx-src', 'release-1.31.10')
@@ -32,7 +36,12 @@ def main():
     if len(sys.argv) != 3:
         sys.exit(__doc__)
     rel, spec = sys.argv[1], sys.argv[2]
-    path = os.path.join(SRC if rel.startswith('src/') else ROOT, rel)
+    name = None
+    if ':' in rel:
+        name, rel = rel.split(':', 1)
+        path = os.path.join(ext.path(name), rel)
+    else:
+        path = os.path.join(SRC if rel.startswith('src/') else ROOT, rel)
     lines = open(path, encoding='utf-8').read().split('\n')
     m = re.fullmatch(r'(\d+)-(\d+)', spec)
     if m:
@@ -42,8 +51,12 @@ def main():
         print(f'{rel}:{a}-{b}', file=sys.stderr)
     if not (1 <= a <= b <= len(lines)):
         sys.exit(f'range {a}-{b} outside 1-{len(lines)}')
-    print('```c')
-    print(f'// {rel}:{a}-{b}')
+    if name:
+        print('```' + ext.LANG[os.path.splitext(rel)[1]])
+        print(f'// {name} {ext.EXT[name][1]}: {rel}:{a}-{b}')
+    else:
+        print('```c')
+        print(f'// {rel}:{a}-{b}')
     print('\n'.join(lines[a - 1:b]))
     print('```')
     return 0

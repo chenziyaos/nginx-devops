@@ -9,3 +9,5 @@ labs/*/conf/.active.conf
 labs/*/modules
 figures/.preview/
 site/
+.cloud-tools/
+.ext-src/

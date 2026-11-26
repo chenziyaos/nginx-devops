@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 769" width="1200" height="769">
+<rect x="0" y="0" width="1200" height="769" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">路由或端点每变一次，agent 就 reload 一次</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上向下：上半段改 HTTPRoute，下半段把 v1 从 2 个 Pod 扩到 3 个，期间有一个限速下载</text>
+<line x1="152" y1="186" x2="152" y2="705" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="52" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="152" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">kubectl</text>
+<line x1="376" y1="186" x2="376" y2="705" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="276" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="376" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">NGF 控制面</text>
+<text x="376" y="172" font-size="12" fill="#646A73" text-anchor="middle">nginx-gateway</text>
+<line x1="600" y1="186" x2="600" y2="705" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx-agent</text>
+<text x="600" y="172" font-size="12" fill="#646A73" text-anchor="middle">数据面 Pod</text>
+<line x1="824" y1="186" x2="824" y2="705" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="724" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="824" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx master</text>
+<text x="824" y="172" font-size="12" fill="#646A73" text-anchor="middle">PID 不变</text>
+<line x1="1048" y1="186" x2="1048" y2="705" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="948" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1048" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">worker</text>
+<text x="1048" y="172" font-size="12" fill="#646A73" text-anchor="middle">旧的和新的</text>
+<rect x="40" y="204" width="60.2" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="70.1" y="220.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">改路由</text>
+<line x1="108.2" y1="216" x2="1160" y2="216" stroke="#EFF0F1" stroke-width="1"/>
+<text x="162" y="254.6" font-size="13" fill="#1F2329">apply HTTPRoute</text>
+<polyline points="152,263 364,263" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="364,257 374,263 364,269" fill="#8F959E"/>
+<text x="386" y="295.6" font-size="13" fill="#1F2329">新配置文件（gRPC）</text>
+<polyline points="376,304 588,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,298 598,304 588,310" fill="#8F959E"/>
+<text x="610" y="336.6" font-size="13" fill="#1F2329">SIGHUP</text>
+<polyline points="600,345 812,345" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="812,339 822,345 812,351" fill="#8F959E"/>
+<text x="834" y="377.6" font-size="13" fill="#1F2329">起新 worker，旧 worker 退出</text>
+<polyline points="824,386 1036,386" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1036,380 1046,386 1036,392" fill="#8F959E"/>
+<rect x="40" y="402" width="47.4" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="63.7" y="418.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">扩容</text>
+<line x1="95.4" y1="414" x2="1160" y2="414" stroke="#EFF0F1" stroke-width="1"/>
+<text x="162" y="452.6" font-size="13" fill="#1F2329">scale v1 到 3，EndpointSlice</text>
+<text x="162" y="472.6" font-size="13" fill="#1F2329">变化</text>
+<polyline points="152,481 364,481" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="364,475 374,481 364,487" fill="#8F959E"/>
+<text x="386" y="513.5" font-size="13" fill="#1F2329">upstream 多一个 server</text>
+<polyline points="376,522 588,522" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,516 598,522 588,528" fill="#8F959E"/>
+<text x="610" y="554.5" font-size="13" fill="#1F2329">SIGHUP</text>
+<polyline points="600,563 812,563" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="812,557 822,563 812,569" fill="#8F959E"/>
+<text x="834" y="595.5" font-size="13" fill="#1F2329">起新 worker</text>
+<polyline points="824,604 1036,604" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1036,598 1046,604 1036,610" fill="#8F959E"/>
+<text x="1038" y="636.5" font-size="13" fill="#1F2329" text-anchor="end">旧 worker shutting down，送</text>
+<text x="1038" y="656.5" font-size="13" fill="#1F2329" text-anchor="end">完 7 MB 下载才退出</text>
+<polyline points="1048,665 1022,665 1022,683 1034,683" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1034,677 1044,683 1034,689" fill="#8F959E"/>
+<text x="40" y="745" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-03 实验输出；NGF v2.9.1 agent.go</text>
+</svg>

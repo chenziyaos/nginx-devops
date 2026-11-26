@@ -1,0 +1,29 @@
+{
+ "type": "sequence",
+ "title": "reload 失败后的坏配置在下一次重启时生效",
+ "subtitle": "时间从上向下；plain 的 nginx 退出一次，web 没有重启",
+ "source": "来源：labs/cloud-04 实验输出",
+ "actors": [
+  "ConfigMap",
+  {"name": "plain", "sub": "nginx -s reload"},
+  {"name": "web", "sub": "sidecar 调 PATCH"},
+  "client"
+ ],
+ "messages": [
+  {"from": "ConfigMap", "to": "plain", "text": "坏配置写到磁盘"},
+  {"from": "ConfigMap", "to": "web", "text": "坏配置写到磁盘"},
+  {"from": "web", "to": "web", "text": "PATCH 422，继续用 v2"},
+  {"from": "plain", "to": "plain", "text": "reload 失败，继续用 v2"},
+  {"from": "plain", "to": "plain", "text": "nginx 退出，容器重启，读到坏配置，退出码 1"},
+  {"from": "client", "to": "plain", "text": "请求"},
+  {"from": "plain", "to": "client", "text": "没有回答", "reply": true},
+  {"from": "ConfigMap", "to": "web", "text": "改成正确的 v3"},
+  {"from": "web", "to": "web", "text": "PATCH 200，回答 v3"},
+  {"from": "plain", "to": "plain", "text": "下一次重启读到 v3，恢复"}
+ ],
+ "sections": [
+  {"at": 0, "label": "坏配置下发"},
+  {"at": 4, "label": "plain 重启"},
+  {"at": 7, "label": "修好 ConfigMap"}
+ ]
+}

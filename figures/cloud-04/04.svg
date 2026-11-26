@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 928" width="1200" height="928">
+<rect x="0" y="0" width="1200" height="928" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">reload 失败后的坏配置在下一次重启时生效</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上向下；plain 的 nginx 退出一次，web 没有重启</text>
+<line x1="180" y1="186" x2="180" y2="864" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">ConfigMap</text>
+<line x1="460" y1="186" x2="460" y2="864" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">plain</text>
+<text x="460" y="172" font-size="12" fill="#646A73" text-anchor="middle">nginx -s reload</text>
+<line x1="740" y1="186" x2="740" y2="864" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">web</text>
+<text x="740" y="172" font-size="12" fill="#646A73" text-anchor="middle">sidecar 调 PATCH</text>
+<line x1="1020" y1="186" x2="1020" y2="864" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">client</text>
+<rect x="40" y="204" width="85.6" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="82.8" y="220.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">坏配置下发</text>
+<line x1="133.6" y1="216" x2="1160" y2="216" stroke="#EFF0F1" stroke-width="1"/>
+<text x="190" y="254.6" font-size="13" fill="#1F2329">坏配置写到磁盘</text>
+<polyline points="180,263 448,263" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,257 458,263 448,269" fill="#8F959E"/>
+<text x="190" y="295.6" font-size="13" fill="#1F2329">坏配置写到磁盘</text>
+<polyline points="180,304 728,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,298 738,304 728,310" fill="#8F959E"/>
+<text x="750" y="336.6" font-size="13" fill="#1F2329">PATCH 422，继续用 v2</text>
+<polyline points="740,345 766,345 766,363 754,363" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="754,357 744,363 754,369" fill="#8F959E"/>
+<text x="470" y="403.6" font-size="13" fill="#1F2329">reload 失败，继续用 v2</text>
+<polyline points="460,412 486,412 486,430 474,430" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="474,424 464,430 474,436" fill="#8F959E"/>
+<rect x="40" y="454" width="78.9" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="79.4" y="470.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">plain 重启</text>
+<line x1="126.9" y1="466" x2="1160" y2="466" stroke="#EFF0F1" stroke-width="1"/>
+<text x="470" y="504.6" font-size="13" fill="#1F2329">nginx 退出，容器重启，读到坏配置，退</text>
+<text x="470" y="524.5" font-size="13" fill="#1F2329">出码 1</text>
+<polyline points="460,533 486,533 486,551 474,551" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="474,545 464,551 474,557" fill="#8F959E"/>
+<text x="1010" y="591.5" font-size="13" fill="#1F2329" text-anchor="end">请求</text>
+<polyline points="1020,600 472,600" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="472,594 462,600 472,606" fill="#8F959E"/>
+<text x="470" y="632.5" font-size="13" fill="#1F2329">没有回答</text>
+<polyline points="460,641 1008,641" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="1008,635 1018,641 1008,647" fill="#8F959E"/>
+<rect x="40" y="657" width="115.2" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="97.6" y="673.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">修好 ConfigMap</text>
+<line x1="163.2" y1="669" x2="1160" y2="669" stroke="#EFF0F1" stroke-width="1"/>
+<text x="190" y="707.5" font-size="13" fill="#1F2329">改成正确的 v3</text>
+<polyline points="180,716 728,716" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,710 738,716 728,722" fill="#8F959E"/>
+<text x="750" y="748.5" font-size="13" fill="#1F2329">PATCH 200，回答 v3</text>
+<polyline points="740,757 766,757 766,775 754,775" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="754,769 744,775 754,781" fill="#8F959E"/>
+<text x="470" y="815.5" font-size="13" fill="#1F2329">下一次重启读到 v3，恢复</text>
+<polyline points="460,824 486,824 486,842 474,842" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="474,836 464,842 474,848" fill="#8F959E"/>
+<text x="40" y="904" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-04 实验输出</text>
+</svg>

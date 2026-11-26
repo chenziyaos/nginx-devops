@@ -1,0 +1,118 @@
+{
+ "type": "graph",
+ "title": "注解是字符串，Gateway API 是有 schema 的资源；两者最后都落到 nginx 配置",
+ "subtitle": "上面是 Ingress 的路径，下面是 Gateway API 加 NGF 的路径；红色是没人校验的环节，绿色是会报错或写 status 的环节",
+ "source": "来源：labs/cloud-03 实验输出；NGF v2.9.1 源码",
+ "stages": [
+  {
+   "name": "用户写的",
+   "nodes": [
+    {
+     "id": "ing",
+     "title": "Ingress",
+     "sub": "host、path、后端"
+    },
+    {
+     "id": "ann",
+     "title": "注解",
+     "sub": "nginx.ingress.kubernetes.io/*",
+     "tone": "risk"
+    },
+    {
+     "id": "rt",
+     "title": "HTTPRoute",
+     "sub": "matches、backendRefs、filters"
+    }
+   ]
+  },
+  {
+   "name": "API server",
+   "nodes": [
+    {
+     "id": "none",
+     "title": "字符串照收",
+     "sub": "不知道哪个控制器认哪些键",
+     "tone": "risk"
+    },
+    {
+     "id": "schema",
+     "title": "CRD schema",
+     "sub": "未知字段、错误枚举直接拒绝",
+     "tone": "good"
+    }
+   ]
+  },
+  {
+   "name": "控制器",
+   "nodes": [
+    {
+     "id": "ic",
+     "title": "ingress-nginx",
+     "sub": "仓库已归档"
+    },
+    {
+     "id": "ngf",
+     "title": "NGF 控制面",
+     "sub": "生成配置，gRPC 下发"
+    }
+   ]
+  },
+  {
+   "name": "结果",
+   "nodes": [
+    {
+     "id": "drop",
+     "title": "拼错的键",
+     "sub": "被忽略，没有报错",
+     "tone": "risk"
+    },
+    {
+     "id": "st",
+     "title": "route status",
+     "sub": "不支持的字段、找不到的后端写在这里",
+     "tone": "good"
+    },
+    {
+     "id": "dp",
+     "title": "nginx + agent",
+     "sub": "每个 Gateway 一个 Pod，agent 发 SIGHUP reload"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "ing",
+   "to": "none"
+  },
+  {
+   "from": "ann",
+   "to": "none"
+  },
+  {
+   "from": "none",
+   "to": "ic"
+  },
+  {
+   "from": "ic",
+   "to": "drop",
+   "dashed": true
+  },
+  {
+   "from": "rt",
+   "to": "schema"
+  },
+  {
+   "from": "schema",
+   "to": "ngf"
+  },
+  {
+   "from": "ngf",
+   "to": "st"
+  },
+  {
+   "from": "ngf",
+   "to": "dp"
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+# Two pods serve the ConfigMap web-conf. Both mount it as a directory (nginx reads it with -c)
+# and once more with subPath, and listen for the control API on a unix socket. Only web has a
+# sidecar that reloads nginx when the ConfigMap changes.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: plain
+  labels: {app: web}
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      command: [nginx, -c, /etc/nginx/live/nginx.conf, -g, daemon off;, -l, unix:/run/ctl/nginx.sock]
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/live}
+        - {name: conf, mountPath: /etc/nginx/subpath.conf, subPath: nginx.conf}
+        - {name: ctl, mountPath: /run/ctl}
+  volumes:
+    - name: conf
+      configMap: {name: web-conf}
+    - name: ctl
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web
+  labels: {app: web}
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      command: [nginx, -c, /etc/nginx/live/nginx.conf, -g, daemon off;, -l, unix:/run/ctl/nginx.sock]
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/live}
+        - {name: conf, mountPath: /etc/nginx/subpath.conf, subPath: nginx.conf}
+        - {name: ctl, mountPath: /run/ctl}
+    - name: reloader
+      image: nginx-devops/nginx:1.31.10
+      command: [sh, /reloader/reload.sh]
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/live}
+        - {name: ctl, mountPath: /run/ctl}
+        - {name: reloader, mountPath: /reloader}
+  volumes:
+    - name: conf
+      configMap: {name: web-conf}
+    - name: ctl
+      emptyDir: {}
+    - name: reloader
+      configMap: {name: reloader}

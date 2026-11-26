@@ -6,11 +6,14 @@
 #   UPDATE=1 tools/verify_labs.sh ops-05   # rewrite expected.txt from the current output
 #
 # Exit code 1 if any lab fails or differs. Output lives in labs/<id>/out/actual.txt.
+# A lab that exits with 77 cannot run here (the cloud-* labs need a kind cluster); it is
+# reported as SKIP and counted separately, never as a match.
 set -Eeuo pipefail
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 pass=0
 fail=0
+skip=0
 
 labs=()
 for d in "$ROOT"/labs/*/; do
@@ -31,8 +34,15 @@ done
 for id in ${labs[@]+"${labs[@]}"}; do
     d="$ROOT/labs/$id"
     mkdir -p "$d/out"
-    if ! bash "$d/run.sh" > "$d/out/actual.txt" 2> "$d/out/stderr.txt"; then
-        echo "FAIL $id: run.sh exited non-zero"
+    rc=0
+    bash "$d/run.sh" > "$d/out/actual.txt" 2> "$d/out/stderr.txt" || rc=$?
+    if (( rc == 77 )); then
+        echo "SKIP $id: $(tail -1 "$d/out/stderr.txt")"
+        skip=$((skip + 1))
+        continue
+    fi
+    if (( rc != 0 )); then
+        echo "FAIL $id: run.sh exited $rc"
         tail -5 "$d/out/stderr.txt" | sed 's/^/    /'
         fail=$((fail + 1))
         continue
@@ -59,5 +69,9 @@ for id in ${labs[@]+"${labs[@]}"}; do
     fi
 done
 
-echo "$pass/$((pass + fail)) labs match"
+if (( skip )); then
+    echo "$pass/$((pass + fail)) labs match, $skip skipped"
+else
+    echo "$pass/$((pass + fail)) labs match"
+fi
 (( fail == 0 ))

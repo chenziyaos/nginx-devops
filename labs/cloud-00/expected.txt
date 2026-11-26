@@ -1,0 +1,18 @@
+
+## the lab image
+nginx version: nginx/1.31.10
+--conf-path=/etc/nginx/nginx.conf
+--user=nginx
+--with-control-api
+STOPSIGNAL SIGQUIT
+ok - the pod runs nginx 1.31.10 with the control API compiled in, stopped by SIGQUIT
+
+## processes in the pod
+pid 1 root nginx: master process
+pid N nginx nginx: worker process
+pid N nginx nginx: worker process
+ok - the master is PID 1 and runs as root, the two workers run as nginx
+
+## a request through the Service
+POD 1.31.10
+ok - the Service name resolves and the response comes from the web pod

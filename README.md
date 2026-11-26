@@ -135,9 +135,22 @@ python3 tools/build_figures.py --check         # 检查提交的 SVG 是否和 s
 
 实验只在 1.31.10 上核对过。用 `NGINX_REF=release-1.30.8 tools/build.sh` 可以编出 stable 版本，但 `expected.txt` 不保证与它的输出一致。
 
+## 云原生篇的实验环境
+
+`labs/cloud-*` 的实验不在本机起 nginx，而是在一个本地 kind 集群里部署 Pod，从集群内的 client Pod 发请求。需要一台 Linux 机器，装好 docker、kind 和 kubectl：
+
+```bash
+tools/cloud_up.sh                  # 重建 kind 集群 lab（1 个控制面 + 2 个 worker，Kubernetes 1.37.0），构建并加载实验镜像
+tools/verify_labs.sh cloud-00      # 冒烟实验：镜像版本、Pod 里的进程、经 Service 的一次请求
+```
+
+- 实验镜像 `nginx-devops/nginx:1.31.10` 由 `labs/cloud-images/nginx/Dockerfile` 从 nginx.org 的源码包构建（校验 sha256），模块与 `tools/build.sh` 相同，路径、运行用户、日志软链接和 `STOPSIGNAL SIGQUIT` 照搬官方镜像。`tools/cloud_images.sh` 只重建镜像并 `kind load` 到各节点；环境变量里的 `http_proxy` 等代理设置会传给 `docker build`。
+- 每个实验独占命名空间 `lab-cloud-NN`，开始时删掉重建，退出时删除。`labs/cloud-lib.sh` 只在 kubectl 当前 context 以 `kind-` 开头时运行，否则以退出码 77 结束，`verify_labs.sh` 记为 SKIP，不算通过。
+- 云原生篇的实验在 Debian 9（Linux 4.19，cgroup v1）、docker 29.10.1、kind v0.33.0 上跑过。cgroup v1 主机上 kind 的节点镜像默认拒绝启动，`labs/cloud-images/kind.yaml` 里的补丁关掉了这项检查，并让 kubelet 和 containerd 都用 cgroupfs 驱动；cgroup v2 主机用同一份配置也能运行，但没有在那样的机器上验证过。
+
 ## 限制与已知问题
 
-- 所有实验只在 macOS（arm64，kqueue，16 KB 内存页）上运行过。Linux 上事件模块是 epoll，debug 日志里的事件行、页大小相关的数字（如开发篇 03 的 slab 分档）会不同，`verify_labs.sh` 在 Linux 上预计会报差异；`tools/build.sh` 在 Linux 上也没有测过。
+- 运维篇和开发篇的实验只在 macOS（arm64，kqueue，16 KB 内存页）上运行过。Linux 上事件模块是 epoll，debug 日志里的事件行、页大小相关的数字（如开发篇 03 的 slab 分档）会不同，`verify_labs.sh` 在 Linux 上预计会报差异；`tools/build.sh` 在 Linux 上也没有测过。
 - 有几个实验依赖时序：限流（运维篇 09、开发篇 08）按“至少等了多少秒”判断，开发篇 05 的 `accept_mutex` 比较的是空闲后的最终状态。机器很忙时仍可能偶发失败，重跑一次即可区分偶发和真实差异。
 - HTTP/3 只验证到 QUIC 握手和 ALPN（运维篇 08），没有发出 HTTP/3 请求；各章“已知局限与待核实”列出了其余没有实验覆盖的说法。
 - 图由 lark-figure 引擎从 spec 生成，引擎没有公开；没有它只能看图，不能重新生成。SVG 里的文字用系统无衬线字体显示，Windows 和 Linux 上字宽会略有不同。
@@ -158,6 +171,8 @@ ops/  dev/            章节
 figures/<id>/         章节的图：NN.json（spec）和 NN.svg（生成结果）
 labs/<id>/            实验：run.sh、HYPOTHESES.md、conf/、expected.txt
 labs/lib.sh           实验公共函数（start、stop、expect、fire 等）
+labs/cloud-lib.sh     云原生篇实验的公共函数（命名空间、ConfigMap、client Pod、expect）
+labs/cloud-images/    云原生篇的实验镜像和 kind 集群配置
 labs/ctest.sh         把小 C 程序链接到 nginx 目标文件
 modules/              本仓库自己的动态模块（hello）
 tools/                构建、实验核对、源码摘录、文档检查、生成图

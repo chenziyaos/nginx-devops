@@ -2,7 +2,7 @@
 """Check that every chapter quotes nginx source, configs and lab output faithfully.
 
 Usage:
-  python3 tools/check_docs.py                 # all chapters under ops/ and dev/
+  python3 tools/check_docs.py                 # all chapters under ops/, dev/ and cloud/
   python3 tools/check_docs.py ops/05-*.md     # some chapters
 
 Rules (each fenced block must declare where it comes from on its first line):
@@ -20,12 +20,14 @@ Rules (each fenced block must declare where it comes from on its first line):
             # 示意                               not checked (counted in the summary).
   ```text   # labs/ops-05 ## <step title>       lines must appear, in order, in that step's
                                                  section of labs/ops-05/expected.txt; "..." elides.
+  ```yaml   # lab: labs/cloud-02/k8s/web.yaml   Kubernetes manifests and Dockerfiles: lines must appear
+  ```dockerfile                                  in that file, in order; "# ..." elides. Or "# 示意".
 
 Links to https://github.com/nginx/nginx/blob/<ref>/<path>#Ln[-Lm] must use the pinned ref,
 point at an existing line, and when the link text is a `code` identifier, that identifier
 must occur within lines n..max(m, n+2). Relative links must point at existing files. A figure is an image link
 ![<title>](../figures/<chapter>/NN.svg) whose text equals the title of its spec NN.json.
-Chapters under ops/ and dev/ must also follow the skeleton in spec: 一句话结论, 导读,
+Chapters under ops/, dev/ and cloud/ must also follow the skeleton in spec: 一句话结论, 导读,
 5-9 numbered sections each with a **小结** line, 已知局限与待核实, 修订记录, at least one
 3 figures, 4 quoted lab outputs, at most 2 示意 blocks, a minimum length,
 lab configs kept as files, and expect checks in run.sh for at least half of its steps. Every x.y.z version in
@@ -178,6 +180,20 @@ def check_block(lang, body, errors, stats):
             stats['sketch'] += 1
             return None
         return 'nginx block without "# lab: <file>", "# context: <ctx>" or "# 示意" header'
+    if lang in ('yaml', 'dockerfile'):
+        m = CONF_LAB.match(first)
+        if m:
+            path = os.path.join(ROOT, m.group(1))
+            if not os.path.isfile(path):
+                return f'{m.group(1)}: no such file'
+            want = [norm(x) for x in rest if x.strip() and x.strip() != '# ...']
+            bad = subsequence(want, [norm(x) for x in lines_of(path)])
+            stats['conf'] += 1
+            return None if bad is None else f'{m.group(1)}: line not found: {want[bad]!r}'
+        if SKETCH.match(first):
+            stats['sketch'] += 1
+            return None
+        return f'{lang} block without a "# lab: <file>" or "# 示意" header'
     if lang == 'text':
         m = TEXT_LAB.match(first)
         if not m:
@@ -262,7 +278,7 @@ def check(md):
 
 
 SPECIAL = re.compile(r'^(导读|已知局限与待核实|修订记录)$')
-MIN_CHARS = {'ops': 9000, 'dev': 11000}
+MIN_CHARS = {'ops': 9000, 'dev': 11000, 'cloud': 9000}
 
 
 def check_structure(md, text, prose, stats):
@@ -286,7 +302,7 @@ def check_structure(md, text, prose, stats):
         out.append(f'{stats["figures"]} figures, expected at least 3')
     if stats['out'] < 4:
         out.append(f'{stats["out"]} quoted lab outputs, expected at least 4')
-    need_c = {'ops': 3, 'dev': 8}[part]
+    need_c = {'ops': 3, 'dev': 8, 'cloud': 2}[part]
     if stats['c'] < need_c:
         out.append(f'{stats["c"]} nginx source excerpts, expected at least {need_c}')
     if stats['sketch'] > 2:
@@ -295,7 +311,7 @@ def check_structure(md, text, prose, stats):
     stats['chars'] = chars
     if chars < MIN_CHARS[part]:
         out.append(f'{chars} non-space characters, expected at least {MIN_CHARS[part]}')
-    lab = re.search(r'labs/((?:ops|dev)-\d\d)', text)
+    lab = re.search(r'labs/((?:ops|dev|cloud)-\d\d)', text)
     if lab:
         run = os.path.join(ROOT, 'labs', lab.group(1), 'run.sh')
         script = open(run, encoding='utf-8').read() if os.path.isfile(run) else ''
@@ -323,7 +339,8 @@ def check_structure(md, text, prose, stats):
             hit = re.search(r'/(?:Users|home)/[A-Za-z0-9._-]+', body)
             if hit:
                 out.append(f'{name} contains a local path ({hit.group(0)}); normalize it to $LAB')
-        out.extend(check_ports(lab.group(1), script))
+        if part != 'cloud':  # cloud labs listen inside pods, not on 127.0.0.1
+            out.extend(check_ports(lab.group(1), script))
     return out
 
 
@@ -379,7 +396,8 @@ def main():
     show_versions = '--versions' in args
     args = [a for a in args if a != '--versions']
     files = args or sorted(glob.glob(os.path.join(ROOT, 'ops', '*.md')) +
-                                   glob.glob(os.path.join(ROOT, 'dev', '*.md')))
+                                   glob.glob(os.path.join(ROOT, 'dev', '*.md')) +
+                                   glob.glob(os.path.join(ROOT, 'cloud', '*.md')))
     total = 0
     for md in files:
         errors, s = check(md)

@@ -2,7 +2,7 @@
 
 > **一句话结论**：nginx 先按连接的地址和端口找到一组 server，再用 Host 在组内选一个：精确名字 > 最长的 `*.` 前缀通配 > 最长的 `.*` 后缀通配 > 第一个匹配的正则 > 默认 server。选定 server 后选 location：`=` 精确命中立即结束；否则找最长的普通前缀，它带 `^~` 就结束，不带就依次试正则、再试 predicate（1.31.5 新增），都不中才回到这个最长前缀。除了正则和 predicate 按书写顺序比较，其余规则都与配置里的先后无关。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」两处：predicate location 只在 1.31.x 有（§5）；`try_files` 与 `alias` 组合的缓冲区溢出 CVE-2026-125283 在 1.31.9 和 1.30.7 同时修复（§7）。实验：[`labs/ops-04`](../labs/ops-04/)，一份配置里每个端口演示一类规则，本篇所有“请求 → 结果”都来自它的输出。实验在 macOS 上运行，§4 有一处只在 macOS 上成立的行为。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」两处：predicate location 只在 1.31.x 有（§5）；`try_files` 与 `alias` 组合的缓冲区溢出 CVE-2026-125283 在 1.31.9 和 1.30.7 同时修复，本篇的两个版本都已包含（§7）。实验：[`labs/ops-04`](../labs/ops-04/)，一份配置里每个端口演示一类规则，本篇所有“请求 → 结果”都来自它的输出。实验在 macOS 上运行，§4 有一处只在 macOS 上成立的行为。
 
 ## 导读
 
@@ -69,7 +69,7 @@ client sent invalid host header while reading client request headers
 
 ## 2. server_name 的优先级与书写顺序无关：精确 > 最长前缀通配 > 最长后缀通配 > 第一个匹配的正则
 
-[`ngx_http_find_virtual_server`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_request.c#L2558) 先查一个组合哈希表，查不到才按顺序跑正则：
+[`ngx_http_find_virtual_server`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_request.c#L2558) 先查一个组合哈希表，查不到才按顺序跑正则：
 
 ```c
 // src/http/ngx_http_request.c:2568-2575
@@ -206,7 +206,7 @@ unknown.test       /                                -> b.test (default_server)
 
 ## 3. location 先在前缀树里找最长前缀：`=` 精确命中立即结束，最长前缀带 `^~` 也立即结束
 
-配置解析时，server 里的普通前缀和 `=` location 被编进一棵按字符串排序的二叉树（静态 location 树），正则和 predicate 各自另存一个按书写顺序排列的数组。请求到达 FIND_CONFIG 阶段时，[`ngx_http_core_find_location`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L1446) 先查树：
+配置解析时，server 里的普通前缀和 `=` location 被编进一棵按字符串排序的二叉树（静态 location 树），正则和 predicate 各自另存一个按书写顺序排列的数组。请求到达 FIND_CONFIG 阶段时，[`ngx_http_core_find_location`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L1446) 先查树：
 
 ```c
 // src/http/ngx_http_core_module.c:1459-1478
@@ -232,7 +232,7 @@ unknown.test       /                                -> b.test (default_server)
 
 ```
 
-[`ngx_http_core_find_static_location`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L1545) 的返回值决定后续：
+[`ngx_http_core_find_static_location`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L1545) 的返回值决定后续：
 
 | 返回值 | 含义 | 之后 |
 |---|---|---|
@@ -417,14 +417,14 @@ p.test             /admin/x           X-Beta: 1     -> 1 (predicate)
 
 最后一行值得多看一眼：`/admin/x` 的最长前缀是 `/admin/`，其中嵌套的 predicate 为假；回到 server 级后，`$http_x_beta` 为真，于是 predicate 盖过了前缀 `/admin/`。也就是说，predicate 在优先级上和正则同类，都能抢走普通前缀。它适合替代“在 location 里写 `if` 再 `return`”的灰度写法：用 `map` 算出一个变量，再交给 predicate location 分流。
 
-**版本差异**：1.30.7 没有这个功能。实验对两份源码计数：
+**版本差异**：1.30.8 没有这个功能。实验对两份源码计数：
 
 ```text
 # labs/ops-04 ## predicate locations
-lines with predicate_locations in ngx_http_core_module.c: 1.30.7 0, 1.31.9 2
+lines with predicate_locations in ngx_http_core_module.c: 1.30.8 0, 1.31.10 2
 ```
 
-在 1.30.x 上写 `location $x` 不会报错，而是被当成名字为 `$x` 的普通前缀（解析代码没有 `$` 分支），永远匹配不到以 `/` 开头的 URI；这一点是读 1.30.7 源码推断的，没有用 1.30.7 的二进制验证。
+在 1.30.x 上写 `location $x` 不会报错，而是被当成名字为 `$x` 的普通前缀（解析代码没有 `$` 分支），永远匹配不到以 `/` 开头的 URI；这一点是读 1.30.8 源码推断的，没有用 1.30.8 的二进制验证。
 
 **小结**：predicate location 在正则之后按书写顺序检查，变量非空且不为 `"0"` 即命中，命中后同样能盖过普通前缀，`^~` 同样能跳过它；只有 1.31.x 有。到这里，location 选定了；接下来的 `try_files` 运行在更靠后的 PRECONTENT 阶段，它决定的是“在选中的 location 里，用哪个文件或去哪”。
 
@@ -527,7 +527,7 @@ rewrite or internal redirection cycle while internally redirecting to "/loop/aga
 
 ## 7. root 把整个 URI 拼在后面，alias 用自己替换匹配到的前缀：两者的末尾斜杠必须对齐
 
-两者都在 [`ngx_http_map_uri_to_path`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.c#L1979) 里变成路径。`root` 时 `alias` 为 0；`alias` 时它等于 location 名字的长度（第 4711 行 `clcf->alias = alias ? clcf->name.len : 0;`）。最后一步把 URI 跳过这么多字节后接到目录后面：
+两者都在 [`ngx_http_map_uri_to_path`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.c#L1979) 里变成路径。`root` 时 `alias` 为 0；`alias` 时它等于 location 名字的长度（第 4711 行 `clcf->alias = alias ? clcf->name.len : 0;`）。最后一步把 URI 跳过这么多字节后接到目录后面：
 
 ```c
 // src/http/ngx_http_core_module.c:2051-2054
@@ -644,7 +644,7 @@ open() "$LAB/html/target/abc" failed (2: No such file or directory)
 ## 已知局限与待核实
 
 - 实验只在 macOS（darwin）上运行。§4 中 Linux 上 `/DOCS/a.txt` 落到 `location /` 的结论来自 `ngx_darwin_config.h` 与 `ngx_filename_cmp` 的源码，没有在 Linux 上跑。
-- §5 中“1.30.x 把 `location $x` 当作普通前缀”是读 1.30.7 源码推断的，没有用 1.30.7 二进制验证。
+- §5 中“1.30.x 把 `location $x` 当作普通前缀”是读 1.30.8 源码推断的，没有用 1.30.8 二进制验证。
 - 通配 server_name 的“取最长”来自 `ngx_hash_find_wc_head` 逐段查找的结构和实验结果，本篇没有摘录该函数。
 - CVE-2026-125283 的触发配置没有公开细节，本篇只引用 changes.xml 的原文，没有复现。
 - `server_name` 与 HTTPS 的 SNI 选择（`r == NULL` 分支）留给运维篇 08。
@@ -652,3 +652,4 @@ open() "$LAB/html/target/abc" failed (2: No such file or directory)
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖默认 server、server_name 三张哈希表加正则、location 前缀树与 `^~` 的“最长前缀”规则、正则与 predicate 的顺序、macOS 大小写差异、`try_files` 参数语义与 301、alias 前缀替换与斜杠对齐、三个 alias CVE、`return` 先于访问控制，均附 `labs/ops-04` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

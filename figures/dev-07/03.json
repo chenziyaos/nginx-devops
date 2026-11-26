@@ -2,7 +2,7 @@
  "type": "flow",
  "title": "if 的条件和判断是独立的两条指令，通过栈传递结果",
  "subtitle": "从左到右展示执行过程；括号内是当前的栈状态",
- "source": "来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.9）",
+ "source": "来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.10）",
  "steps": [
   {
    "title": "push_var $arg_mode",

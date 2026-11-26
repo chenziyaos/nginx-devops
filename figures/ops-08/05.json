@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "reload 后会话能否复用，取决于 ticket 密钥的存储位置",
  "subtitle": "左边：无共享缓存，密钥随 SSL_CTX 创建；右边：有共享缓存，密钥存在内存里",
- "source": "来源：ngx_event_openssl.c（1.31.9）",
+ "source": "来源：ngx_event_openssl.c（1.31.10）",
  "actors": [
   {"name": "客户端"},
   {"name": "旧配置 SSL_CTX", "tone": "contrast"},

@@ -49,5 +49,5 @@
 <rect x="910" y="479" width="220" height="87" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
 <text x="1020" y="517.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">生成 Location 头</text>
 <text x="1020" y="537.7" font-size="12" fill="#646A73" text-anchor="middle">返回 302 或 301</text>
-<text x="40" y="606" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.9）</text>
+<text x="40" y="606" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.10）</text>
 </svg>

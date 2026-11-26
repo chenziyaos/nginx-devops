@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "变量名字在配置时用，请求时只用下标",
  "subtitle": "分为配置阶段（上）和请求（下）两部分；配置里按名字找变量定义，请求里按下标存值",
- "source": "来源：ngx_http_variables.c、ngx_http_variables.h（1.31.9）",
+ "source": "来源：ngx_http_variables.c、ngx_http_variables.h（1.31.10）",
  "stages": [
   {
    "name": "配置阶段",

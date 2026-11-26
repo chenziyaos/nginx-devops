@@ -2,7 +2,7 @@
  "type": "table",
  "title": "四个时间变量的起止点不同，能把慢请求分到不同环节",
  "subtitle": "每行一个变量；高亮行只有 $request_time 包含客户端那一段",
- "source": "来源：ngx_http_log_module.c、ngx_http_upstream.c（1.31.9）",
+ "source": "来源：ngx_http_log_module.c、ngx_http_upstream.c（1.31.10）",
  "columns": [
   "变量",
   "起点",

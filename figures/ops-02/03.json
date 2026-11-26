@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "数组指令一旦在子级出现一条，整组覆盖父级的所有元素",
  "subtitle": "从上往下是配置块嵌套；红色代表覆盖行为和数据丢失",
- "source": "来源：ngx_http_headers_filter_module.c（1.31.9）",
+ "source": "来源：ngx_http_headers_filter_module.c（1.31.10）",
  "stages": [
   {
    "name": "解析",

@@ -67,7 +67,17 @@ wait
 echo "download: $(result)"
 sleep 0.3
 echo "old workers alive after it: $(alive $old)"
-lifecycle | grep -vE 'start worker processes$' | sed -n '/SIGHUP/,$p'
+# The two old workers log concurrently, so their lines interleave in either order. Print the
+# master's lines in order, then each old worker's own lines, the one that exits first first.
+grep -aE '\[notice\]' logs/error.log | sed -n '/SIGHUP/,$p' \
+    | grep -avE 'SIGIO|signal process started|event method|start worker processes$' \
+    | sed -E 's/^[0-9\/]+ [0-9:]+ (\[[a-z]+\]) ([0-9]+)#[0-9]+: /\2\t\1 /' \
+    | sed -E -e 's/(received from|process) [0-9]+/\1 N/' \
+    | awk -F'\t' -v m="$m" '
+        $1 == m { print "master: " $2; next }
+        { lines[$1] = lines[$1] "\n  " $2 }
+        $2 ~ /\] exit$/ { order[++n] = $1 }
+        END { for (i = 1; i <= n; i++) print "old worker " i ":" lines[order[i]] }'
 expect "same master, new config answers, the in-flight download completes, then old workers exit" \
     "$before $(curl -s $U/ | cut -d' ' -f1) $(result) $(alive $old)" "v1 v2 200 complete 0"
 stop

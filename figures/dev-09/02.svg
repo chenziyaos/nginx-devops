@@ -44,5 +44,5 @@
 <text x="1056" y="451.2" font-size="12" fill="#646A73" text-anchor="middle">peer.free，连接放回缓存</text>
 <text x="605" y="410.5" font-size="12" fill="#646A73">on</text>
 <text x="605" y="469.5" font-size="12" fill="#646A73">off</text>
-<text x="40" y="577" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_upstream_handler（1.31.9）</text>
+<text x="40" y="577" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_upstream_handler（1.31.10）</text>
 </svg>

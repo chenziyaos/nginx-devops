@@ -2,7 +2,7 @@
  "type": "table",
  "title": "ngx_module_t 的 type 字段决定了 ctx 指向哪种回调表",
  "subtitle": "每行一种模块类型；高亮的 HTTP 模块回调最多，配置要分 main、srv、loc 三级创建和合并",
- "source": "来源：src/core/ngx_module.h（1.31.9）",
+ "source": "来源：src/core/ngx_module.h（1.31.10）",
  "columns": [
   "type",
   "ctx 指向",

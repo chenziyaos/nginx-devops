@@ -31,5 +31,5 @@
 <text x="1056" y="241.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">文件路径</text>
 <text x="1056" y="261.7" font-size="12" fill="#646A73" text-anchor="middle">out/run/cache/1/38/0a84...b</text>
 <text x="1056" y="280.7" font-size="12" fill="#646A73" text-anchor="middle">381</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_file_cache.c、labs/ops-10 实验（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_file_cache.c、labs/ops-10 实验（1.31.10）</text>
 </svg>

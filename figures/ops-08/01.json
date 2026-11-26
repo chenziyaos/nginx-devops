@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "证书选择在握手中途完成，SNI 到 ALPN 回调依次触发",
  "subtitle": "一个连接从第一个字节到读 HTTP 请求；蓝色是证书在这一步才定下来",
- "source": "来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）",
+ "source": "来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.10）",
  "stages": [
   {"name": "第一个字节", "nodes": [
     {"id": "b", "title": "0x16 或最高位为 1？"}]},

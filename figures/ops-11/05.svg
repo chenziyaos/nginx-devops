@@ -24,5 +24,5 @@
 <text x="470" y="316.2" font-size="13" fill="#1F2329">期，write 落盘</text>
 <polyline points="460,324.6 1008,324.6" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="1008,318.6 1018,324.6 1008,330.6" fill="#8F959E"/>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_log_module.c（1.31.9）、labs/ops-11 实验输出</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_log_module.c（1.31.10）、labs/ops-11 实验输出</text>
 </svg>

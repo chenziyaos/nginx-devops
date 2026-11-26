@@ -2,7 +2,7 @@
   "type": "compare",
   "title": "rewrite last 只重新选 location，内部跳转重新执行 server 级",
   "subtitle": "都消耗 uri_changes（上限 10）；区别是清空上下文和跳转位置",
-  "source": "来源：ngx_http_core_module.c（1.31.9）",
+  "source": "来源：ngx_http_core_module.c（1.31.10）",
   "cards": [
     {
       "title": "rewrite ... last",

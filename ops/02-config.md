@@ -2,7 +2,7 @@
 
 > **一句话结论**：nginx 配置由"指令 + 块"组成，每个指令声明允许出现的上下文；标量指令子级没设就继承父级，数组指令（如 `add_header`）在子级出现一条就覆盖整组；用 `nginx -t` 检查语法，`-T` 看合并后的完整配置；变量在请求时求值；`if` 语句因为创建隐式 location 配置会有意外。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-21）。`add_header_inherit` 从 1.29.3 起支持，1.30.x stable 已包含。实验：[`labs/ops-02`](../labs/ops-02/)。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。`add_header_inherit` 从 1.29.3 起支持，1.30.x stable 已包含。实验：[`labs/ops-02`](../labs/ops-02/)。
 
 ## 导读
 
@@ -510,3 +510,4 @@ add_header X-Request-ID $request_id always;
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码重写，新增。补充 add_header_inherit off 的完整测试场景、if 块的隐式覆盖问题演示、add_header 的状态码限制、nginx -T 的输出示例。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

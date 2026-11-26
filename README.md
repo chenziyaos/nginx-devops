@@ -1,6 +1,6 @@
 # nginx-devops
 
-一套基于 nginx 1.31.9 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）和开发篇（10 章）。每章的结论都配有一个可以在本机复现的实验，引用的源码片段逐行核对过 1.31.9 的源码。适合两类读者：一类要配置和排查线上 nginx，另一类要读 nginx 源码或者自己写模块。
+一套基于 nginx 1.31.10 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）和开发篇（10 章）。每章的结论都配有一个可以在本机复现的实验，引用的源码片段逐行核对过 1.31.10 的源码。适合两类读者：一类要配置和排查线上 nginx，另一类要读 nginx 源码或者自己写模块。
 
 这里不是 nginx 官方文档的翻译，也不覆盖全部指令。每章挑一个主题，讲清楚 nginx 在源码里实际怎么做，以及默认值和容易误解的行为。2018 年的旧版教程保留在 tag [`legacy-2018`](https://github.com/zyaochen/nginx-devops/tree/legacy-2018)。
 
@@ -13,11 +13,11 @@
 ```bash
 git clone https://github.com/zyaochen/nginx-devops.git
 cd nginx-devops
-tools/build.sh                     # 拉取 release-1.31.9，编译到 ./.nginx，不需要 root
+tools/build.sh                     # 拉取 release-1.31.10，编译到 ./.nginx，不需要 root
 tools/verify_labs.sh ops-09        # 运行运维篇 09 的实验，和章节里引用的输出逐行比对
 ```
 
-`tools/build.sh` 把源码克隆到 `.nginx-src/release-1.31.9`，打开 debug 日志、stream、HTTP/2、HTTP/3 等模块，再把 `modules/` 下的 hello 模块编成动态模块，最后安装到 `.nginx/` 并打印 `nginx -V`；在一台 Apple Silicon 的 Mac 上全程约 4 分钟（含从 GitHub 克隆 nginx 源码）。实验通过时最后两行是：
+`tools/build.sh` 把源码克隆到 `.nginx-src/release-1.31.10`（另克隆一份不编译的 `release-1.30.8`，运维篇 01、04 的实验拿它和 mainline 对比），打开 debug 日志、stream、HTTP/2、HTTP/3 等模块，再把 `modules/` 下的 hello 模块编成动态模块，最后安装到 `.nginx/` 并打印 `nginx -V`；在一台 Apple Silicon 的 Mac 上全程约 4 分钟（含从 GitHub 克隆 nginx 源码）。实验通过时最后两行是：
 
 ```text
 PASS ops-09
@@ -69,7 +69,7 @@ ok - without burst only the first request fits
 | [09](dev/09-upstream.md) | upstream 机制与负载均衡：算法只负责选地址，连接缓存、粘性和重试是包在外面的几层函数指针 |
 | [10](dev/10-write-a-module.md) | 动手写模块：一个 HTTP 模块就是几张交给框架的表，框架在固定的时机回调它 |
 
-每章的开头是一句话结论、适用版本（含与 1.30.7 stable 的差异）和对应的实验目录；结尾是“已知局限与待核实”，列出只读了源码、没有用实验验证的说法。
+每章的开头是一句话结论、适用版本（含与 1.30.8 stable 的差异）和对应的实验目录；结尾是“已知局限与待核实”，列出只读了源码、没有用实验验证的说法。
 
 ## 能做什么
 
@@ -88,7 +88,7 @@ tools/verify_labs.sh dev-09
 sed -n '/^## smooth weighted/,/^ok/p' labs/dev-09/expected.txt
 ```
 
-**查一个功能从哪个版本开始有。** `tools/since.py` 搜索 1.31.9 源码里的 `changes.xml`：
+**查一个功能从哪个版本开始有。** `tools/since.py` 搜索 1.31.10 源码里的 `changes.xml`：
 
 ```text
 $ python3 tools/since.py keepalive_min_timeout
@@ -110,7 +110,7 @@ $ python3 tools/excerpt.py src/http/ngx_http_upstream_round_robin.c 884-889
 ```
 ````
 
-**检查章节。** `tools/check_docs.py` 检查每章的源码片段与源码逐行一致、引用的实验输出与 `expected.txt` 一致、GitHub 源码链接指向 1.31.9 里存在的行，且链接文字里的标识符确实出现在那几行；每张图的 SVG 和 spec 都存在，图片的替代文字等于 spec 里的标题。
+**检查章节。** `tools/check_docs.py` 检查每章的源码片段与源码逐行一致、引用的实验输出与 `expected.txt` 一致、GitHub 源码链接指向 1.31.10 里存在的行，且链接文字里的标识符确实出现在那几行；每张图的 SVG 和 spec 都存在，图片的替代文字等于 spec 里的标题。
 
 **改图。** 每章的图在 `figures/<篇>-<章>/`：`NN.json` 是 spec，只写内容（一句结论做标题、节点、连线、哪个是主角哪个是风险），`NN.svg` 是生成结果，章节按顺序引用 `01.svg`、`02.svg`……。版式和配色由 lark-figure 排版引擎计算，这个引擎不在本仓库里：
 
@@ -128,12 +128,12 @@ python3 tools/build_figures.py --check         # 检查提交的 SVG 是否和 s
 
 | 变量 / 约定 | 作用 | 默认 |
 |---|---|---|
-| `NGINX_REF` | `tools/build.sh` 拉取和编译的 tag | `release-1.31.9` |
+| `NGINX_REF` | `tools/build.sh` 拉取和编译的 tag | `release-1.31.10` |
 | `UPDATE=1` | `tools/verify_labs.sh` 用本次输出覆盖 `expected.txt`（改实验后用，改完要检查 diff） | 不设 |
 | `NGINX` | 实验使用的 nginx 可执行文件 | `./.nginx/sbin/nginx` |
 | 端口 | 运维篇第 NN 章用 `18000 + NN×20` 起的 20 个端口，开发篇用 `19000 + NN×20` 起的 20 个，只监听 127.0.0.1 | — |
 
-实验只在 1.31.9 上核对过。用 `NGINX_REF=release-1.30.7 tools/build.sh` 可以编出 stable 版本，但 `expected.txt` 不保证与它的输出一致。
+实验只在 1.31.10 上核对过。用 `NGINX_REF=release-1.30.8 tools/build.sh` 可以编出 stable 版本，但 `expected.txt` 不保证与它的输出一致。
 
 ## 限制与已知问题
 

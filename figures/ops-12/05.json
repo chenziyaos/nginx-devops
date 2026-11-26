@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "ssl_preread 只看明文字段，非 TLS 流量落到 default",
  "subtitle": "从左到右表示数据流向；红色的分支处理不是 TLS 的连接",
- "source": "来源：ngx_stream_ssl_preread_module.c（1.31.9）",
+ "source": "来源：ngx_stream_ssl_preread_module.c（1.31.10）",
  "stages": [
   {
    "name": "首字节",

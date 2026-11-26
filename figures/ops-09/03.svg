@@ -46,5 +46,5 @@
 <text x="236.7" y="642.5" font-size="13" fill="#1F2329">取两条规则里最长的延迟</text>
 <polyline points="226.7,651 252.7,651 252.7,669 240.7,669" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="240.7,663 230.7,669 240.7,675" fill="#8F959E"/>
-<text x="40" y="731" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="731" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

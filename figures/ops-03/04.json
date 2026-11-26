@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "QUIT 等请求做完，worker_shutdown_timeout 给它设上限",
  "subtitle": "老 worker 收到不同信号后的退出方式；TERM / INT 不等请求",
- "source": "来源：labs/ops-03 实验（1.31.9）",
+ "source": "来源：labs/ops-03 实验（1.31.10）",
  "stages": [
   {"name": "信号", "nodes": [
     {"id": "q", "title": "收到 QUIT"},

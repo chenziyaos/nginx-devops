@@ -24,5 +24,5 @@
 <polygon points="612,227.2 622,233.2 612,239.2" fill="#8F959E"/>
 <polyline points="872,233.2 906,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="906,227.2 916,233.2 906,239.2" fill="#8F959E"/>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.10）</text>
 </svg>

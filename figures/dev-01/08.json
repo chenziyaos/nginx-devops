@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "debug 由编译期宏控制，可用 debug_connection 限定客户端",
  "subtitle": "三种调试方式对应三种需求：看模块流转、看函数变量、或在生产环境排错",
- "source": "来源：src/core/ngx_log.h、src/event/ngx_event_accept.c、labs/dev-01 实验（1.31.9）",
+ "source": "来源：src/core/ngx_log.h、src/event/ngx_event_accept.c、labs/dev-01 实验（1.31.10）",
  "stages": [
   {
    "name": "调试需求",

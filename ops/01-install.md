@@ -1,8 +1,8 @@
 # 运维篇 01｜版本、安装与实验环境：先用 nginx -V 认清手里的二进制，再决定配置能写什么
 
-> **一句话结论**：stable 分支（现在是 1.30.x）从切出那天起只收修复，1.30.1 到 1.30.7 的 changes.xml 里没有一条 feature；新功能只进 mainline（1.31.x）。不管用哪种方式安装，`nginx -V` 都能告诉你版本、TLS 库和编译参数，后面每一篇用到的指令能不能写，取决于对应模块是否编进了这个二进制。`nginx -t` 也不是只读检查：它会创建 `*_temp` 目录和一个空的 pid 文件。
+> **一句话结论**：stable 分支（现在是 1.30.x）从切出那天起只收修复，1.30.1 到 1.30.8 的 changes.xml 里没有一条 feature；新功能只进 mainline（1.31.x）。不管用哪种方式安装，`nginx -V` 都能告诉你版本、TLS 库和编译参数，后面每一篇用到的指令能不能写，取决于对应模块是否编进了这个二进制。`nginx -t` 也不是只读检查：它会创建 `*_temp` 目录和一个空的 pid 文件。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）与 1.30.7（stable，同日发布）。「版本差异」：本篇列出的 1.31.0–1.31.7 新功能在 1.30.7 都没有；`--with-control-api`（control API，1.31.5）和 `--with-http_json_module`（1.31.5）只在 1.31.x 的 configure 里存在。实验：[`labs/ops-01`](../labs/ops-01/)，检查本仓库编译出的二进制，并在一个空目录里演示 `-p`、`-t`、`-s` 的副作用。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）与 1.30.8（stable，同日发布）。「版本差异」：本篇列出的 1.31.0–1.31.7 新功能在 1.30.8 都没有；`--with-control-api`（control API，1.31.5）和 `--with-http_json_module`（1.31.5）只在 1.31.x 的 configure 里存在。实验：[`labs/ops-01`](../labs/ops-01/)，检查本仓库编译出的二进制，在一个空目录里演示 `-p`、`-t`、`-s` 的副作用，并列出 1.30.5 之后的安全修复和它们的触发条件。
 
 ## 导读
 
@@ -15,17 +15,18 @@
 | `-p`、`-c`、`-e`、`-g`、`-q` 分别改变什么 | §5 |
 | 为什么只跑了一次 `nginx -t`，`-s reload` 就报 `invalid PID number` | §6 |
 | 本仓库的实验怎么跑、有哪些约定 | §7 |
+| 新的安全版本发布了，这台机器要不要马上升级 | §8 |
 
 ## 1. stable 只收修复，mainline 每月带新功能：要不要 1.31 的功能决定选哪个
 
-nginx 同时维护两条线。偶数次版本号是 stable：1.30.0 在 2026-04-14 从当时的 mainline 1.29.8 切出，之后的 1.30.x 只回合安全修复和少量 bugfix。奇数次版本号是 mainline：1.31.x 接着开发，每个版本都可能带新功能、行为变化和修复。两条线的安全修复通常同日发布：2026-11-18 的 1.30.7 修复了 9 个 CVE，它们全部也出现在同日的 1.31.9 里，1.31.9 另外多一个（CVE-2026-120993）。
+nginx 同时维护两条线。偶数次版本号是 stable：1.30.0 在 2026-04-14 从当时的 mainline 1.29.8 切出，之后的 1.30.x 只回合安全修复和少量 bugfix。奇数次版本号是 mainline：1.31.x 接着开发，每个版本都可能带新功能、行为变化和修复。两条线的安全修复通常同日发布：2026-11-18 的 1.30.7 修复了 9 个 CVE，它们全部也出现在同日的 1.31.9 里，1.31.9 另外多一个（CVE-2026-120993）。2026-11-23 两条线又同日发布了 1.30.8 和 1.31.10，各修复同一个 `ssl_early_data` 的漏洞（CVE-2026-132779）。
 
 这个区别可以直接从两个分支各自的 changes.xml 数出来，实验脚本统计每条线发布以来各类条目的数量：
 
 ```text
 # labs/ops-01 ## what each branch received since it was cut
-1.30.x: feature 0 change 2 bugfix 14 security 27
-1.31.x: feature 15 change 13 bugfix 39 security 29
+1.30.x: feature 0 change 2 bugfix 15 security 28
+1.31.x: feature 15 change 13 bugfix 40 security 30
 ```
 
 1.30.x 的 2 条 change 都和日志或 QUIC 的兼容性有关（1.30.5 忽略 SSL 连接里收到的 QUIC 传输参数扩展，1.30.6 把几类 SSL 告警的日志级别从 crit 降到 info），没有新指令。1.31.x 的 15 条 feature 里，本系列会用到的有：
@@ -126,7 +127,7 @@ ngx_show_version_info(void)
 
 ```text
 # labs/ops-01 ## version and configure arguments
-nginx version: nginx/1.31.9
+nginx version: nginx/1.31.10
 built by <compiler>
 built with OpenSSL 3.x
 TLS SNI support enabled
@@ -423,6 +424,39 @@ master gone after -s stop: yes, pid file left: no
 
 **小结**：`nginx -s` 不会“找到正在运行的 nginx”，它只读 pid 文件。多实例部署时，每个实例的 `-p`/`-c` 和 pid 路径要固定写进启动脚本，`-s` 用同一组参数。
 
+## 8. 跟进安全版本分两步：先列出装机版本之后的修复，再看触发条件这台机器用没用到
+
+两条线的安全修复同日发布（§1），用 stable 并不能少跟一次。判断一台机器要不要马上升级，输入只有四样：`nginx -v` 给出版本，所在分支的 changes.xml 给出这个版本之后的 security 条目，`nginx -V` 给出编进了哪些模块，`nginx -T` 给出完整配置。每条安全条目的英文原文都会写触发条件：有的点名协议或模块（HTTP/2、HTTP/3、mail proxy、stream），有的点名指令（`"alias" directive`），剩下的只说“读请求体时”“使用 SSL 时”。实验假设装机版本是 1.30.5，把 1.30.6 到 1.30.8 的安全条目按原文里的关键字分类，再和本仓库二进制的 `--with-*` 参数比对：
+
+```text
+# labs/ops-01 ## security fixes after an installed version
+--with modules of this build that the entries mention: http_v2 http_v3 stream stream_ssl_preread
+1.30.6 CVE-2026-15176 directive:alias directive:rewrite
+1.30.6 CVE-2026-93479 -
+1.30.6 CVE-2026-95101 module:http_v3
+1.30.6 CVE-2026-97629 -
+1.30.6 CVE-2026-97205 module:ssi
+1.30.7 CVE-2026-125283 directive:try_files directive:alias
+1.30.7 CVE-2026-123007 module:http_v2
+1.30.7 CVE-2026-123633 module:http_v2
+1.30.7 CVE-2026-121810 module:http_v3
+1.30.7 CVE-2026-123634 directive:resolver
+1.30.7 CVE-2026-113425 module:mail
+1.30.7 CVE-2026-120967 module:stream
+1.30.7 CVE-2026-123640 module:stream_ssl_preread
+1.30.7 CVE-2026-118899 -
+1.30.8 CVE-2026-132779 directive:ssl_early_data
+entries: 15, need a module this build lacks: CVE-2026-113425
+```
+
+15 条里 8 条点名模块，4 条点名指令，3 条没有限定条件。第一步用 `nginx -V` 排除：这个二进制编进了 HTTP/2、HTTP/3、stream 和 `ssl_preread`，SSI 是默认模块（只有 `--without-http_ssi_module`），所以模块条件只排除掉 mail 那 1 条。第二步用 `nginx -T` 在完整配置里查 `alias`、`try_files`、`resolver`、`ssl_early_data`：用了 `resolver`（运维篇 07 的 `server ... resolve`）或 `ssl_early_data` 的机器，对应条目就落在自己身上。最后 3 条“-”分别发生在带变量的字符串表达式求值（影响文档根计算和日志）、TLS session ticket 密钥轮换、经 SSL 读请求体时，原文没有点名模块或指令，`-V` 和 `-T` 都排除不了，要读原文对照自己的用法；其中第一条和第三条，配置里写了带变量的 `root` 或日志格式、或者开了 SSL 就可能碰上。
+
+![1.30.5 之后的 15 条安全修复，nginx -V 只能排除 1 条](../figures/ops-01/06.svg)
+
+关键字分类只是筛子，不是结论。CVE-2026-97205 的原文还要求开了异步文件 I/O（`aio`）并且 SSI 页面里有 `include virtual`，分类只认出了 SSI；反过来，一条看上去和自己无关的条目，也要读完原文再划掉。mainline 的用户做法相同，换成 1.31.x 分支的 changes.xml 即可。
+
+**小结**：拿到装机版本后，先列出所在分支之后的 security 条目，用 `nginx -V` 排除没编进去的模块，再用 `nginx -T` 查点名的指令；只要剩下一条排除不了，就升到该分支的最新小版本。stable 的小版本没有行为变化（§1），所以“有安全修复就升”的成本最低。
+
 ## 已知局限与待核实
 
 - 实验只在 macOS（darwin）上运行；`dlopen` 的错误文本随系统变化，脚本做了替换。
@@ -430,7 +464,9 @@ master gone after -s stop: yes, pid file left: no
 - §1 “nginx 的开发者建议普通用户也用 mainline”是对官方长期表述的转述，本仓库的源码和 changes.xml 里没有这句话的出处。
 - §1 图中虚线的“下一个偶数次版本”是按“偶数为 stable”的惯例推断的，不是已发布的事实。
 - 签名不一致（`is not binary compatible`）和版本不一致两种报错只引用了源码，实验没有构造不兼容的 `.so`。
+- §8 的分类只认 changes.xml 英文原文里的关键字（HTTP/2、HTTP/3、mail proxy、stream、ssl_preread、SSI、带引号的指令名），条件写在句子里但没用这些词的会漏掉，例如 CVE-2026-97205 的 `aio` 条件、CVE-2026-97629 没有写出指令名。实验也没有对 `nginx -T` 做第二步匹配，指令条件只在正文里说明。
 
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写，替换掉一版自动生成、含有恒真断言的草稿。覆盖两条发布线的条目统计、三种安装方式、`nginx -V` 各行来源、模块开关与 `ngx_modules[]`、`load_module` 与 `--with-compat` 签名、命令行参数、`nginx -t` 创建目录和空 pid 文件、`-s` 依赖 pid 文件，均附 `labs/ops-01` 实验。本仓库的 `tools/build.sh` 同日加入 `--with-control-api` 和 `--with-http_json_module`。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。§1 补上 11-23 的同日发布；新增 §8「跟进安全版本」，`labs/ops-01` 加对应步骤，新增图 6。

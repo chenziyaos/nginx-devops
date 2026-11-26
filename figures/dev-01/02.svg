@@ -57,5 +57,5 @@
 <rect x="1012.8" y="363" width="147.2" height="103" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
 <text x="1086.4" y="409.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx</text>
 <text x="1086.4" y="429.7" font-size="12" fill="#646A73" text-anchor="middle">objs/nginx</text>
-<text x="40" y="670" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.9）</text>
+<text x="40" y="670" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.10）</text>
 </svg>

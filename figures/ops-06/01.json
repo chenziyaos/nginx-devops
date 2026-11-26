@@ -2,7 +2,7 @@
  "type": "table",
  "title": "后端收到哪个 URI，先看变量，再看 rewrite，最后看 URI 部分",
  "subtitle": "请求进入带 proxy_pass 的 location 后，从上往下第一个成立的条件决定发给后端的 URI",
- "source": "来源：ngx_http_proxy_module.c（1.31.9）",
+ "source": "来源：ngx_http_proxy_module.c（1.31.10）",
  "columns": ["顺序", "条件", "后端收到的 URI"],
  "rows": [
   ["①", "proxy_pass 里有变量", "用变量算出的 URI，不再拼接"],

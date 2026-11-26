@@ -24,5 +24,5 @@
 <polygon points="612,225 622,231 612,237" fill="#8F959E"/>
 <polyline points="872,231 906,231" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="906,225 916,231 906,237" fill="#8F959E"/>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）</text>
 </svg>

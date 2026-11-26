@@ -1,7 +1,7 @@
 
 ## version and configure arguments
-nginx version: nginx/1.31.9
-nginx version: nginx/1.31.9
+nginx version: nginx/1.31.10
+nginx version: nginx/1.31.10
 built by <compiler>
 built with OpenSSL 3.x
 TLS SNI support enabled
@@ -10,8 +10,8 @@ ok - -v prints NGINX_VERSION from src/core/nginx.h
 ok - every --with option of tools/build.sh is in the configure arguments
 
 ## what each branch received since it was cut
-1.30.x: feature 0 change 2 bugfix 14 security 27
-1.31.x: feature 15 change 13 bugfix 39 security 29
+1.30.x: feature 0 change 2 bugfix 15 security 28
+1.31.x: feature 15 change 13 bugfix 40 security 30
 ok - the stable branch gets no features
 
 ## modules compiled in
@@ -73,3 +73,23 @@ ok - -q drops the two success lines and keeps the exit code
   -e filename   : set error log file (default: logs/error.log)
   -c filename   : set configuration file (default: conf/nginx.conf)
 ok - the default prefix is --prefix, the config and error log are relative to it
+
+## security fixes after an installed version
+--with modules of this build that the entries mention: http_v2 http_v3 stream stream_ssl_preread
+1.30.6 CVE-2026-15176 directive:alias directive:rewrite
+1.30.6 CVE-2026-93479 -
+1.30.6 CVE-2026-95101 module:http_v3
+1.30.6 CVE-2026-97629 -
+1.30.6 CVE-2026-97205 module:ssi
+1.30.7 CVE-2026-125283 directive:try_files directive:alias
+1.30.7 CVE-2026-123007 module:http_v2
+1.30.7 CVE-2026-123633 module:http_v2
+1.30.7 CVE-2026-121810 module:http_v3
+1.30.7 CVE-2026-123634 directive:resolver
+1.30.7 CVE-2026-113425 module:mail
+1.30.7 CVE-2026-120967 module:stream
+1.30.7 CVE-2026-123640 module:stream_ssl_preread
+1.30.7 CVE-2026-118899 -
+1.30.8 CVE-2026-132779 directive:ssl_early_data
+entries: 15, need a module this build lacks: CVE-2026-113425
+ok - 15 security fixes after 1.30.5; only the mail one needs a module this build does not have

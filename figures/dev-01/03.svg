@@ -32,5 +32,5 @@
 <text x="58" y="365.9" font-size="14" fill="#1F2329">NGX_CONF_MODULE</text>
 <text x="343.6" y="365.9" font-size="14" fill="#1F2329">ngx_conf_module</text>
 <text x="618.1" y="365.9" font-size="14" fill="#1F2329">只处理 include</text>
-<text x="40" y="422" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_module.h（1.31.9）</text>
+<text x="40" y="422" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_module.h（1.31.10）</text>
 </svg>

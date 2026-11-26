@@ -13,11 +13,11 @@
 <text x="673.9" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">不通过时的报错</text>
 <text x="58" y="204.3" font-size="14" fill="#1F2329">1. 还没解析 events / http 块（modules_used 为 0）</text>
 <text x="673.9" y="204.3" font-size="14" fill="#D83931" font-weight="bold">is specified too late</text>
-<text x="58" y="246.3" font-size="14" fill="#1F2329">2. version 等于 nginx_version（1031009）</text>
-<text x="673.9" y="246.3" font-size="14" fill="#D83931" font-weight="bold">version 1030007 instead of 1031009</text>
+<text x="58" y="246.3" font-size="14" fill="#1F2329">2. version 等于 nginx_version（1031010）</text>
+<text x="673.9" y="246.3" font-size="14" fill="#D83931" font-weight="bold">version 1030007 instead of 1031010</text>
 <text x="58" y="288.3" font-size="14" fill="#1F2329">3. signature 与 nginx 一致</text>
 <text x="673.9" y="288.3" font-size="14" fill="#D83931" font-weight="bold">is not binary compatible</text>
 <text x="58" y="330.3" font-size="14" fill="#1F2329">4. 没有同名模块已加载</text>
 <text x="673.9" y="330.3" font-size="14" fill="#D83931" font-weight="bold">is already loaded</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_module.c（1.31.10）</text>
 </svg>

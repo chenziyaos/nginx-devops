@@ -2,7 +2,7 @@
 
 > **一句话结论**：nginx 的 master 只管理进程，不处理请求。reload 时 master 用新配置重新初始化，成功才启动一批新 worker，再让老 worker 关掉监听、做完手上的请求后退出；新配置有错时 master 记一条 emerg，老 worker 和老配置原样继续服务。`worker_shutdown_timeout` 要写在老 worker 正在用的配置里才对它们生效。1.31.5 新增的 control API 能同步执行 reload，并把失败原因直接返回给调用方。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：control API（`--with-control-api` 编译、`-l` 参数）是 1.31.5 新增的，1.30.7 没有；其余信号和 reload 行为两个版本相同。实验：[`labs/ops-03`](../labs/ops-03/)，两个 worker 的 nginx，`/big/` 以 200 KB/s 限速发送 1 MB 文件，用来制造 reload 时“正在进行的请求”。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：control API（`--with-control-api` 编译、`-l` 参数）是 1.31.5 新增的，1.30.8 没有；其余信号和 reload 行为两个版本相同。实验：[`labs/ops-03`](../labs/ops-03/)，两个 worker 的 nginx，`/big/` 以 200 KB/s 限速发送 1 MB 文件，用来制造 reload 时“正在进行的请求”。
 
 ## 导读
 
@@ -170,20 +170,26 @@ download: 200 complete
 old workers alive after it: 0
 ```
 
-reload 后 master 不变，新请求立即由新 worker 用新配置回答；两个老 worker 里，空闲的那个马上退出，正在发送文件的那个一直活到下载完成，客户端拿到了完整的 1 MB。error.log 里的顺序（时间戳、pid 已去掉）：
+reload 后 master 不变，新请求立即由新 worker 用新配置回答；两个老 worker 里，空闲的那个马上退出，正在发送文件的那个一直活到下载完成，客户端拿到了完整的 1 MB。error.log 里各进程的记录如下（时间戳、pid 已去掉）。两个老 worker 同时收到退出通知，各自写日志的先后每次可能不同，所以按进程分开列，先退出的排在前面：
 
 ```text
 # labs/ops-03 ## reload: new workers start, old ones finish their requests
-[notice] signal 1 (SIGHUP) received from N, reconfiguring
-[notice] reconfiguring
-[notice] start worker process N
-[notice] start worker process N
-[notice] gracefully shutting down
-[notice] gracefully shutting down
-[notice] exiting
-[notice] exit
-[notice] signal 20 (SIGCHLD) received from N
-[notice] worker process N exited with code 0
+master: [notice] signal 1 (SIGHUP) received from N, reconfiguring
+master: [notice] reconfiguring
+master: [notice] start worker process N
+master: [notice] start worker process N
+master: [notice] signal 20 (SIGCHLD) received from N
+master: [notice] worker process N exited with code 0
+master: [notice] signal 20 (SIGCHLD) received from N
+master: [notice] worker process N exited with code 0
+old worker 1:
+  [notice] gracefully shutting down
+  [notice] exiting
+  [notice] exit
+old worker 2:
+  [notice] gracefully shutting down
+  [notice] exiting
+  [notice] exit
 ```
 
 ![新配置成功才启动新 worker，失败时老 worker 照常工作](../figures/ops-03/02.svg)
@@ -380,7 +386,7 @@ PATCH 的实现和 HUP 走同一个 `ngx_init_cycle`，区别是它临时把 mas
 
 ```text
 # labs/ops-03 ## control API
-GET /1/nginx: {"version":"1.31.9","build":""}
+GET /1/nginx: {"version":"1.31.10","build":""}
 GET /1/control/processes:
   worker process exiting=false
   worker process exiting=false
@@ -410,3 +416,4 @@ control API 没有认证，拿到它就能替换配置，所以只能监听在 `
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写，替换掉一版自动生成、输出与实验不符的草稿。覆盖进程结构与 `auto`、reload 的源码步骤与 in-flight 请求、错误配置的两种 reload 路径、`worker_shutdown_timeout` 取自老配置、TERM/QUIT、USR1、worker 重生、USR2/WINCH/QUIT 升级与回滚、1.31.5 control API，均附 `labs/ops-03` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。reload 实验改为按进程分组打印旧 worker 的日志，两个 worker 的日志交错时输出也保持一致。

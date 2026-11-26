@@ -8,7 +8,7 @@
 # The program links every object of objs/nginx except nginx.o, which is rebuilt with
 # main renamed (it also defines ngx_core_module and the globals the other objects use).
 
-SRC=${SRC:-$ROOT/.nginx-src/release-1.31.9}
+SRC=${SRC:-$ROOT/.nginx-src/release-1.31.10}
 [[ -f "$SRC/objs/Makefile" ]] || { echo "no objs/Makefile in $SRC; run tools/build.sh first" >&2; exit 2; }
 
 # _ctest_var NAME: a Makefile variable, following "\" continuation lines

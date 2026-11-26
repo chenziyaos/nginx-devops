@@ -31,5 +31,5 @@
 <text x="1140" y="290.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">读写共享的那一份</text>
 <circle cx="636" cy="321.2" r="3" fill="#646A73"/>
 <text x="656" y="326.1" font-size="14" fill="#1F2329" data-role="card-body">权重、失败计数、连接数、平均时间都只有一份</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c（1.31.10）</text>
 </svg>

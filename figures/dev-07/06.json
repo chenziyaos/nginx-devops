@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "server 级 rewrite 每个请求跑一次，location 级每次匹配后都跑",
  "subtitle": "从上到下是阶段顺序；server 级规则只有内部跳转才会再执行",
- "source": "来源：ngx_http_rewrite_module.c、ngx_http_core.c（1.31.9）",
+ "source": "来源：ngx_http_rewrite_module.c、ngx_http_core.c（1.31.10）",
  "actors": [
   {
    "name": "SERVER_REWRITE（1）",

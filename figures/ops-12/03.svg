@@ -24,5 +24,5 @@
 <text x="385" y="215" font-size="12" fill="#646A73" text-anchor="middle">连接失败</text>
 <text x="805" y="215" font-size="12" fill="#646A73" text-anchor="middle">超过 fail_timeout</text>
 <text x="600" y="283" font-size="12" fill="#646A73" text-anchor="middle">被选中且成功</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_upstream_round_robin.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_stream_upstream_round_robin.c（1.31.10）</text>
 </svg>

@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "SNI 不认识时落到默认 server，ssl_reject_handshake 决定握手能否继续",
  "subtitle": "先按 SNI 选 server，再看选中的 server 有没有设置 ssl_reject_handshake",
- "source": "来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）",
+ "source": "来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.10）",
  "stages": [
   {"name": "ClientHello", "nodes": [
     {"id": "s", "title": "SNI", "sub": "ngx_http_find_virtual_server"}]},

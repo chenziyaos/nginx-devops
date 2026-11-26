@@ -31,5 +31,5 @@
 <text x="616.1" y="449.9" font-size="14" fill="#1F2329">header</text>
 <text x="58" y="491.9" font-size="14" fill="#1F2329">not_modified</text>
 <text x="616.1" y="491.9" font-size="14" fill="#1F2329">write</text>
-<text x="40" y="548" font-size="12" fill="#646A73" data-role="source">来源：src/http/ngx_http.c、auto/modules（1.31.9）</text>
+<text x="40" y="548" font-size="12" fill="#646A73" data-role="source">来源：src/http/ngx_http.c、auto/modules（1.31.10）</text>
 </svg>

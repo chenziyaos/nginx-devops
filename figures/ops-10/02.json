@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "缓存键由 key_start 和后端 URI 两段拼成，MD5 的末尾几位决定目录",
  "subtitle": "实验里一个请求的缓存文件路径怎么算出来；levels=1:2",
- "source": "来源：ngx_http_file_cache.c、labs/ops-10 实验（1.31.9）",
+ "source": "来源：ngx_http_file_cache.c、labs/ops-10 实验（1.31.10）",
  "stages": [
   {"name": "两段字符串", "nodes": [
     {"id": "a", "title": "key_start", "sub": "http://127.0.0.1:18201"},

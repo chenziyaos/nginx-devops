@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "未设与空值是两种状态，merge 要用 UNSET 把前者区分出来",
  "subtitle": "从上到下：server 级的值合并到三个不同的 location；对比继承、覆盖和显式关闭",
- "source": "来源：本文整理（1.31.9）",
+ "source": "来源：本文整理（1.31.10）",
  "stages": [
   {
    "name": "server 级",

@@ -2,7 +2,7 @@
  "type": "table",
  "title": "两个条件头都带时，两个都满足才返回 304",
  "subtitle": "响应状态是 200 时 not_modified 过滤器的判定；IMS = If-Modified-Since，INM = If-None-Match",
- "source": "来源：ngx_http_not_modified_filter_module.c（1.31.9）",
+ "source": "来源：ngx_http_not_modified_filter_module.c（1.31.10）",
  "columns": ["请求带的头", "If-Modified-Since", "If-None-Match", "结果"],
  "rows": [
   ["只带 IMS", "等于 mtime（before 模式下不早于 mtime）", "—", {"text": "304", "tone": "good"}],

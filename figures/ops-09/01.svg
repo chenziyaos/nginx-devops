@@ -32,5 +32,5 @@
 <text x="1056" y="323.2" font-size="12" fill="#646A73" text-anchor="middle">静态文件 · proxy_pass</text>
 <text x="311.5" y="195" font-size="12" fill="#646A73" text-anchor="middle">return</text>
 <text x="311.5" y="326" font-size="12" fill="#646A73" text-anchor="middle">无 return</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.h、ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.h、ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

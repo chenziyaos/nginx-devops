@@ -18,3 +18,8 @@
 7. -s reads the pid file and sends a signal; stop makes the master exit and delete it.
 8. -g directives are parsed before the config file, so a pid in the file is a duplicate.
 9. -q in test mode suppresses the two success lines (ngx_cycle.c:292), errors still print.
+10. The security entries of the stable changes.xml after 1.30.5 (1.30.6-1.30.8) name their
+    trigger in the text: a protocol or module (HTTP/2, HTTP/3, mail proxy, stream,
+    ssl_preread, SSI) or a quoted directive. A module condition can be checked against the
+    --with-* arguments of nginx -V; this build has no --with-mail, so exactly the mail entry
+    can be ruled out that way.

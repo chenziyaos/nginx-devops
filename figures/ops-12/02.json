@@ -22,12 +22,12 @@
     {
       "from": "后端 :18250",
       "to": "nginx :18240",
-      "label": "145 字节（upstream_bytes_received）"
+      "label": "146 字节（upstream_bytes_received）"
     },
     {
       "from": "nginx :18240",
       "to": "客户端",
-      "label": "145 字节（bytes_sent）"
+      "label": "146 字节（bytes_sent）"
     },
     {
       "from": "后端 :18250",

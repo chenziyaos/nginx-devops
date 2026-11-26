@@ -20,5 +20,5 @@
 <text x="58" y="305.1" font-size="14" fill="#1F2329">不超，后面还有 limit_req</text>
 <text x="431.7" y="305.1" font-size="14" fill="#1F2329">NGX_AGAIN</text>
 <text x="726.2" y="305.1" font-size="14" fill="#1F2329">不写回，count++ 占位</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

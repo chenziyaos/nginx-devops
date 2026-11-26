@@ -2,7 +2,7 @@
  "type": "table",
  "title": "excess 超过 burst 才拒绝，拒绝时不写回共享内存",
  "subtitle": "找到节点、移到 LRU 队头后，先算 excess = 旧值 − rate×ms/1000 + 1000（小于 0 取 0），再按下表判决",
- "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+ "source": "来源：ngx_http_limit_req_module.c（1.31.10）",
  "columns": [
   "条件",
   "返回",

@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "日志文件 mv 后 nginx 继续写旧文件，USR1 才能让其切换到新文件",
  "subtitle": "纵轴是时间顺序；logrotate 发送 USR1 信号是关键",
- "source": "来源：ngx_process_cycle.c、ngx_event.c（1.31.9）、labs/ops-11 实验输出",
+ "source": "来源：ngx_process_cycle.c、ngx_event.c（1.31.10）、labs/ops-11 实验输出",
  "actors": [
   {"name": "logrotate"},
   {"name": "master"},

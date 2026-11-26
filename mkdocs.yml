@@ -2,7 +2,7 @@
 # Local preview: pip install -r docs-site/requirements.txt && mkdocs serve
 site_name: nginx-devops
 site_url: https://zyaochen.github.io/nginx-devops/
-site_description: 基于 nginx 1.31.9 源码的中文教程：运维篇 13 章、开发篇 10 章，每章配本机可复现的实验。
+site_description: 基于 nginx 1.31.10 源码的中文教程：运维篇 13 章、开发篇 10 章，每章配本机可复现的实验。
 repo_url: https://github.com/zyaochen/nginx-devops
 repo_name: zyaochen/nginx-devops
 edit_uri: blob/master/

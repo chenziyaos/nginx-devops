@@ -23,5 +23,5 @@
 <rect x="910" y="270.6" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
 <text x="1020" y="298.5" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">A 加 4</text>
 <text x="1020" y="318.3" font-size="12" fill="#646A73" text-anchor="middle">effective → 5，选 A</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/dev-09 实验输出（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/dev-09 实验输出（1.31.10）</text>
 </svg>

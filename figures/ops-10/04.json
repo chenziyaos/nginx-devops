@@ -2,7 +2,7 @@
  "type": "table",
  "title": "X-Accel-Expires 优先级最高，Set-Cookie 和 private 让响应不被缓存",
  "subtitle": "从上往下第一个出现的来源决定有效期；响应带 Set-Cookie 时无论哪一层都不存",
- "source": "来源：ngx_http_upstream.c（1.31.9）",
+ "source": "来源：ngx_http_upstream.c（1.31.10）",
  "columns": ["顺序", "来源", "取值", "结果"],
  "rows": [
   ["①", "X-Accel-Expires", "0 / 大于 0", "不存 / 有效期 = 它"],

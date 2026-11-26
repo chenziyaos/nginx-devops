@@ -21,7 +21,7 @@
    Revised after the first run: the step before also sends one GET and one HEAD inside its
    expect line, so the count is 4 when /count runs: before=4 now=5, then before=5 now=6.
 6. ngx_add_module refuses a module whose version is not nginx_version ("version 1030007
-   instead of 1031009") or whose signature differs ("is not binary compatible"); load_module
+   instead of 1031010") or whose signature differs ("is not binary compatible"); load_module
    after events{} is "specified too late" (ngx_count_modules set cycle->modules_used); loading
    the same module twice is "already loaded".
 7. The counter is a static variable of the .so: each worker has its own copy. After a reload

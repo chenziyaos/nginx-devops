@@ -2,7 +2,7 @@
  "type": "flow",
  "title": "模块的元数据由构建系统生成，源文件里只有代码",
  "subtitle": "从左到右：config → auto/module → 生成 _modules.c → 和源文件一起链接成 .so",
- "source": "来源：nginx 1.31.9 auto/module（动态模块分支）",
+ "source": "来源：nginx 1.31.10 auto/module（动态模块分支）",
  "per_row": 3,
  "steps": [
   {

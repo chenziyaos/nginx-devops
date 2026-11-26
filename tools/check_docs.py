@@ -7,7 +7,7 @@ Usage:
 
 Rules (each fenced block must declare where it comes from on its first line):
 
-  ```c      // src/core/ngx_palloc.c:19-44      nginx source, lines 19..44 of release-1.31.9.
+  ```c      // src/core/ngx_palloc.c:19-44      nginx source, lines 19..44 of release-1.31.10.
                                                  Body lines must appear in that range, in order, with the same indentation;
                                                  "/* ... */" lines mark elisions.
             // modules/<dir>/<file>.c:10-30      the repo's own module source, same rule.
@@ -42,7 +42,7 @@ import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REF = 'release-1.31.9'
+REF = 'release-1.31.10'
 SRC = os.path.join(ROOT, '.nginx-src', REF)
 NGINX = os.path.join(ROOT, '.nginx', 'sbin', 'nginx')
 GH = 'https://github.com/nginx/nginx/blob/'
@@ -353,9 +353,9 @@ _known = None
 def known_versions():
     global _known
     if _known is None:
-        # mainline changes.xml plus the stable branch's, which lists 1.30.1..1.30.7
+        # mainline changes.xml plus the stable branch's, which lists 1.30.1..1.30.8
         _known = set()
-        for tree in (SRC, SRC.replace('release-1.31.9', 'release-1.30.7')):
+        for tree in (SRC, SRC.replace('release-1.31.10', 'release-1.30.8')):
             xml = os.path.join(tree, 'docs', 'xml', 'nginx', 'changes.xml')
             if os.path.isfile(xml):
                 _known |= set(re.findall(r'<changes ver="([\d.]+)"', open(xml, encoding='utf-8').read()))

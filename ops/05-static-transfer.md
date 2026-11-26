@@ -2,7 +2,7 @@
 
 > **一句话结论**：静态文件由 static 模块打开、由一串过滤器决定最终响应。默认配置下 `sendfile` 是关的；ETag 由文件的修改时间和大小拼成；请求同时带 `If-None-Match` 和 `If-Modified-Since` 时，两个都满足才返回 304；gzip 默认只压缩 `text/html`，请求里有 `Via` 头或者用 HTTP/1.0 发来时都不压缩，压缩后的响应不再支持 Range。`open_file_cache` 缓存的是打开的文件描述符，文件被原子替换后，在 `open_file_cache_valid`（默认 60 秒）内仍然发出旧内容。`client_max_body_size` 在选定 location 时按 Content-Length 检查，chunked 请求体在读取过程中检查。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：static、not_modified、Range、gzip、gzip_static、headers 过滤器和 `ngx_open_file_cache.c` 在 1.30.7 与 1.31.9 之间逐字节相同；`ngx_http_request_body.c` 在 1.31.9 新增了 chunked 请求体分帧开销的检查（变更日志 1.31.9：“a request is rejected if the chunked request body contains too much framing overhead”），1.30.7 没有。`keepalive_min_timeout` 是 1.27.4 加的，两个版本都有。实验：[`labs/ops-05`](../labs/ops-05/)，18100 端口是各个测试 location，18101 是回显请求体长度的后端，18102 用来测 keepalive。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：static、not_modified、Range、gzip、gzip_static、headers 过滤器和 `ngx_open_file_cache.c` 在 1.30.8 与 1.31.10 之间逐字节相同；`ngx_http_request_body.c` 在 1.31.9 新增了 chunked 请求体分帧开销的检查（变更日志 1.31.9：“a request is rejected if the chunked request body contains too much framing overhead”），1.30.8 没有。`keepalive_min_timeout` 是 1.27.4 加的，两个版本都有。实验：[`labs/ops-05`](../labs/ops-05/)，18100 端口是各个测试 location，18101 是回显请求体长度的后端，18102 用来测 keepalive。
 
 ## 导读
 
@@ -45,12 +45,12 @@
 # labs/ops-05 ## sendfile is off by default
 sf-default: sendfile lines 0, writev lines 7
 sf-on: sendfile lines 1, writev lines 0
-sendfile: @0 200258 h:258
-writev sizes without sendfile: 33026 32768 32768 32768 32768 32768 3392
+sendfile: @0 200259 h:259
+writev sizes without sendfile: 33027 32768 32768 32768 32768 32768 3392
 ok - without sendfile on the file is read and written with writev; with it, sendfile() sends it
 ```
 
-不开 sendfile 时，copy filter 按 `output_buffers` 的默认值（`ngx_http_copy_filter_merge_conf` 里的 `2, 32768`）把文件读进 32 KB 的缓冲区，再用 writev 发出去。第一次是 33026 字节，即 258 字节的响应头加 32768 字节，之后每次 32768，最后剩 3392，合计正好 258 + 200000。开了 sendfile，一次 `sendfile()` 就带着 258 字节的头把整个文件交给内核（macOS 的 sendfile 支持附带头部，`h:258` 就是这部分）。`sendfile_max_chunk` 默认 2 MB，限制的是单次调用发送的上限，防止一个大文件长时间占着 worker。
+不开 sendfile 时，copy filter 按 `output_buffers` 的默认值（`ngx_http_copy_filter_merge_conf` 里的 `2, 32768`）把文件读进 32 KB 的缓冲区，再用 writev 发出去。第一次是 33027 字节，即 259 字节的响应头加 32768 字节，之后每次 32768，最后剩 3392，合计正好 259 + 200000。开了 sendfile，一次 `sendfile()` 就带着 259 字节的头把整个文件交给内核（macOS 的 sendfile 支持附带头部，`h:259` 就是这部分）。`sendfile_max_chunk` 默认 2 MB，限制的是单次调用发送的上限，防止一个大文件长时间占着 worker。
 
 `tcp_nopush` 只在 sendfile 生效时有用。Linux 的实现是：响应头后面跟着文件时，先设 `TCP_CORK`，让头和文件的第一段拼进同一个 TCP 报文：
 
@@ -539,3 +539,4 @@ ok - a body larger than the buffer is written to client_body_temp
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖 sendfile 默认值与 writev 分块、ETag 格式与 304 判定、Range 的 206/200/416、gzip 默认条件与 `gzip_proxied`、`gzip_static`、`expires` 与安全状态码、`open_file_cache` 的旧描述符问题、keepalive 三个上限与 `keepalive_min_timeout`、请求体大小检查与临时文件，均附 `labs/ops-05` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。`Server: nginx/1.31.10` 比原来长 1 字节，正文和图里依赖响应长度的数字随之更新。

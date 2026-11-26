@@ -26,5 +26,5 @@
 <rect x="664" y="344" width="480" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
 <text x="904" y="367" font-size="14" fill="#1F2329" text-anchor="middle">src/os/unix</text>
 <text x="904" y="387" font-size="12" fill="#646A73" text-anchor="middle">进程、信号、sendfile</text>
-<text x="40" y="456" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.9）</text>
+<text x="40" y="456" font-size="12" fill="#646A73" data-role="source">来源：本文整理（1.31.10）</text>
 </svg>

@@ -26,10 +26,10 @@
 <text x="448" y="290.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">1.31.0</text>
 <text x="448" y="309.9" font-size="12" fill="#646A73" text-anchor="middle">2026-05-13</text>
 <rect x="648" y="177.2" width="208" height="65" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
-<text x="752" y="205.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">1.30.1 … 1.30.7</text>
+<text x="752" y="205.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">1.30.1 … 1.30.8</text>
 <text x="752" y="224.9" font-size="12" fill="#646A73" text-anchor="middle">只有修复</text>
 <rect x="648" y="262.2" width="208" height="65" rx="8" fill="#E1EAFF" stroke="#3370FF" stroke-width="2" data-role="node"/>
-<text x="752" y="290.1" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">1.31.1 … 1.31.9</text>
+<text x="752" y="290.1" font-size="14" fill="#245BDB" font-weight="bold" text-anchor="middle">1.31.1 … 1.31.10</text>
 <text x="752" y="309.9" font-size="12" fill="#646A73" text-anchor="middle">新功能 + 修复</text>
 <rect x="952" y="262.2" width="208" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
 <text x="1056" y="290.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">下一个偶数次版本</text>

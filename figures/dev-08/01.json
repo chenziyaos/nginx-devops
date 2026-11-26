@@ -2,7 +2,7 @@
   "type": "layers",
   "title": "每个 key 的红黑树节点和 LRU 队列共享同一块内存",
   "subtitle": "从上到下是内存布局；红黑树按 crc32(key) 查找，LRU 队列按访问时间排序",
-  "source": "来源：ngx_http_limit_req_module.c（1.31.9）",
+  "source": "来源：ngx_http_limit_req_module.c（1.31.10）",
   "layers": [
     {
       "name": "共享内存 zone",

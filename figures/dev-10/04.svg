@@ -26,5 +26,5 @@
 <polygon points="202,288 208,298 214,288" fill="#8F959E"/>
 <polyline points="382,361 416,361" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="416,355 426,361 416,367" fill="#8F959E"/>
-<text x="40" y="460" font-size="12" fill="#646A73" data-role="source">来源：nginx 1.31.9 auto/module（动态模块分支）</text>
+<text x="40" y="460" font-size="12" fill="#646A73" data-role="source">来源：nginx 1.31.10 auto/module（动态模块分支）</text>
 </svg>

@@ -2,7 +2,7 @@
 
 > **一句话结论**：`proxy_pass` 不带 URI 时，后端收到客户端原始的请求 URI；带 URI 时，nginx 用它替换规范化之后 URI 里的 location 前缀。请求头默认只改两处：Host 换成 `$proxy_host`，Connection、Upgrade、TE、Keep-Alive 这类逐跳头不转发。1.29.7 起，`upstream {}` 块默认对后端保持连接（`keepalive 32 local`），但 `proxy_pass http://IP:端口` 这种直接写地址的隐式 upstream 不在其列，每个请求仍然新建连接。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：后端 HTTP/2（`proxy_http_version 2`）从 1.29.4 起、默认 keepalive 从 1.29.7 起，1.30.7 都有；`tunnel_pass`（CONNECT 隧道）只在 1.31.x 有；`proxy_set_header Host ""` 回落到 `$proxy_host` 的行为在 1.30.7 源码里没有。实验：[`labs/ops-06`](../labs/ops-06/)，同一个 nginx 里 18120 端口当后端，把收到的请求行、请求头、连接号原样回显，18121 端口当代理，本篇所有“请求 → 后端看到什么”都来自它的输出。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：后端 HTTP/2（`proxy_http_version 2`）从 1.29.4 起、默认 keepalive 从 1.29.7 起，1.30.8 都有；`tunnel_pass`（CONNECT 隧道）只在 1.31.x 有；`proxy_set_header Host ""` 回落到 `$proxy_host` 的行为在 1.30.8 源码里没有。实验：[`labs/ops-06`](../labs/ops-06/)，同一个 nginx 里 18120 端口当后端，把收到的请求行、请求头、连接号原样回显，18121 端口当代理，本篇所有“请求 → 后端看到什么”都来自它的输出。
 
 ## 导读
 
@@ -156,7 +156,7 @@ host=[127.0.0.1:18120] connection=[] upgrade=[] te=[] x-a=[from-client] x-b=[fro
 
 - `/h-up/` 用 `proxy_pass http://be/h/`，Host 是 upstream 的名字 `be`。后端按虚拟主机分流时，这几乎总是错的，要么 `proxy_set_header Host $host`（`/h-host/`），要么把 upstream 名字起成后端认识的域名。
 - `/h-loc/` 只设了 `X-A`，`X-B` 就没了。`proxy_set_header` 是数组型指令，location 里出现一条，就整组替换上层的设置，这和运维篇 02 讲的 `add_header` 是同一条继承规则。常见事故是在 server 级配好 `X-Forwarded-For`、`X-Real-IP`，某个 location 为了加一个头写了一行 `proxy_set_header`，后端从此拿不到客户端地址。
-- `/h-empty/` 把 Host 设成空，1.31.9 回落到 `$proxy_host`；按 1.30.7 源码没有这个回落分支，空值的头不发送，HTTP/1.1 请求就没有 Host。
+- `/h-empty/` 把 Host 设成空，1.31.10 回落到 `$proxy_host`；按 1.30.8 源码没有这个回落分支，空值的头不发送，HTTP/1.1 请求就没有 Host。
 - `/h-xff/` 用 `$proxy_add_x_forwarded_for`，在客户端带来的值后面追加 `$remote_addr`。不写这一行时，客户端的 `X-Forwarded-For` 也会原样透传（前几行的 `xff=[203.0.113.7]`），后端看到的是客户端自己声称的地址，§6 会回到这一点。
 
 WebSocket 握手依赖 `Upgrade` 和 `Connection: upgrade`，而这两个头正好在默认表里被丢掉，所以必须显式设置。实验用的是官方文档的 map 写法，但空值一侧写成 `''` 而不是常见的 `close`：1.29.7 以后到后端的连接默认要复用（§3），对普通请求发 `Connection: close` 会让每个请求都关掉连接：
@@ -499,7 +499,7 @@ CONNECT 127.0.0.1:18121 HTTP/1.1 403
 ## 已知局限与待核实
 
 - 实验只在 macOS（darwin）上运行，Linux 上的 errno 文本来自常识对照，没有实测；脚本已把错误码归一成 `(errno)`。
-- “1.30.7 中 `proxy_set_header Host ""` 不回落、请求不带 Host”是读 1.30.7 源码推断的（没有 `host.len == 0` 分支），没有用 1.30.7 二进制验证。
+- “1.30.8 中 `proxy_set_header Host ""` 不回落、请求不带 Host”是读 1.30.8 源码推断的（没有 `host.len == 0` 分支），没有用 1.30.8 二进制验证。
 - §5 的耗时只按分档打印，具体秒数随机器负载变化；“后端是每连接一个进程的应用服务器时并发容量被拖住”是推断，实验后端是 nginx 自己。
 - 实验没有做真正的 WebSocket 握手（后端是 nginx，不会回 101），只验证了两个头被转发；101 之后的双向转发与 §7 的 tunnel 是同一套 upgrade 代码，这一点来自读源码。
 - `proxy_next_upstream` 对非幂等请求的限制、`X-Accel-Buffering` 只引用了行为说明，本篇实验没有覆盖。
@@ -508,3 +508,4 @@ CONNECT 127.0.0.1:18121 HTTP/1.1 403
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写，替换掉一版自动生成、步骤与输出对不上的草稿。覆盖 `proxy_pass` URI 的三条构造路径与 `%2F`、`rewrite break` 的效果，默认请求头表与数组指令继承，1.29.7 默认 keepalive 只作用于 upstream 块与 `local` 的含义，后端 HTTP/2，502/504 与换下一台，buffering 对后端占用时长的影响，realip 的 recursive 与阶段坑，1.31.0 的 tunnel 模块，均附 `labs/ops-06` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

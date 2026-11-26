@@ -32,5 +32,5 @@
 <text x="306" y="337.9" font-size="14" fill="#1F2329" font-weight="bold">试探</text>
 <text x="306" y="360.6" font-size="13" fill="#646A73">10 秒后放一个请求测试</text>
 <text x="600" y="266.3" font-size="18" fill="#1F2329" font-weight="bold" text-anchor="middle">max_fails、fail_timeout</text>
-<text x="40" y="432" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.9）</text>
+<text x="40" y="432" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream_round_robin.c、labs/ops-07 实验（1.31.10）</text>
 </svg>

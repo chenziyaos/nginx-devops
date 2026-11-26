@@ -2,7 +2,7 @@
   "type": "layers",
   "title": "ngx_list_t 追加新段不搬家",
   "subtitle": "上是 ngx_list_t 结构，下是链接的三个 part；last 指针指向最后一个 part",
-  "source": "来源：src/core/ngx_list.c（1.31.9）、labs/dev-02 实验输出",
+  "source": "来源：src/core/ngx_list.c（1.31.10）、labs/dev-02 实验输出",
   "layers": [
     {
       "name": "ngx_list_t",

@@ -33,5 +33,5 @@
 <text x="340.5" y="289" font-size="12" fill="#646A73" text-anchor="middle">是</text>
 <text x="760.5" y="323.5" font-size="12" fill="#646A73" text-anchor="middle">off</text>
 <text x="760.5" y="350.5" font-size="12" fill="#646A73" text-anchor="middle">on</text>
-<text x="40" y="485.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_realip_module.c（1.31.9）</text>
+<text x="40" y="485.5" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_realip_module.c（1.31.10）</text>
 </svg>

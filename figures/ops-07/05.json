@@ -2,7 +2,7 @@
  "type": "compare",
  "title": "一致性哈希摘掉一台只影响那台的 key；普通哈希会影响其他机器",
  "subtitle": "同一组 60 个 key，去掉后端 C 之前和之后各算一次落点",
- "source": "来源：ngx_http_upstream_hash_module.c、labs/ops-07 实验（1.31.9）",
+ "source": "来源：ngx_http_upstream_hash_module.c、labs/ops-07 实验（1.31.10）",
  "cards": [
   {
    "id": "①",

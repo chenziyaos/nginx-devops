@@ -2,7 +2,7 @@
 
 > **一句话结论**：nginx 的内存分两类，生命周期不同，管理方式也不同。第一类跟着连接、请求或一轮配置走，从 `ngx_pool_t` 分配，用完整池释放：小块在池的块链上顺序切分，不能单独归还；超过 `max` 的大块直接 `malloc`，挂在 `large` 链上，可以用 `ngx_pfree` 提前还；一个块累计 5 次以上没能满足分配，`current` 就跳过它。一个默认配置下的请求用 512 字节的连接池和 4096 字节的请求池，本机实验里请求池长到了两块。`ngx_buf_t` 只描述一段数据在内存或文件里的位置，过滤器靠 `tag` 和 `ngx_chain_update_chains` 回收自己的缓冲。第二类是跨进程的状态（限流计数、缓存索引、SSL 会话），放在 master 启动时映射好的共享内存 zone 里，由 slab 分配器按 2 的幂分档；分档的边界取决于页大小，本机 16 KB 页上 256 字节以内按位图切分，8 KB 以上整页分配。zone 用名字标识，同名必须同模块、同大小。zone 的锁是一个存着持有者 pid 的整数，worker 异常退出时 master 用这个 pid 替它解锁。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。本篇涉及的 `ngx_palloc.*`、`ngx_buf.*`、`ngx_slab.*`、`ngx_shmtx.*`、`os/unix/ngx_shmem.c` 在 1.30.7 和 1.31.9 之间逐字节相同；`ngx_cycle.c` 只有 `conf_param` 复制的一处改动，和共享内存无关，没有「版本差异」条目。实验：[`labs/dev-03`](../labs/dev-03/)。前七步由 `mem.c` 直接调用这些 API，和[开发篇 02](02-data-structures.md) 一样通过 [`labs/ctest.sh`](../labs/ctest.sh) 链接到本仓库构建出的 nginx 目标文件上；后两步用 nginx 本身的 debug 日志和 `nginx -t`。实验机是 macOS arm64：页大小 16 KB，`NGX_ALIGNMENT` 是 16，文中凡是和这两个值有关的数字都只适用于本机，Linux x86-64 上的对应值是按源码推算的。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。本篇涉及的 `ngx_palloc.*`、`ngx_buf.*`、`ngx_slab.*`、`ngx_shmtx.*`、`os/unix/ngx_shmem.c` 在 1.30.8 和 1.31.10 之间逐字节相同；`ngx_cycle.c` 只有 `conf_param` 复制的一处改动，和共享内存无关，没有「版本差异」条目。实验：[`labs/dev-03`](../labs/dev-03/)。前七步由 `mem.c` 直接调用这些 API，和[开发篇 02](02-data-structures.md) 一样通过 [`labs/ctest.sh`](../labs/ctest.sh) 链接到本仓库构建出的 nginx 目标文件上；后两步用 nginx 本身的 debug 日志和 `nginx -t`。实验机是 macOS arm64：页大小 16 KB，`NGX_ALIGNMENT` 是 16，文中凡是和这两个值有关的数字都只适用于本机，Linux x86-64 上的对应值是按源码推算的。
 
 ## 导读
 
@@ -47,7 +47,7 @@ struct ngx_pool_s {
 };
 ```
 
-`max` 是“小块”的上限，[`ngx_create_pool`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_palloc.c#L19) 把它设成块大小减去头部，再和 `NGX_MAX_ALLOC_FROM_POOL`（`ngx_pagesize - 1`）取小：
+`max` 是“小块”的上限，[`ngx_create_pool`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_palloc.c#L19) 把它设成块大小减去头部，再和 `NGX_MAX_ALLOC_FROM_POOL`（`ngx_pagesize - 1`）取小：
 
 ```c
 // src/core/ngx_palloc.c:18-43
@@ -143,7 +143,7 @@ ok - palloc aligns to NGX_ALIGNMENT (16 here), pnalloc does not; a new block kee
 
 ## 2. 新块的大小和第一块相同；一个块失败超过 4 次，current 就跳过它
 
-[`ngx_palloc_block`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_palloc.c#L178) 新建的块和第一块一样大，挂到链尾。它还顺带给从 `current` 到链尾的每个块的 `failed` 加 1，某个块的 `failed` 已经大于 4 时，把 `current` 移到它后面：
+[`ngx_palloc_block`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_palloc.c#L178) 新建的块和第一块一样大，挂到链尾。它还顺带给从 `current` 到链尾的每个块的 `failed` 加 1，某个块的 `failed` 已经大于 4 时，把 `current` 移到它后面：
 
 ```c
 // src/core/ngx_palloc.c:177-210
@@ -206,7 +206,7 @@ ok - current leaves block 0 at the 8th 600-byte allocation, then moves one block
 
 ## 3. ngx_pfree 只释放大块；cleanup 在销毁时倒序执行
 
-大块的管理节点本身是从池里分配的小块。[`ngx_palloc_large`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_palloc.c#L214) 先在 `large` 链上找一个 `alloc` 为空的节点复用，但最多只看前 5 个：
+大块的管理节点本身是从池里分配的小块。[`ngx_palloc_large`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_palloc.c#L214) 先在 `large` 链上找一个 `alloc` 为空的节点复用，但最多只看前 5 个：
 
 ```c
 // src/core/ngx_palloc.c:213-249
@@ -261,7 +261,7 @@ ok - a freed slot is reused only within the first 5 list nodes (n++ > 3)
 
 释放最旧的那个（链上第 6 个）之后再分配，扫描在第 5 个节点停下，没看到空位，又建了第 7 个节点；释放最新的那个，空位在链头，被直接复用。`ngx_pfree` 主要用在 keepalive 连接上（§4），那里的大块数量很少，这个上限不会碰到。
 
-池销毁时，[`ngx_destroy_pool`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_palloc.c#L47) 先执行 cleanup 链，再释放大块，最后释放所有块。`ngx_pool_cleanup_add` 把新的 cleanup 插在链头：
+池销毁时，[`ngx_destroy_pool`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_palloc.c#L47) 先执行 cleanup 链，再释放大块，最后释放所有块。`ngx_pool_cleanup_add` 把新的 cleanup 插在链头：
 
 ```text
 # labs/dev-03 ## cleanup handlers run in reverse order
@@ -280,7 +280,7 @@ ok - LIFO
 
 ## 4. 一个请求用两个池：连接池 512 字节，请求池 4096 字节；keepalive 时先还请求池和头缓冲
 
-连接建立时，`ngx_event_accept` 用 `listen` 的 `pool_size`（即 `connection_pool_size`）建连接池；请求开始时，[`ngx_http_alloc_request`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_request.c#L571) 用 `request_pool_size` 建请求池。两者的默认值：
+连接建立时，`ngx_event_accept` 用 `listen` 的 `pool_size`（即 `connection_pool_size`）建连接池；请求开始时，[`ngx_http_alloc_request`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_request.c#L571) 用 `request_pool_size` 建请求池。两者的默认值：
 
 ```c
 // src/http/ngx_http_core_module.c:3622-3625
@@ -442,7 +442,7 @@ last_buf only: ngx_buf_special=1, ngx_buf_size=0
 
 ## 6. ngx_chain_update_chains 按 tag 回收缓冲：只收自己的，遇到没发完的就停
 
-过滤器（gzip、chunked、proxy 等）发送数据时维护三条链：`out` 是这次要发的，`busy` 是发出去但下游还没消费完的，`free` 是可以复用的空缓冲。每次调用下游之后，用 [`ngx_chain_update_chains`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_buf.c#L185) 整理：
+过滤器（gzip、chunked、proxy 等）发送数据时维护三条链：`out` 是这次要发的，`busy` 是发出去但下游还没消费完的，`free` 是可以复用的空缓冲。每次调用下游之后，用 [`ngx_chain_update_chains`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_buf.c#L185) 整理：
 
 ```c
 // src/core/ngx_buf.c:184-223
@@ -507,7 +507,7 @@ d's link went to pool->chain: yes; a's buffer was reset: yes
 
 ## 7. 共享内存 zone 由 master 在解析配置后映射，fork 之后各 worker 共用；名字是唯一标识
 
-模块在解析配置时调用 [`ngx_shared_memory_add`](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_cycle.c#L1306) 登记一个 zone：名字、大小、tag（通常是模块结构的地址）。`src/` 下有 14 个模块这样登记 zone：
+模块在解析配置时调用 [`ngx_shared_memory_add`](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_cycle.c#L1306) 登记一个 zone：名字、大小、tag（通常是模块结构的地址）。`src/` 下有 14 个模块这样登记 zone：
 
 ```text
 # labs/dev-03 ## where the APIs are used
@@ -789,3 +789,4 @@ master 收到 `SIGCHLD` 后在 `ngx_process_get_status` 里回收子进程，每
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写，替代 2018 年版 `dev/01.md`（内存池与内存管理）。覆盖内存池的小块、大块、`current` 跳块与 cleanup，一个请求的连接池与请求池，`ngx_buf_t` 与 `ngx_chain_update_chains`，共享内存 zone 的登记与映射，slab 分档，`ngx_shmtx` 与崩溃解锁；实验程序 `labs/dev-03/mem.c` 链接 1.31.9 的目标文件直接调用这些 API。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

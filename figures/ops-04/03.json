@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "try_files 只检查前面的参数，最后一个参数是兜底去向",
  "subtitle": "以 try_files $uri $uri/ <最后一个> 为例；前面的参数按顺序检查文件或目录是否存在",
- "source": "来源：ngx_http_try_files_module.c（1.31.9）",
+ "source": "来源：ngx_http_try_files_module.c（1.31.10）",
  "stages": [
   {"name": "检查存在", "nodes": [
     {"id": "a", "title": "参数 1：$uri", "sub": "文件"},

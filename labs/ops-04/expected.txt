@@ -56,8 +56,8 @@ p.test             /admin/x                         -> /admin/
 p.test             /admin/x           X-Admin: yes  -> /admin/ > yes (nested predicate)
 p.test             /admin/x           X-Beta: 1     -> 1 (predicate)
 ok - true = not empty and not "0"; regex first; ^~ skips predicates; a predicate beats a plain prefix
-lines with predicate_locations in ngx_http_core_module.c: 1.30.7 0, 1.31.9 2
-ok - 1.30.7 has no predicate locations
+lines with predicate_locations in ngx_http_core_module.c: 1.30.8 0, 1.31.10 2
+ok - 1.30.8 has no predicate locations
 
 ## try_files
 t.test             /app.js                          -> app

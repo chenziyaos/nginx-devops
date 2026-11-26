@@ -17,20 +17,22 @@ old workers still alive during the download: 1 of 2
 answers now: v2
 download: 200 complete
 old workers alive after it: 0
-[notice] signal 1 (SIGHUP) received from N, reconfiguring
-[notice] reconfiguring
-[notice] start worker process N
-[notice] start worker process N
-[notice] gracefully shutting down
-[notice] gracefully shutting down
-[notice] exiting
-[notice] exit
-[notice] signal 20 (SIGCHLD) received from N
-[notice] worker process N exited with code 0
-[notice] exiting
-[notice] exit
-[notice] signal 20 (SIGCHLD) received from N
-[notice] worker process N exited with code 0
+master: [notice] signal 1 (SIGHUP) received from N, reconfiguring
+master: [notice] reconfiguring
+master: [notice] start worker process N
+master: [notice] start worker process N
+master: [notice] signal 20 (SIGCHLD) received from N
+master: [notice] worker process N exited with code 0
+master: [notice] signal 20 (SIGCHLD) received from N
+master: [notice] worker process N exited with code 0
+old worker 1:
+  [notice] gracefully shutting down
+  [notice] exiting
+  [notice] exit
+old worker 2:
+  [notice] gracefully shutting down
+  [notice] exiting
+  [notice] exit
 ok - same master, new config answers, the in-flight download completes, then old workers exit
 
 ## nginx -s reload with a broken config
@@ -75,7 +77,7 @@ after QUIT: old master alive: 0, oldbin file left: no, answers: v1
 ok - two masters share the sockets until the old one is told to quit
 
 ## control API
-GET /1/nginx: {"version":"1.31.9","build":""}
+GET /1/nginx: {"version":"1.31.10","build":""}
 GET /1/control/processes:
   worker process exiting=false
   worker process exiting=false

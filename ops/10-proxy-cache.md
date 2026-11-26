@@ -2,7 +2,7 @@
 
 > **一句话结论**：不写 `proxy_cache_key` 时，缓存键是“发给后端的那个 URL”（`http://127.0.0.1:18201/b/plain?x=1` 这种带 `://` 的形式），不是文档里写的 `$scheme$proxy_host$request_uri`；两个 location 把请求转到同一个后端 URI，就共用同一条缓存。文件名是键的 MD5，`levels=1:2` 从文件名末尾取目录。一条缓存能活多久，按 `X-Accel-Expires`、`Cache-Control` 的 `s-maxage`、`max-age`、`Expires`、`proxy_cache_valid` 的顺序取第一个有效的；`private`、`no-cache`、`no-store`、`max-age=0`、`X-Accel-Expires: 0` 和 `Set-Cookie` 都会让响应不进缓存。过期以后默认是 EXPIRED，即同步回源；`proxy_cache_use_stale updating` 加 `proxy_cache_background_update` 让第一个请求立即拿到旧内容（STALE）并在后台刷新；`proxy_cache_lock` 让同一个新键的并发请求只放一个去后端；`use_stale error` 在后端出错时用旧内容兜底；`proxy_cache_revalidate` 用条件请求换 304。`inactive` 时间内没人访问的条目会被 cache manager 删掉，哪怕还没过期。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：`ngx_http_file_cache.c` 在 1.30.7 和 1.31.9 之间没有差别，本篇引用的 `ngx_http_upstream_cache`、`ngx_http_proxy_create_key` 和各响应头的处理函数也逐字相同。和缓存有关的修复两边都有：后台更新的未初始化内存访问（CVE-2026-60005）在 1.31.3 和 1.30.4 修复，缓存了 `X-Accel-Redirect` 头之后可能崩溃的问题在 1.31.7 修复，1.30.7 的 changes 里也有这条。实验：[`labs/ops-10`](../labs/ops-10/)，单 worker；18200 是带缓存的代理，18201 是后端，后端的响应体里带 `$msec`，从响应体就能看出是不是缓存里的旧内容。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：`ngx_http_file_cache.c` 在 1.30.8 和 1.31.10 之间没有差别，本篇引用的 `ngx_http_upstream_cache`、`ngx_http_proxy_create_key` 和各响应头的处理函数也逐字相同。和缓存有关的修复两边都有：后台更新的未初始化内存访问（CVE-2026-60005）在 1.31.3 和 1.30.4 修复，缓存了 `X-Accel-Redirect` 头之后可能崩溃的问题在 1.31.7 修复，1.30.7 的 changes 里也有这条。实验：[`labs/ops-10`](../labs/ops-10/)，单 worker；18200 是带缓存的代理，18201 是后端，后端的响应体里带 `$msec`，从响应体就能看出是不是缓存里的旧内容。
 
 ## 导读
 
@@ -526,3 +526,4 @@ ok - a value other than empty or 0 skips the lookup, and the fresh response repl
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖默认缓存键的真实构成与文件布局、状态值、响应头对有效期的优先级、HEAD 转 GET、`min_uses`、`use_stale updating` 与 `background_update`、`proxy_cache_lock`、`use_stale error`、`proxy_cache_revalidate`、`inactive` 与 cache manager、`proxy_cache_bypass`，均附 `labs/ops-10` 实验。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

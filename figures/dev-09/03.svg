@@ -30,5 +30,5 @@
 <rect x="700" y="512" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
 <text x="810" y="549.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">尝试结束</text>
 <text x="810" y="569.2" font-size="12" fill="#646A73" text-anchor="middle">调用 free(state)</text>
-<text x="40" y="636" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_upstream_init_main_conf（1.31.9）</text>
+<text x="40" y="636" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_upstream_init_main_conf（1.31.10）</text>
 </svg>

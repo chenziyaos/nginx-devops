@@ -30,5 +30,5 @@
 <polygon points="416,355 426,361 416,367" fill="#8F959E"/>
 <polyline points="774,361 808,361" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="808,355 818,361 808,367" fill="#8F959E"/>
-<text x="40" y="460" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_rewrite_module.c、ngx_http_script.c、ngx_http_variables.c（1.31.9）</text>
+<text x="40" y="460" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_rewrite_module.c、ngx_http_script.c、ngx_http_variables.c（1.31.10）</text>
 </svg>

@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "last 重新匹配 location，break 留在原地，redirect 返回 302",
  "subtitle": "从上到下是四条路径；蓝色是 rewrite 匹配成功后的行为",
- "source": "来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.9）",
+ "source": "来源：ngx_http_script.c、ngx_http_rewrite_module.c（1.31.10）",
  "stages": [
   {
    "name": "rewrite 匹配成功",

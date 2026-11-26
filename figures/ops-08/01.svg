@@ -40,5 +40,5 @@
 <text x="1056" y="502.7" font-size="12" fill="#646A73" text-anchor="middle">读 HTTP 请求</text>
 <text x="301" y="219.2" font-size="12" fill="#646A73">否</text>
 <text x="301" y="268.8" font-size="12" fill="#646A73">是</text>
-<text x="40" y="560" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）</text>
+<text x="40" y="560" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.10）</text>
 </svg>

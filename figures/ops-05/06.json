@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "Content-Length 在选 location 时检查，chunked 请求在读取时检查",
  "subtitle": "请求头读完之后请求体的去向；红色是两种 413，上限都是 client_max_body_size",
- "source": "来源：ngx_http_core_module.c、ngx_http_request_body.c（1.31.9）",
+ "source": "来源：ngx_http_core_module.c、ngx_http_request_body.c（1.31.10）",
  "stages": [
   {"name": "find-config", "nodes": [
     {"id": "f", "title": "选定 location", "sub": "有 Content-Length 就和上限比"}]},

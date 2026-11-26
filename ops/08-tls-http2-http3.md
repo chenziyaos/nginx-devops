@@ -1,8 +1,8 @@
 # 运维篇 08｜HTTPS、HTTP/2 与 HTTP/3：证书在握手的哪一步选定，决定了大部分配置的行为
 
-> **一句话结论**：nginx 1.31.9 默认只开 TLSv1.2 和 TLSv1.3（1.27.3 起关掉了 TLSv1 和 TLSv1.1），套件默认 `HIGH:!aNULL:!MD5`。用哪张证书在握手中途决定：先按 SNI 找 `server`，找不到就用这个端口的默认 `server`，`ssl_reject_handshake on` 可以让不认识的名字直接握手失败；同一个 `server` 挂 RSA 和 ECDSA 两张证书时，由 OpenSSL 按客户端支持的签名算法挑。证书路径里写了变量，就改成每次握手时读文件，`ssl_certificate_cache`（1.27.4）把读到的证书留 60 秒。不配 `ssl_session_cache shared:` 时，session ticket 的密钥属于这一轮配置的 `SSL_CTX`，reload 之后旧 ticket 全部失效；配了之后密钥放在共享内存里，reload 后还能用。明文请求打到 HTTPS 端口，内部状态码是 497，对外是 400，`error_page 497` 可以把它变成跳转。HTTP/2 用 `http2 on`（1.25.1）打开，`listen ... http2` 仍然能用但会告警；1.31.7 起 nginx 在 SETTINGS 帧里声明不再使用 RFC 7540 的优先级。HTTP/3 要 `listen ... quic` 加 `http3 on`，浏览器靠 `Alt-Svc` 头才知道有它，这个头要自己加。
+> **一句话结论**：nginx 1.31.10 默认只开 TLSv1.2 和 TLSv1.3（1.27.3 起关掉了 TLSv1 和 TLSv1.1），套件默认 `HIGH:!aNULL:!MD5`。用哪张证书在握手中途决定：先按 SNI 找 `server`，找不到就用这个端口的默认 `server`，`ssl_reject_handshake on` 可以让不认识的名字直接握手失败；同一个 `server` 挂 RSA 和 ECDSA 两张证书时，由 OpenSSL 按客户端支持的签名算法挑。证书路径里写了变量，就改成每次握手时读文件，`ssl_certificate_cache`（1.27.4）把读到的证书留 60 秒。不配 `ssl_session_cache shared:` 时，session ticket 的密钥属于这一轮配置的 `SSL_CTX`，reload 之后旧 ticket 全部失效；配了之后密钥放在共享内存里，reload 后还能用。明文请求打到 HTTPS 端口，内部状态码是 497，对外是 400，`error_page 497` 可以把它变成跳转。HTTP/2 用 `http2 on`（1.25.1）打开，`listen ... http2` 仍然能用但会告警；1.31.7 起 nginx 在 SETTINGS 帧里声明不再使用 RFC 7540 的优先级。HTTP/3 要 `listen ... quic` 加 `http3 on`，浏览器靠 `Alt-Svc` 头才知道有它，这个头要自己加。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：本篇用到的握手、SNI、证书加载、证书缓存、session ticket 密钥轮换和 ALPN 选择函数，在 1.30.7 和 1.31.9 里逐字相同；不同的是 HTTP/2 的 SETTINGS 帧：1.30.7 发 3 个参数，1.31.9 多一个 `NO_RFC7540_PRIORITIES=1`（1.31.7 改用 RFC 9218 的优先级方案）。ticket 密钥轮换里一个密钥未初始化的漏洞（CVE-2026-97629）在 1.31.7 和 1.30.6 同时修复。实验：[`labs/ops-08`](../labs/ops-08/)，用 OpenSSL 3 的 `s_client` 做握手（macOS 自带的 curl 不支持 TLSv1.3 和 QUIC），证书由 `run.sh` 现签。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：本篇用到的握手、SNI、证书加载、证书缓存、session ticket 密钥轮换和 ALPN 选择函数，在 1.30.8 和 1.31.10 里逐字相同；不同的是 HTTP/2 的 SETTINGS 帧：1.30.8 发 3 个参数，1.31.10 多一个 `NO_RFC7540_PRIORITIES=1`（1.31.7 改用 RFC 9218 的优先级方案）。ticket 密钥轮换里一个密钥未初始化的漏洞（CVE-2026-97629）在 1.31.7 和 1.30.6 同时修复。实验：[`labs/ops-08`](../labs/ops-08/)，用 OpenSSL 3 的 `s_client` 做握手（macOS 自带的 curl 不支持 TLSv1.3 和 QUIC），证书由 `run.sh` 现签。
 
 ## 导读
 
@@ -464,7 +464,7 @@ SETTINGS 帧里的 4 个参数和 `ngx_http_v2_send_settings` 的写法一一对
 | 3 MAX_CONCURRENT_STREAMS | 128 | `http2_max_concurrent_streams` 默认值 |
 | 4 INITIAL_WINDOW_SIZE | 65536 | `http2_body_preread_size` 默认值，每个流的请求体窗口 |
 | 5 MAX_FRAME_SIZE | 16777215 | `(1 << 24) - 1`，协议允许的上限 |
-| 9 NO_RFC7540_PRIORITIES | 1 | 1.31.7 新增；1.30.7 只发前 3 个参数 |
+| 9 NO_RFC7540_PRIORITIES | 1 | 1.31.7 新增；1.30.8 只发前 3 个参数 |
 
 紧接着的 WINDOW_UPDATE 把整条连接的接收窗口从协议初始值 65535 加到 2^31-1，增量 2147418112 = 2147483647 − 65535。连接级窗口开到最大、流级窗口只给 64 KB，含义是：nginx 不限制整条连接的上传总量，但每个请求体在被读取之前最多预读 64 KB。
 
@@ -518,3 +518,4 @@ ok - the QUIC listener negotiates h3; Alt-Svc comes from add_header
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖默认协议与套件、RSA/ECDSA 双证书、SNI 与默认 server、`ssl_reject_handshake`、明文请求打到 HTTPS 端口的 497/400 与 `error_page 497` 跳转、变量证书与 1.27.4 的 `ssl_certificate_cache`、session ticket 密钥跨 reload 的行为、`http2 on` 与 h2c、1.31.7 的 SETTINGS 变化、HTTP/3 与 `Alt-Svc`，均附 `labs/ops-08` 实验；证书压缩与 ECH 依据源码描述。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

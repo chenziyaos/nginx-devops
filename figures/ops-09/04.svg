@@ -29,5 +29,5 @@
 <text x="1056" y="224.9" font-size="12" fill="#646A73" text-anchor="middle">请求内存池销毁</text>
 <text x="311.5" y="200.7" font-size="12" fill="#646A73" text-anchor="middle">未达上限</text>
 <text x="311.5" y="312.7" font-size="12" fill="#646A73" text-anchor="middle">已达上限</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_conn_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_conn_module.c（1.31.10）</text>
 </svg>

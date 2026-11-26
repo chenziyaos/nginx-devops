@@ -39,5 +39,5 @@
 <text x="340.5" y="243" font-size="12" fill="#646A73" text-anchor="middle">超过</text>
 <text x="340.5" y="270" font-size="12" fill="#646A73" text-anchor="middle">没超过</text>
 <text x="815" y="256" font-size="12" fill="#646A73">超过</text>
-<text x="40" y="490" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c、ngx_http_request_body.c（1.31.9）</text>
+<text x="40" y="490" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_core_module.c、ngx_http_request_body.c（1.31.10）</text>
 </svg>

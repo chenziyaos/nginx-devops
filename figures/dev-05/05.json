@@ -2,7 +2,7 @@
   "type": "milestones",
   "title": "kevent 超时由红黑树最小定时器决定，无定时器时睡无限久",
   "subtitle": "从左到右按时间流；数字是相应的 kevent 超时值",
-  "source": "来源：src/event/ngx_event_timer.c、labs/dev-05（1.31.9）",
+  "source": "来源：src/event/ngx_event_timer.c、labs/dev-05（1.31.10）",
   "items": [
     {
       "when": "1",

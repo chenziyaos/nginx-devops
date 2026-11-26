@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "HTTP/2 由 ALPN 或连接前言触发，http2 on 决定能否使用",
  "subtitle": "加密连接走 ALPN 回调，明文连接看前 24 字节是不是 HTTP/2 连接前言",
- "source": "来源：ngx_http_request.c、ngx_http_v2.c（1.31.9）",
+ "source": "来源：ngx_http_request.c、ngx_http_v2.c（1.31.10）",
  "stages": [
   {"name": "连接类型", "nodes": [
     {"id": "tls", "title": "TLS"},

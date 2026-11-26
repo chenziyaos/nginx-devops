@@ -2,7 +2,7 @@
   "type": "graph",
   "title": "worker 循环的五个固定阶段：算超时 → 条件分支 → 等内核 → 处理三类事件 → 回圈",
   "subtitle": "从上到下按执行顺序；accept_mutex 有无决定分支",
-  "source": "来源：src/event/ngx_event.c（1.31.9）",
+  "source": "来源：src/event/ngx_event.c（1.31.10）",
   "stages": [
     {
       "name": "第 1 步",

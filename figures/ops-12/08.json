@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "PROXY 协议头只加在 nginx 到后端这一段，后端要配置读取它",
  "subtitle": "竖向是时间轴；PROXY 头只出现在 nginx 发往后端的连接上",
- "source": "来源：ngx_stream_proxy_module.c（1.31.9）",
+ "source": "来源：ngx_stream_proxy_module.c（1.31.10）",
  "actors": [
   "客户端",
   "nginx :18249",

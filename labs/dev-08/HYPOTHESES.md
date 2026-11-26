@@ -1,6 +1,6 @@
 # dev-08 hypotheses (written from the source before running the lab)
 
-All line numbers: src/http/modules/ngx_http_limit_req_module.c at release-1.31.9.
+All line numbers: src/http/modules/ngx_http_limit_req_module.c at release-1.31.10.
 
 1. A new key stores excess 0 and the first request sees 0 (486, 512, 520-523).
 2. Each later request sees `excess - rate * ms / 1000 + 1000` (454); 1r/m is rate 16 (939), so

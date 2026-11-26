@@ -1,8 +1,8 @@
 # 开发篇 10｜动手写模块：一个 HTTP 模块就是几张交给框架的表，框架在固定的时机回调它
 
-> **一句话结论**：本仓库的 `modules/ngx_http_hello_module` 不到 300 行，带一个 content handler、一个 header filter 和一个变量。一个 HTTP 模块就是一个 `ngx_module_t`，里面放着两张表：`ngx_http_module_t` 给 http 框架在解析前后、建配置和合并配置时回调，`ngx_command_t` 给配置解析器按指令名回调。`hello` 指令的处理函数在解析配置时把 content handler 写进 location 的 `clcf->handler`；header filter 在 postconfiguration 里把自己压到过滤器链表头，作为动态模块，它在 `cycle->modules` 里排在 `ngx_http_copy_filter_module` 前面，所以它比 `add_header` 先执行，`X-Hello` 出现在 `X-Add` 之前。变量在 preconfiguration 里登记，标了 `NOCACHEABLE`，access log 写日志前会把它作废重取，所以 rewrite 阶段读到 4、日志里是 5。`load_module` 在解析 main 时 `dlopen`，`ngx_add_module` 先比对版本号和二进制签名：给 1.30.7 编的模块和签名不同的模块都会被拒绝；它还必须写在 `events{}`、`http{}` 之前。模块里的静态变量属于进程，每个 worker 一份，reload 换了 worker 就从零开始。
+> **一句话结论**：本仓库的 `modules/ngx_http_hello_module` 不到 300 行，带一个 content handler、一个 header filter 和一个变量。一个 HTTP 模块就是一个 `ngx_module_t`，里面放着两张表：`ngx_http_module_t` 给 http 框架在解析前后、建配置和合并配置时回调，`ngx_command_t` 给配置解析器按指令名回调。`hello` 指令的处理函数在解析配置时把 content handler 写进 location 的 `clcf->handler`；header filter 在 postconfiguration 里把自己压到过滤器链表头，作为动态模块，它在 `cycle->modules` 里排在 `ngx_http_copy_filter_module` 前面，所以它比 `add_header` 先执行，`X-Hello` 出现在 `X-Add` 之前。变量在 preconfiguration 里登记，标了 `NOCACHEABLE`，access log 写日志前会把它作废重取，所以 rewrite 阶段读到 4、日志里是 5。`load_module` 在解析 main 时 `dlopen`，`ngx_add_module` 先比对版本号和二进制签名：给 1.30.8 编的模块和签名不同的模块都会被拒绝；它还必须写在 `events{}`、`http{}` 之前。模块里的静态变量属于进程，每个 worker 一份，reload 换了 worker 就从零开始。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。「版本差异」：`ngx_module.h`、`ngx_module.c`、`auto/module` 与 1.30.7 相同，模块的写法在两个版本之间没有区别；动态模块必须用编译它的那个版本的源码树来编（§7）。实验：[`labs/dev-10`](../labs/dev-10/)，单 worker；模块由 `tools/build.sh` 以 `--add-dynamic-module` 编进 `.nginx/modules/`，`run.sh` 在实验目录建一个指向它的 `modules` 链接；`fake.c` 是一个什么也不做、可以在编译时改掉版本号和签名的模块。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。「版本差异」：`ngx_module.h`、`ngx_module.c`、`auto/module` 与 1.30.8 相同，模块的写法在两个版本之间没有区别；动态模块必须用编译它的那个版本的源码树来编（§7）。实验：[`labs/dev-10`](../labs/dev-10/)，单 worker；模块由 `tools/build.sh` 以 `--add-dynamic-module` 编进 `.nginx/modules/`，`run.sh` 在实验目录建一个指向它的 `modules` 链接；`fake.c` 是一个什么也不做、可以在编译时改掉版本号和签名的模块。
 
 ## 导读
 
@@ -428,7 +428,7 @@ ngx_http_hello_add_variables(ngx_conf_t *cf)
 }
 ```
 
-登记必须在 preconfiguration 里做：http 框架在解析 `http{}` 里的任何指令之前调用它（[`ngx_http.c` 第 222–234 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http.c#L222)），之后 `set`、`log_format` 里出现的 `$hello_requests` 才能在 `ngx_http_variables_init_vars` 里配上取值函数（[开发篇 07](07-rewrite-script.md) §1）。取值函数从请求池分配空间，把每个 worker 的计数写进去：
+登记必须在 preconfiguration 里做：http 框架在解析 `http{}` 里的任何指令之前调用它（[`ngx_http.c` 第 222–234 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http.c#L222)），之后 `set`、`log_format` 里出现的 `$hello_requests` 才能在 `ngx_http_variables_init_vars` 里配上取值函数（[开发篇 07](07-rewrite-script.md) §1）。取值函数从请求池分配空间，把每个 worker 的计数写进去：
 
 ```c
 // modules/ngx_http_hello_module/ngx_http_hello_module.c:194-212
@@ -453,7 +453,7 @@ ngx_http_hello_requests_variable(ngx_http_request_t *r,
 }
 ```
 
-`NGX_HTTP_VAR_NOCACHEABLE` 让值带上 `no_cacheable`。脚本引擎读变量时总是重新取值；access log 每写一行之前，先把日志格式里所有 `no_cacheable` 的变量作废（[`ngx_http_log_module.c` 第 302 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_log_module.c#L302)）。实验的 `/count` 在 rewrite 阶段 `set $before $hello_requests`，日志格式里同时有 `$before` 和 `$hello_requests`：
+`NGX_HTTP_VAR_NOCACHEABLE` 让值带上 `no_cacheable`。脚本引擎读变量时总是重新取值；access log 每写一行之前，先把日志格式里所有 `no_cacheable` 的变量作废（[`ngx_http_log_module.c` 第 302 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_log_module.c#L302)）。实验的 `/count` 在 rewrite 阶段 `set $before $hello_requests`，日志格式里同时有 `$before` 和 `$hello_requests`：
 
 ```text
 # labs/dev-10 ## the variable is read again by the access log
@@ -462,7 +462,7 @@ ngx_http_hello_requests_variable(ngx_http_request_t *r,
 ok - set reads the count before the handler, the log after it
 ```
 
-`set` 在 rewrite 阶段读到 4（前面两步共有 4 个请求经过 hello 的处理函数：§2 的 GET、HEAD 各两次），content handler 把计数加到 5，access log 重新取值得到 5；`$before` 是 `set` 写入的变量，`set_var` 会清掉 `no_cacheable`（[`ngx_http_script.c` 第 1930 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_script.c#L1930)），日志里保持 4。可缓存的变量在同样的位置会沿用早先的值，[开发篇 07](07-rewrite-script.md) §2 的 `$sent_http_content_type` 就是这样变成 `-` 的。
+`set` 在 rewrite 阶段读到 4（前面两步共有 4 个请求经过 hello 的处理函数：§2 的 GET、HEAD 各两次），content handler 把计数加到 5，access log 重新取值得到 5；`$before` 是 `set` 写入的变量，`set_var` 会清掉 `no_cacheable`（[`ngx_http_script.c` 第 1930 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_script.c#L1930)），日志里保持 4。可缓存的变量在同样的位置会沿用早先的值，[开发篇 07](07-rewrite-script.md) §2 的 `$sent_http_content_type` 就是这样变成 `-` 的。
 
 **小结**：值在一个请求里会变的变量（计数、时间、状态）定义时标 `NGX_HTTP_VAR_NOCACHEABLE`；值在一个请求里不变、计算又贵的不要标，让框架缓存。取值函数从 `r->pool` 分配内存，不要返回指向静态缓冲区的指针，同一行日志里可能有多个变量。
 
@@ -528,7 +528,7 @@ ok - an HTTP_FILTER module is ordered before copy_filter; the signatures match
     }
 ```
 
-`modules_used` 在 `events{}` 或 `http{}` 第一次统计模块数时被置 1（[`ngx_module.c` 第 150 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_module.c#L150)），之后再加模块，各类模块的配置数组就对不上了。然后它 `dlopen`，取出 §6 的三个数组，逐个调用 `ngx_add_module`：
+`modules_used` 在 `events{}` 或 `http{}` 第一次统计模块数时被置 1（[`ngx_module.c` 第 150 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_module.c#L150)），之后再加模块，各类模块的配置数组就对不上了。然后它 `dlopen`，取出 §6 的三个数组，逐个调用 `ngx_add_module`：
 
 ```c
 // src/core/nginx.c:1707-1719
@@ -575,11 +575,11 @@ ok - an HTTP_FILTER module is ordered before copy_filter; the signatures match
     }
 ```
 
-`version` 是编译模块时的 `nginx_version`，签名是一串由编译选项拼成的字符串：前三段是指针、`sig_atomic_t`、`time_t` 的字节数，后面每一位表示一个影响结构体布局的特性是否打开（kqueue、epoll、线程、QUIC 等，[`ngx_module.h` 第 21–24 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/ngx_module.h#L21)起）。`--with-compat` 把其中几位固定为 1，并在结构体里留出占位字段，使模块不依赖这些特性是否真的编进了 nginx。实验用 `fake.c` 编两个 `.so`，一个把版本改成 1030007，一个把签名改成 `8,4,8,0`，再加两份写法错误的配置：
+`version` 是编译模块时的 `nginx_version`，签名是一串由编译选项拼成的字符串：前三段是指针、`sig_atomic_t`、`time_t` 的字节数，后面每一位表示一个影响结构体布局的特性是否打开（kqueue、epoll、线程、QUIC 等，[`ngx_module.h` 第 21–24 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/ngx_module.h#L21)起）。`--with-compat` 把其中几位固定为 1，并在结构体里留出占位字段，使模块不依赖这些特性是否真的编进了 nginx。实验用 `fake.c` 编两个 `.so`，一个把版本改成 1030007，一个把签名改成 `8,4,8,0`，再加两份写法错误的配置：
 
 ```text
 # labs/dev-10 ## what ngx_add_module refuses
-[emerg] module "$LAB/out/run/oldver.so" version 1030007 instead of 1031009 in $LAB/conf/oldver.conf:2
+[emerg] module "$LAB/out/run/oldver.so" version 1030007 instead of 1031010 in $LAB/conf/oldver.conf:2
 [emerg] module "$LAB/out/run/badsig.so" is not binary compatible in $LAB/conf/badsig.conf:2
 [emerg] "load_module" directive is specified too late in $LAB/conf/late.conf:3
 [emerg] module "ngx_http_hello_module" is already loaded in $LAB/conf/twice.conf:3
@@ -590,7 +590,7 @@ ok - wrong version, wrong signature, too late, twice
 
 ![每一道检查都在配置解析阶段完成](../figures/dev-10/05.svg)
 
-版本号精确到补丁号：1.31.9 只认 1031009，给 1.31.8 编的模块也会被拒绝。
+版本号精确到补丁号：1.31.10 只认 1031010，给 1.31.8 编的模块也会被拒绝。
 
 **小结**：分发动态模块，要和 nginx 用同一个版本的源码、同样影响签名的 configure 参数（至少都带 `--with-compat`）来编；升级 nginx 补丁版本时，动态模块要一起重编。`load_module` 一律写在配置文件最前面。
 
@@ -609,7 +609,7 @@ reload 前是 6（§2 到 §5 的 6 个请求）；reload 时 master 按新配�
 
 ![worker 之间、reload 前后都不共享静态变量，要共享就得用共享内存](../figures/dev-10/06.svg)
 
-旧 cycle 的内存池上挂着一个 cleanup，cycle 释放时调用 `ngx_unload_module` 做 `dlclose`（[`nginx.c` 第 1737 行](https://github.com/nginx/nginx/blob/release-1.31.9/src/core/nginx.c#L1737)）；新 cycle 在此之前已经 `dlopen` 过同一个文件，动态链接器按引用计数保留映射，模块代码在 reload 期间不会被卸掉。
+旧 cycle 的内存池上挂着一个 cleanup，cycle 释放时调用 `ngx_unload_module` 做 `dlclose`（[`nginx.c` 第 1737 行](https://github.com/nginx/nginx/blob/release-1.31.10/src/core/nginx.c#L1737)）；新 cycle 在此之前已经 `dlopen` 过同一个文件，动态链接器按引用计数保留映射，模块代码在 reload 期间不会被卸掉。
 
 **小结**：模块里需要跨 worker、跨 reload 保留的状态（计数、限流表、会话），放进共享内存 zone（[开发篇 03](03-memory.md) §7，[开发篇 08](08-limit-req.md) 的 limit_req 就是例子）；静态变量只适合放每个进程自己的东西，比如缓存的配置指针或统计的局部计数。
 
@@ -623,3 +623,4 @@ reload 前是 6（§2 到 §5 的 6 个请求）；reload 时 master 按新配�
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码新写。覆盖 `ngx_module_t` 与 HTTP 模块的回调、指令处理函数与 `clcf->handler`、location 配置的 create/merge 与 UNSET、header filter 的安装与动态模块的插入位置、变量登记与 `NOCACHEABLE`、`config` 文件与 `auto/module` 生成的数组、`load_module` 的版本与签名检查、模块静态变量的进程归属；实验 `labs/dev-10` 加载本仓库的 hello 模块并用 `fake.c` 复现加载失败。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

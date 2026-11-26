@@ -27,5 +27,5 @@
 <rect x="910" y="245.2" width="220" height="65" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
 <text x="1020" y="273.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">前 16 位 = 10.2</text>
 <text x="1020" y="292.9" font-size="12" fill="#646A73" text-anchor="middle">无节点，停在 /8</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_radix_tree.c（1.31.9）、labs/dev-02 实验输出</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_radix_tree.c（1.31.10）、labs/dev-02 实验输出</text>
 </svg>

@@ -2,7 +2,7 @@
  "type": "sequence",
  "title": "证书缓存在 valid 秒内信任，之后比较 mtime 再决定加载",
  "subtitle": "两个端口同时读 dyn/a.test.crt：左边无缓存，右边 ssl_certificate_cache max=10",
- "source": "来源：ngx_http_request.c、ngx_event_openssl_cache.c（1.31.9）",
+ "source": "来源：ngx_http_request.c、ngx_event_openssl_cache.c（1.31.10）",
  "actors": [
   {"name": "客户端"},
   {"name": "18167 无缓存", "tone": "contrast"},

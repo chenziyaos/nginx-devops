@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "后端出错时 use_stale 用旧内容兜底，后端回 304 时只续期",
  "subtitle": "过期条目回源后的几条路；虚线是还能换下一台后端时重试",
- "source": "来源：ngx_http_upstream.c（1.31.9）",
+ "source": "来源：ngx_http_upstream.c（1.31.10）",
  "stages": [
   {"name": "回源", "nodes": [
     {"id": "e", "title": "EXPIRED，回源"}]},

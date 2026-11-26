@@ -2,7 +2,7 @@
   "type": "layers",
   "title": "worker 启动时一次分配所有连接和事件，之后只操作链表",
   "subtitle": "512 个连接按 data 指针链成空闲链表；同下标的读写事件与连接绑定；合计 233472 字节，与实际连接数无关",
-  "source": "来源：src/event/ngx_event.c、labs/dev-05 实验（1.31.9）",
+  "source": "来源：src/event/ngx_event.c、labs/dev-05 实验（1.31.10）",
   "layers": [
     {
       "name": "free_connections",

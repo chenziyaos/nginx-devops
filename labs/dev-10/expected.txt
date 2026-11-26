@@ -64,7 +64,7 @@ ok - X-Hello is pushed before X-Add
 ok - set reads the count before the handler, the log after it
 
 ## what ngx_add_module refuses
-[emerg] module "$LAB/out/run/oldver.so" version 1030007 instead of 1031009 in $LAB/conf/oldver.conf:2
+[emerg] module "$LAB/out/run/oldver.so" version 1030007 instead of 1031010 in $LAB/conf/oldver.conf:2
 [emerg] module "$LAB/out/run/badsig.so" is not binary compatible in $LAB/conf/badsig.conf:2
 [emerg] "load_module" directive is specified too late in $LAB/conf/late.conf:3
 [emerg] module "ngx_http_hello_module" is already loaded in $LAB/conf/twice.conf:3

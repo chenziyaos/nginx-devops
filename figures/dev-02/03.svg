@@ -22,5 +22,5 @@
 <rect x="248.7" y="444" width="895.3" height="56" rx="8" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1" data-role="layer-chip"/>
 <text x="696.4" y="467" font-size="14" fill="#1F2329" text-anchor="middle">元素 8–9</text>
 <text x="696.4" y="487" font-size="12" fill="#646A73" text-anchor="middle">还剩 2 格</text>
-<text x="40" y="556" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_list.c（1.31.9）、labs/dev-02 实验输出</text>
+<text x="40" y="556" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_list.c（1.31.10）、labs/dev-02 实验输出</text>
 </svg>

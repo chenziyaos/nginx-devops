@@ -60,5 +60,5 @@
 <text x="240.2" y="282" font-size="12" fill="#646A73">继续</text>
 <text x="969.8" y="334" font-size="12" fill="#646A73">能</text>
 <text x="969.8" y="386" font-size="12" fill="#646A73">不能</text>
-<text x="40" y="490" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_file_cache.c（1.31.9）</text>
+<text x="40" y="490" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c、ngx_http_file_cache.c（1.31.10）</text>
 </svg>

@@ -37,5 +37,5 @@
 <polygon points="612,364 622,370 612,376" fill="#8F959E"/>
 <polyline points="872,370 906,370" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="906,364 916,370 906,376" fill="#8F959E"/>
-<text x="40" y="472" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_hash.c（1.31.9）</text>
+<text x="40" y="472" font-size="12" fill="#646A73" data-role="source">来源：src/core/ngx_hash.c（1.31.10）</text>
 </svg>

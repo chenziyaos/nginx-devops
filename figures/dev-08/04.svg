@@ -35,5 +35,5 @@
 <text x="1010" y="474.6" font-size="13" fill="#1F2329" text-anchor="end">200</text>
 <polyline points="1020,483 192,483" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
 <polygon points="192,477 182,483 192,489" fill="#8F959E"/>
-<text x="40" y="537" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.9）</text>
+<text x="40" y="537" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_limit_req_module.c（1.31.10）</text>
 </svg>

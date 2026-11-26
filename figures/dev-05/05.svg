@@ -39,5 +39,5 @@
 <circle cx="1080" cy="262" r="7" fill="#BBBFC4" stroke="#FFFFFF" stroke-width="2"/>
 <text x="917.3" y="156.6" font-size="13" fill="#646A73" font-weight="bold">7</text>
 <text x="917.3" y="184.1" font-size="16" fill="#1F2329" font-weight="bold">kevent 等无限久</text>
-<text x="40" y="436" font-size="12" fill="#646A73" data-role="source">来源：src/event/ngx_event_timer.c、labs/dev-05（1.31.9）</text>
+<text x="40" y="436" font-size="12" fill="#646A73" data-role="source">来源：src/event/ngx_event_timer.c、labs/dev-05（1.31.10）</text>
 </svg>

@@ -2,7 +2,7 @@
  "type": "flow",
  "title": "解析器只负责切词和分派，指令含义在各模块的 set 函数里",
  "subtitle": "从左到右追踪 sendfile on; 的处理；只有最后一步的 set 函数知道这条指令是什么意思",
- "source": "来源：ngx_conf_file.c、ngx_http_core_module.c（1.31.9）",
+ "source": "来源：ngx_conf_file.c、ngx_http_core_module.c（1.31.10）",
  "steps": [
   {
    "title": "配置文本",

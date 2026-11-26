@@ -44,5 +44,5 @@
 <text x="188" y="250" font-size="12" fill="#646A73">不存在</text>
 <text x="416.2" y="238.8" font-size="12" fill="#646A73" text-anchor="middle">存在</text>
 <text x="416.2" y="332.8" font-size="12" fill="#646A73" text-anchor="middle">不存在</text>
-<text x="40" y="535.2" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_try_files_module.c（1.31.9）</text>
+<text x="40" y="535.2" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_try_files_module.c（1.31.10）</text>
 </svg>

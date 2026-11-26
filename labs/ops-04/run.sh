@@ -85,10 +85,10 @@ step "predicate locations"
 expect "true = not empty and not \"0\"; regex first; ^~ skips predicates; a predicate beats a plain prefix" \
     "$(answers | tr '\n' '|')" \
     '/|1 (predicate)|/|00 (predicate)|no (predicate)|~ \.json|^~ /stable/|/admin/|/admin/ > yes (nested predicate)|1 (predicate)|'
-n130=$(grep -c 'predicate_locations' ../../.nginx-src/release-1.30.7/src/http/ngx_http_core_module.c || true)
-n131=$(grep -c 'predicate_locations' ../../.nginx-src/release-1.31.9/src/http/ngx_http_core_module.c || true)
-echo "lines with predicate_locations in ngx_http_core_module.c: 1.30.7 $n130, 1.31.9 $n131"
-expect "1.30.7 has no predicate locations" "$n130" "0"
+n130=$(grep -c 'predicate_locations' ../../.nginx-src/release-1.30.8/src/http/ngx_http_core_module.c || true)
+n131=$(grep -c 'predicate_locations' ../../.nginx-src/release-1.31.10/src/http/ngx_http_core_module.c || true)
+echo "lines with predicate_locations in ngx_http_core_module.c: 1.30.8 $n130, 1.31.10 $n131"
+expect "1.30.8 has no predicate locations" "$n130" "0"
 
 step "try_files"
 : > logs/error.log

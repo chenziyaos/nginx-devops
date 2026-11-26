@@ -2,7 +2,7 @@
   "type": "compare",
   "title": "三种方式分 worker 连接：都监听、独占、按 socket 分",
   "subtitle": "三种方式对比监听 socket 数和 worker 行为；默认配置由 EPOLLEXCLUSIVE 保证只唤醒一个",
-  "source": "来源：src/event/ngx_event.c、src/core/ngx_connection.c、labs/dev-05（1.31.9）",
+  "source": "来源：src/event/ngx_event.c、src/core/ngx_connection.c、labs/dev-05（1.31.10）",
   "cards": [
     {
       "title": "默认",

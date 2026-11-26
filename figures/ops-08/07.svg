@@ -26,5 +26,5 @@
 <text x="963.3" y="392.6" font-size="13" fill="#1F2329" text-anchor="end">HTTP/3 响应</text>
 <polyline points="973.3,401 238.7,401" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
 <polygon points="238.7,395 228.7,401 238.7,407" fill="#8F959E"/>
-<text x="40" y="455" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.9）</text>
+<text x="40" y="455" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_http_ssl_module.c（1.31.10）</text>
 </svg>

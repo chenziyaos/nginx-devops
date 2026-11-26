@@ -38,5 +38,5 @@
 <rect x="910" y="413" width="220" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
 <text x="1020" y="440.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">关闭</text>
 <text x="1020" y="460.7" font-size="12" fill="#646A73" text-anchor="middle">close_request，跑 LOG 阶段</text>
-<text x="40" y="518" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.9）</text>
+<text x="40" y="518" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c（1.31.10）</text>
 </svg>

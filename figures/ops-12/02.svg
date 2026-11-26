@@ -17,10 +17,10 @@
 <text x="610" y="243.6" font-size="13" fill="#1F2329">18 字节（upstream_bytes_sent）</text>
 <polyline points="600,252 961.3,252" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="961.3,246 971.3,252 961.3,258" fill="#8F959E"/>
-<text x="963.3" y="284.6" font-size="13" fill="#1F2329" text-anchor="end">145 字节（upstream_bytes_received）</text>
+<text x="963.3" y="284.6" font-size="13" fill="#1F2329" text-anchor="end">146 字节（upstream_bytes_received）</text>
 <polyline points="973.3,293 612,293" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="612,287 602,293 612,299" fill="#8F959E"/>
-<text x="590" y="325.6" font-size="13" fill="#1F2329" text-anchor="end">145 字节（bytes_sent）</text>
+<text x="590" y="325.6" font-size="13" fill="#1F2329" text-anchor="end">146 字节（bytes_sent）</text>
 <polyline points="600,334 238.7,334" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="238.7,328 228.7,334 238.7,340" fill="#8F959E"/>
 <text x="963.3" y="366.6" font-size="13" fill="#1F2329" text-anchor="end">关闭</text>

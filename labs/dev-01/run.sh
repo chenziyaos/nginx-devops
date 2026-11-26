@@ -2,7 +2,7 @@
 # Expected values come from the source (see HYPOTHESES.md), not from a previous run.
 . "$(dirname "$0")/../lib.sh"
 
-SRC=$ROOT/.nginx-src/release-1.31.9
+SRC=$ROOT/.nginx-src/release-1.31.10
 U=http://127.0.0.1:19020
 
 # drop timestamps, pids and pointers from debug lines

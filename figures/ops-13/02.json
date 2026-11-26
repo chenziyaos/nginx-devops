@@ -2,7 +2,7 @@
  "type": "table",
  "title": "请求行放不下回 414，头放不下对外都是 400",
  "subtitle": "client_header_buffer_size（默认 1k）放不下时改用 large_client_header_buffers（默认 4 个 8k）；每行是一种放不下",
- "source": "来源：ngx_http_request.c（1.31.9）",
+ "source": "来源：ngx_http_request.c（1.31.10）",
  "columns": [
   "哪部分放不下",
   "内部状态",

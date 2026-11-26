@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "nginx -s reload 会先自检配置，kill -HUP 的错误只记在 error.log",
  "subtitle": "两种发信号的方式在 master 处汇合；红色是两处失败的出口",
- "source": "来源：labs/ops-03 实验（1.31.9）",
+ "source": "来源：labs/ops-03 实验（1.31.10）",
  "stages": [
   {"name": "发信号", "nodes": [
     {"id": "a", "title": "nginx -s reload", "sub": "先自己解析一遍配置"},

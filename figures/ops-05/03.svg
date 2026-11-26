@@ -38,5 +38,5 @@
 <polyline points="857.6,233.2 949.1,233.2" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="949.1,227.2 959.1,233.2 949.1,239.2" fill="#8F959E"/>
 <text x="908.4" y="224.2" font-size="12" fill="#646A73" text-anchor="middle">没有 Via 或满足</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_gzip_filter_module.c、ngx_http_core_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_gzip_filter_module.c、ngx_http_core_module.c（1.31.10）</text>
 </svg>

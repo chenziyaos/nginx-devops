@@ -2,7 +2,7 @@
 
 > **一句话结论**：`limit_req` 为每个 key 记一个“超出量”（excess）：每来一个请求加 1，按 `rate` 匀速漏掉，超过 `burst` 就拒绝；`nodelay` 和 `delay=` 只决定没被拒绝的请求是马上放行还是排队等。`limit_conn` 数的是正在处理的请求，不是 TCP 连接。两者都在 PREACCESS 阶段运行，用 `return` 直接出内容的 location 不受它们约束。
 >
-> 适用版本：nginx 1.31.9（mainline，2026-11-18）。本篇涉及的指令在 1.30.x stable 中行为相同，没有「版本差异」条目。实验：[`labs/ops-09`](../labs/ops-09/)，本篇的每个计数都来自它的输出。
+> 适用版本：nginx 1.31.10（mainline，2026-11-23）。本篇涉及的指令在 1.30.x stable 中行为相同，没有「版本差异」条目。实验：[`labs/ops-09`](../labs/ops-09/)，本篇的每个计数都来自它的输出。
 
 ## 导读
 
@@ -37,7 +37,7 @@
 200 200 200 200 200
 ```
 
-原因在请求处理的阶段顺序。nginx 把一个请求的处理分成 11 个阶段，枚举从 [`NGX_HTTP_POST_READ_PHASE`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http_core_module.h#L111) 开始，顺序是 POST_READ → SERVER_REWRITE → FIND_CONFIG → REWRITE → POST_REWRITE → PREACCESS → ACCESS → POST_ACCESS → PRECONTENT → CONTENT → LOG。`return` 属于 rewrite 模块，挂在 SERVER_REWRITE 和 REWRITE 两个阶段（[`ngx_http_rewrite_init`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_rewrite_module.c#L272)）；`limit_req` 挂在 PREACCESS：
+原因在请求处理的阶段顺序。nginx 把一个请求的处理分成 11 个阶段，枚举从 [`NGX_HTTP_POST_READ_PHASE`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http_core_module.h#L111) 开始，顺序是 POST_READ → SERVER_REWRITE → FIND_CONFIG → REWRITE → POST_REWRITE → PREACCESS → ACCESS → POST_ACCESS → PRECONTENT → CONTENT → LOG。`return` 属于 rewrite 模块，挂在 SERVER_REWRITE 和 REWRITE 两个阶段（[`ngx_http_rewrite_init`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_rewrite_module.c#L272)）；`limit_req` 挂在 PREACCESS：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:1087-1099
@@ -57,13 +57,13 @@ ngx_http_limit_req_init(ngx_conf_t *cf)
 
 ![return 在 REWRITE 阶段就结束请求，限流没有机会运行](../figures/ops-09/01.svg)
 
-`limit_conn`（[同样挂在 PREACCESS](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_conn_module.c#L766)）、ACCESS 阶段的 `allow`/`deny`、`auth_basic`、`auth_request` 也一样。要限流的 location，内容应该来自静态文件、`proxy_pass`、`fastcgi_pass` 这类在 CONTENT 阶段工作的模块。本篇后面的实验都用 `root html;` 出一个静态文件。
+`limit_conn`（[同样挂在 PREACCESS](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_conn_module.c#L766)）、ACCESS 阶段的 `allow`/`deny`、`auth_basic`、`auth_request` 也一样。要限流的 location，内容应该来自静态文件、`proxy_pass`、`fastcgi_pass` 这类在 CONTENT 阶段工作的模块。本篇后面的实验都用 `root html;` 出一个静态文件。
 
 **小结**：限流指令写在某个 location 里，不等于它会运行，要看请求能不能走到 PREACCESS 阶段；确认它确实在运行之后，下一个问题是它对每个请求算的是什么。
 
 ## 2. nginx 记的是超出量：每个请求加 1，按 rate 漏掉，超过 burst 就拒绝
 
-`limit_req_zone` 在共享内存里为每个 key（例如客户端地址）保存一个节点，节点里最关键的两个字段是 `excess` 和 `last`（上次更新的毫秒时间）。每来一个请求，[`ngx_http_limit_req_lookup`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L405) 先按经过的毫秒数把 excess 漏掉一部分，再加上这个请求：
+`limit_req_zone` 在共享内存里为每个 key（例如客户端地址）保存一个节点，节点里最关键的两个字段是 `excess` 和 `last`（上次更新的毫秒时间）。每来一个请求，[`ngx_http_limit_req_lookup`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L405) 先按经过的毫秒数把 excess 漏掉一部分，再加上这个请求：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:445-464
@@ -82,7 +82,7 @@ ngx_http_limit_req_init(ngx_conf_t *cf)
             }
 ```
 
-这里的数都乘了 1000。`rate=1r/s` 在 [`ngx_http_limit_req_zone`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L833) 里换算成 `ctx->rate = 1 * 1000 / 1 = 1000`，`rate=1r/m` 换算成 `1 * 1000 / 60 = 16`（整数除法，第 939 行）；`burst=5` 在 [`ngx_http_limit_req`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L964) 里存成 `5000`（第 1060 行）。所以 excess 里的 1000 代表“1 个请求”，结构体注释写的就是 `1 corresponds to 0.001 r/s`。
+这里的数都乘了 1000。`rate=1r/s` 在 [`ngx_http_limit_req_zone`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L833) 里换算成 `ctx->rate = 1 * 1000 / 1 = 1000`，`rate=1r/m` 换算成 `1 * 1000 / 60 = 16`（整数除法，第 939 行）；`burst=5` 在 [`ngx_http_limit_req`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L964) 里存成 `5000`（第 1060 行）。所以 excess 里的 1000 代表“1 个请求”，结构体注释写的就是 `1 corresponds to 0.001 r/s`。
 
 把公式翻译成人话：
 
@@ -150,7 +150,7 @@ slowest response >= 2 s: yes
 
 放行总数为什么是 6：8 个请求几乎同时到达，excess 依次是 0、1000、2000、3000、4000、5000、6000、7000，大于 `burst=5000` 的后两个被拒绝。无论哪种写法，一次突发最多放行 `burst + 1` 个。
 
-等多久由 [`ngx_http_limit_req_account`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L536) 算：
+等多久由 [`ngx_http_limit_req_account`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L536) 算：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:547-553
@@ -197,7 +197,7 @@ at least 2 passed: yes
 
 ## 4. 拒绝时的状态码、日志级别和试运行都可以单独调
 
-默认值都在 [`ngx_http_limit_req_merge_conf`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L808) 里：
+默认值都在 [`ngx_http_limit_req_merge_conf`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L808) 里：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:817-826
@@ -280,7 +280,7 @@ at least 2 passed: yes
 5x by zone "perserver"
 ```
 
-[`ngx_http_limit_req_handler`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L195) 按配置顺序逐条检查。除最后一条外，前面各条只做判断、不写回 excess，只在节点上把“正在使用”计数加 1；最后一条也通过后，`account` 再把前面各条的 excess 一起写回。任何一条拒绝时，[`ngx_http_limit_req_unlock`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L610) 只把前面各节点的计数减回去：
+[`ngx_http_limit_req_handler`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L195) 按配置顺序逐条检查。除最后一条外，前面各条只做判断、不写回 excess，只在节点上把“正在使用”计数加 1；最后一条也通过后，`account` 再把前面各条的 excess 一起写回。任何一条拒绝时，[`ngx_http_limit_req_unlock`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L610) 只把前面各节点的计数减回去：
 
 ```c
 // src/http/modules/ngx_http_limit_req_module.c:610-628
@@ -316,7 +316,7 @@ ngx_http_limit_req_unlock(ngx_http_limit_req_limit_t *limits, ngx_uint_t n)
 
 ## 6. limit_conn 数的是正在处理的请求，HTTP/2 的每个流各算一个
 
-`limit_conn` 名字里有 connection，计数的对象却是请求。[`ngx_http_limit_conn_handler`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_conn_module.c#L182) 在 PREACCESS 阶段给 key 的计数加 1，到达上限就拒绝；通过时在请求的内存池上挂一个清理函数，请求结束、内存池销毁时再减 1：
+`limit_conn` 名字里有 connection，计数的对象却是请求。[`ngx_http_limit_conn_handler`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_conn_module.c#L182) 在 PREACCESS 阶段给 key 的计数加 1，到达上限就拒绝；通过时在请求的内存池上挂一个清理函数，请求结束、内存池销毁时再减 1：
 
 ```c
 // src/http/modules/ngx_http_limit_conn_module.c:266-303
@@ -376,7 +376,7 @@ HTTP/2 下用一个 TCP 连接并发 3 个流（`curl --http2-prior-knowledge --
 
 `limit_conn` 的状态码、日志级别、试运行与 limit_req 一一对应（`limit_conn_status`、`limit_conn_log_level`、`limit_conn_dry_run`，默认同样是 503 和 error），判决写在 `$limit_conn_status`，取值 `PASSED`、`REJECTED`、`REJECTED_DRY_RUN`。key 最长 255 字节，更长的 key 记一条错误日志后不参与计数（handler 第 214 行）。
 
-同一阶段里两个模块谁先运行：PREACCESS 阶段的 handler 按注册的逆序执行（[`ngx_http_init_phase_handlers`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/ngx_http.c#L455) 里的 `for (j = cmcf->phases[i].handlers.nelts - 1; j >= 0; j--)`）。标准编译时 limit_conn 先注册、limit_req 后注册（`objs/ngx_modules.c` 里的顺序），所以 limit_req 先运行：被 limit_req 拒绝的请求不会进 limit_conn 的计数，被 limit_req 延迟的请求要等延迟结束才会走到 limit_conn。
+同一阶段里两个模块谁先运行：PREACCESS 阶段的 handler 按注册的逆序执行（[`ngx_http_init_phase_handlers`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/ngx_http.c#L455) 里的 `for (j = cmcf->phases[i].handlers.nelts - 1; j >= 0; j--)`）。标准编译时 limit_conn 先注册、limit_req 后注册（`objs/ngx_modules.c` 里的顺序），所以 limit_req 先运行：被 limit_req 拒绝的请求不会进 limit_conn 的计数，被 limit_req 延迟的请求要等延迟结束才会走到 limit_conn。
 
 **小结**：limit_conn 限住的是同时在处理的请求数，HTTP/2 的多路复用不会让它失效；两类限制都要为每个 key 在共享内存里存一个节点，最后要算的是这块内存该开多大。
 
@@ -397,7 +397,7 @@ HTTP/2 下用一个 TCP 连接并发 3 个流（`curl --http2-prior-knowledge --
 - 用 `$remote_addr`（文本形式，IPv4 最长 15 字节）做 key，IPv4 节点最大 95 字节，仍在 128 字节档；IPv6 文本最长 39 字节，节点最大 119 字节，也还在 128 档。按 URI、Cookie 这类长字符串限流时，按“80 + key 长度，再向上取 2 的幂”估算每个节点。
 - zone 最小是 8 个内存页（解析函数第 894 行的 `8 * ngx_pagesize`）。Linux x86-64 的页是 4 KB，最小 32 KB；本实验所在的 macOS arm64 页是 16 KB，最小 128 KB。
 
-内存满了不会直接拒绝请求。每次新建节点前，[`ngx_http_limit_req_expire`](https://github.com/nginx/nginx/blob/release-1.31.9/src/http/modules/ngx_http_limit_req_module.c#L633) 会从 LRU 队列尾部清理一到两个“60 秒以上没有访问、excess 也已漏光”的节点；分配仍然失败时，再强制删掉最久没用的那个。所以 zone 太小的后果是活跃的 key 被挤掉、excess 被清零，限流变松。只有强制回收后仍然分配不出来，才会记 `could not allocate node` 并返回 500。
+内存满了不会直接拒绝请求。每次新建节点前，[`ngx_http_limit_req_expire`](https://github.com/nginx/nginx/blob/release-1.31.10/src/http/modules/ngx_http_limit_req_module.c#L633) 会从 LRU 队列尾部清理一到两个“60 秒以上没有访问、excess 也已漏光”的节点；分配仍然失败时，再强制删掉最久没用的那个。所以 zone 太小的后果是活跃的 key 被挤掉、excess 被清零，限流变松。只有强制回收后仍然分配不出来，才会记 `could not allocate node` 并返回 500。
 
 key 的选择：
 
@@ -443,3 +443,4 @@ server {
 ## 修订记录
 
 - 2026-11-21：基于 nginx 1.31.9 源码重写，替代 2018 年版 `ops/03.md`「nginx限流配置」。新增 return 不触发限流、三种排队写法的实测对比、多 zone 组合、HTTP/2 下的 limit_conn、zone 容量推算。
+- 2026-11-26：基线升到 nginx 1.31.10 / 1.30.8（2026-11-23 发布），重跑实验并更新输出，源码摘录与行号链接复核无漂移。

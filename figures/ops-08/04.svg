@@ -54,5 +54,5 @@
 <text x="730" y="731.5" font-size="13" fill="#1F2329" text-anchor="end">缓存未满 valid=60s，仍发 CN=a.test</text>
 <polyline points="740,740 192,740" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
 <polygon points="192,734 182,740 192,746" fill="#8F959E"/>
-<text x="40" y="794" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_event_openssl_cache.c（1.31.9）</text>
+<text x="40" y="794" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_request.c、ngx_event_openssl_cache.c（1.31.10）</text>
 </svg>

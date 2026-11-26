@@ -41,5 +41,5 @@
 <text x="470" y="634.5" font-size="13" fill="#1F2329">新 location 的规则</text>
 <polyline points="460,643 728,643" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="728,637 738,643 728,649" fill="#8F959E"/>
-<text x="40" y="697" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_rewrite_module.c、ngx_http_core.c（1.31.9）</text>
+<text x="40" y="697" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_rewrite_module.c、ngx_http_core.c（1.31.10）</text>
 </svg>

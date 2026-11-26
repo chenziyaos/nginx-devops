@@ -29,5 +29,5 @@
 <text x="360.4" y="330.3" font-size="14" fill="#1F2329">—</text>
 <text x="712.4" y="330.3" font-size="14" fill="#1F2329">ngx_stream_upstream_module</text>
 <text x="1102" y="330.3" font-size="14" fill="#1F2329">—</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.c、ngx_http_core_module.c、ngx_http_upstream_module.c、ngx_stream_core_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.c、ngx_http_core_module.c、ngx_http_upstream_module.c、ngx_stream_core_module.c（1.31.10）</text>
 </svg>

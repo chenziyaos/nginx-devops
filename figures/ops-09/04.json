@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "limit_conn 的计数跟着请求走，不跟着连接走",
  "subtitle": "PREACCESS 阶段加 1，请求内存池销毁时减 1；keepalive 连接空闲时不占计数",
- "source": "来源：ngx_http_limit_conn_module.c（1.31.9）",
+ "source": "来源：ngx_http_limit_conn_module.c（1.31.10）",
  "stages": [
   {"name": "收到请求", "nodes": [
     {"id": "h", "title": "读完请求头"}]},

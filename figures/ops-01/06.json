@@ -1,0 +1,17 @@
+{
+ "type": "table",
+ "title": "1.30.5 之后的 15 条安全修复，nginx -V 只能排除 1 条",
+ "subtitle": "按 changes.xml 原文点名的触发条件分三类；本仓库二进制编进了 HTTP/2、HTTP/3、stream、ssl_preread，没有 mail",
+ "source": "来源：labs/ops-01（1.30.8 docs/xml/nginx/changes.xml）",
+ "columns": [
+  "原文点名的条件",
+  "条数",
+  "怎么排除",
+  "本仓库二进制"
+ ],
+ "rows": [
+  ["模块：HTTP/2、HTTP/3、SSI、mail、stream、ssl_preread", "8", "nginx -V 看 --with-*", "排除 1 条（mail）"],
+  ["指令：alias、try_files、rewrite、resolver、ssl_early_data", "4", "nginx -T 查配置", "取决于配置"],
+  ["没有点名：表达式求值、session ticket、SSL 读请求体", "3", "读原文对照用法", "排除不了"]
+ ]
+}

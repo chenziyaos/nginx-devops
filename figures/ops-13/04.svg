@@ -40,5 +40,5 @@
 <rect x="853.3" y="412" width="240" height="59" rx="8" fill="#FFFFFF" stroke="#82A7FC" stroke-width="1" data-role="node"/>
 <text x="973.3" y="436.9" font-size="14" fill="#1F2329" text-anchor="middle">调大 proxy_buffer_size</text>
 <text x="973.3" y="456.7" font-size="12" fill="#646A73" text-anchor="middle">too big header</text>
-<text x="40" y="511" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c（1.31.9）</text>
+<text x="40" y="511" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_upstream.c（1.31.10）</text>
 </svg>

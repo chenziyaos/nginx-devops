@@ -32,5 +32,5 @@
 <polygon points="789.6,229.4 799.6,235.4 789.6,241.4" fill="#8F959E"/>
 <polyline points="1010.8,235.4 1044.8,235.4" fill="none" stroke="#8F959E" stroke-width="2"/>
 <polygon points="1044.8,229.4 1054.8,235.4 1044.8,241.4" fill="#8F959E"/>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.c、ngx_http_variables.c、ngx_cycle.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_conf_file.c、ngx_http_variables.c、ngx_cycle.c（1.31.10）</text>
 </svg>

@@ -29,5 +29,5 @@
 <text x="261.4" y="330.3" font-size="14" fill="#1F2329">不满足</text>
 <text x="746.1" y="330.3" font-size="14" fill="#1F2329">或不匹配</text>
 <text x="1072.3" y="330.3" font-size="14" fill="#1F2329" text-anchor="middle">200</text>
-<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_not_modified_filter_module.c（1.31.9）</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：ngx_http_not_modified_filter_module.c（1.31.10）</text>
 </svg>

@@ -2,7 +2,7 @@
  "type": "graph",
  "title": "只有 MISS 和过期的请求才回源，回来的响应再决定存不存",
  "subtitle": "一个请求经过 proxy_cache 的路径；绿色是不用回源或写进缓存的出口",
- "source": "来源：ngx_http_upstream.c、ngx_http_file_cache.c（1.31.9）",
+ "source": "来源：ngx_http_upstream.c、ngx_http_file_cache.c（1.31.10）",
  "stages": [
   {
    "name": "预检",

@@ -45,5 +45,5 @@
 <text x="301" y="285.2" font-size="12" fill="#646A73">不在</text>
 <text x="456" y="371" font-size="12" fill="#646A73">没有</text>
 <text x="595" y="302.5" font-size="12" fill="#646A73" text-anchor="middle">有</text>
-<text x="40" y="505" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_module.c（1.31.9）</text>
+<text x="40" y="505" font-size="12" fill="#646A73" data-role="source">来源：src/core/nginx.c、src/core/ngx_module.c（1.31.10）</text>
 </svg>

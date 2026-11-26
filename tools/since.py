@@ -6,7 +6,7 @@ Usage:
   python3 tools/since.py '"delay" parameter'        # any phrase, case-insensitive
   python3 tools/since.py -a 'keepalive'             # print every matching entry, not only the oldest five
 
-Reads docs/xml/nginx/changes.xml of the pinned source (release-1.31.9) and prints the
+Reads docs/xml/nginx/changes.xml of the pinned source (release-1.31.10) and prints the
 English text of each matching change with its version, date and type, oldest first.
 Use it before writing "available since 1.x.y": the oldest "feature" entry is usually
 the answer, later entries are changes and bug fixes.
@@ -17,7 +17,7 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-XML = os.path.join(ROOT, '.nginx-src', 'release-1.31.9', 'docs', 'xml', 'nginx', 'changes.xml')
+XML = os.path.join(ROOT, '.nginx-src', 'release-1.31.10', 'docs', 'xml', 'nginx', 'changes.xml')
 
 
 def entries():

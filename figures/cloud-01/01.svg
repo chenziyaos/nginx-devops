@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 514" width="1200" height="514">
+<rect x="0" y="0" width="1200" height="514" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">nginx 和 Kubernetes 各管一半，接缝要靠配置补上</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">左边是两边各自的默认行为，红色是默认会出问题的接缝，绿色是本篇给出的补法</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">Kubernetes 做的</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">nginx 自己看到的</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">补上接缝</text>
+<polyline points="294,200 476,200" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="476,194 486,200 476,206" fill="#8F959E"/>
+<polyline points="294,304 476,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,298 486,304 476,310" fill="#8F959E"/>
+<polyline points="294,408 476,408" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="476,402 486,408 476,414" fill="#8F959E"/>
+<polyline points="714,200 896,200" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,194 906,200 896,206" fill="#8F959E"/>
+<polyline points="714,304 896,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,298 906,304 896,310" fill="#8F959E"/>
+<polyline points="714,408 896,408" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,402 906,408 896,414" fill="#8F959E"/>
+<rect x="70" y="158" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">CPU limit</text>
+<text x="180" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">cgroup 里的 CFS 配额</text>
+<rect x="70" y="262" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">删 Pod</text>
+<text x="180" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">kubelet 发镜像的 STOPSIGNAL</text>
+<rect x="70" y="366" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">EndpointSlice</text>
+<text x="180" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">kube-proxy 同步后才摘流量</text>
+<rect x="490" y="158" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">worker 数</text>
+<text x="600" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">auto = 节点在线 CPU</text>
+<rect x="490" y="262" width="220" height="84" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="299.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">SIGQUIT</text>
+<text x="600" y="319.2" font-size="12" fill="#646A73" text-anchor="middle">做完在途请求，没有上限</text>
+<rect x="490" y="366" width="220" height="84" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="600" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">监听 socket</text>
+<text x="600" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">收到 QUIT 立刻关闭</text>
+<rect x="910" y="158" width="220" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="195.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">-g 传 worker 数</text>
+<text x="1020" y="215.2" font-size="12" fill="#646A73" text-anchor="middle">downward API 的 limits.cpu</text>
+<rect x="910" y="262" width="220" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="289.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">关闭超时</text>
+<text x="1020" y="309.7" font-size="12" fill="#646A73" text-anchor="middle">worker_shutdown_timeout，</text>
+<text x="1020" y="328.7" font-size="12" fill="#646A73" text-anchor="middle">短于 grace period</text>
+<rect x="910" y="366" width="220" height="84" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="403.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">preStop sleep</text>
+<text x="1020" y="423.2" font-size="12" fill="#646A73" text-anchor="middle">等 kube-proxy 摘完再发信号</text>
+<text x="385" y="191" font-size="12" fill="#646A73" text-anchor="middle">看不到</text>
+<text x="385" y="399" font-size="12" fill="#646A73" text-anchor="middle">晚于</text>
+<text x="40" y="490" font-size="12" fill="#646A73" data-role="source">来源：本文整理（labs/cloud-01 实验输出）</text>
+</svg>

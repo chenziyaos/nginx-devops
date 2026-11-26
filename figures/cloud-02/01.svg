@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">只有运行时解析 headless Service，nginx 才看得见每个 Pod</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">同一组 3 个后端 Pod、一个 worker、300 个顺序请求；绿色一行是本篇推荐的写法</text>
+<rect x="40" y="134.4" width="1120" height="212" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="135.4" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="166.4" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="41" y="304.4" width="1118" height="41" rx="11" fill="#F0FBEF"/>
+<rect x="41" y="304.4" width="11" height="11" fill="#F0FBEF"/>
+<rect x="1148" y="304.4" width="11" height="11" fill="#F0FBEF"/>
+<line x1="40" y1="178.4" x2="1160" y2="178.4" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="220.4" x2="1159" y2="220.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="262.4" x2="1159" y2="262.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="304.4" x2="1159" y2="304.4" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="304.4" x2="1159" y2="304.4" stroke="#8EE085" stroke-width="1"/>
+<rect x="40" y="134.4" width="1120" height="212" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">写法</text>
+<text x="400" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">nginx 看到的地址</text>
+<text x="645.5" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">谁选 Pod</text>
+<text x="932.7" y="161.4" font-size="14" fill="#1F2329" font-weight="bold">300 个请求的分布</text>
+<text x="58" y="204.3" font-size="14" fill="#1F2329">upstream 里写 ClusterIP Service</text>
+<text x="400" y="204.3" font-size="14" fill="#1F2329">1 个（虚拟 IP）</text>
+<text x="645.5" y="204.3" font-size="14" fill="#1F2329">kube-proxy，按连接</text>
+<text x="932.7" y="204.3" font-size="14" fill="#1F2329">300 个落在 1 个 Pod</text>
+<text x="58" y="246.3" font-size="14" fill="#1F2329">proxy_pass 直接写 Service 名</text>
+<text x="400" y="246.3" font-size="14" fill="#1F2329">1 个（虚拟 IP）</text>
+<text x="645.5" y="246.3" font-size="14" fill="#1F2329">kube-proxy，每个请求新连接</text>
+<text x="932.7" y="246.3" font-size="14" fill="#1F2329">3 个 Pod 都有，数量浮动</text>
+<text x="58" y="288.3" font-size="14" fill="#1F2329">headless Service，启动时解析</text>
+<text x="400" y="288.3" font-size="14" fill="#1F2329">启动时的 3 个 Pod</text>
+<text x="645.5" y="288.3" font-size="14" fill="#1F2329">nginx 轮询</text>
+<text x="932.7" y="288.3" font-size="14" fill="#1F2329">扩容后仍是 3 个 Pod</text>
+<text x="58" y="330.3" font-size="14" fill="#2EA121" font-weight="bold">headless Service 加 resolve</text>
+<text x="400" y="330.3" font-size="14" fill="#2EA121" font-weight="bold">运行时的每个 ready Pod</text>
+<text x="645.5" y="330.3" font-size="14" fill="#2EA121" font-weight="bold">nginx 轮询</text>
+<text x="932.7" y="330.3" font-size="14" fill="#2EA121" font-weight="bold">100 100 100</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-02 实验输出</text>
+</svg>

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 904" width="1200" height="904">
+<rect x="0" y="0" width="1200" height="904" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">QUIT 和摘流量各走一条链，preStop 把信号推到摘完之后</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上向下；上半段没有 preStop，下半段有 5 秒的 preStop sleep</text>
+<line x1="152" y1="186" x2="152" y2="840" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="52" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="152" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">API server</text>
+<line x1="376" y1="186" x2="376" y2="840" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="276" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="376" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">kubelet</text>
+<line x1="600" y1="186" x2="600" y2="840" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="500" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="600" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx</text>
+<text x="600" y="172" font-size="12" fill="#646A73" text-anchor="middle">被删的 Pod</text>
+<line x1="824" y1="186" x2="824" y2="840" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="724" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="824" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">kube-proxy</text>
+<line x1="1048" y1="186" x2="1048" y2="840" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="948" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1048" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">client</text>
+<rect x="40" y="204" width="99.5" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="89.8" y="220.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">没有 preStop</text>
+<line x1="147.5" y1="216" x2="1160" y2="216" stroke="#EFF0F1" stroke-width="1"/>
+<text x="162" y="254.6" font-size="13" fill="#1F2329">Pod 被删除</text>
+<polyline points="152,263 364,263" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="364,257 374,263 364,269" fill="#8F959E"/>
+<text x="162" y="295.6" font-size="13" fill="#1F2329">endpoint 标为 terminating</text>
+<polyline points="152,304 812,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="812,298 822,304 812,310" fill="#8F959E"/>
+<text x="386" y="336.6" font-size="13" fill="#1F2329">SIGQUIT</text>
+<polyline points="376,345 588,345" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,339 598,345 588,351" fill="#8F959E"/>
+<text x="610" y="377.6" font-size="13" fill="#1F2329">关闭监听 socket</text>
+<polyline points="600,386 626,386 626,404 614,404" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="614,398 604,404 614,410" fill="#8F959E"/>
+<text x="1038" y="444.6" font-size="13" fill="#1F2329" text-anchor="end">新连接（规则还没更新）</text>
+<polyline points="1048,453 612,453" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,447 602,453 612,459" fill="#8F959E"/>
+<text x="610" y="485.6" font-size="13" fill="#1F2329">拒绝（000）</text>
+<polyline points="600,494 1036,494" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="1036,488 1046,494 1036,500" fill="#8F959E"/>
+<rect x="40" y="510" width="131.9" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="106" y="526.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">preStop sleep 5 秒</text>
+<line x1="179.9" y1="522" x2="1160" y2="522" stroke="#EFF0F1" stroke-width="1"/>
+<text x="162" y="560.5" font-size="13" fill="#1F2329">Pod 被删除</text>
+<polyline points="152,569 364,569" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="364,563 374,569 364,575" fill="#8F959E"/>
+<text x="386" y="601.5" font-size="13" fill="#1F2329">preStop sleep 5 秒</text>
+<polyline points="376,610 402,610 402,628 390,628" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="390,622 380,628 390,634" fill="#8F959E"/>
+<text x="1038" y="668.5" font-size="13" fill="#1F2329" text-anchor="end">新连接</text>
+<polyline points="1048,677 612,677" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,671 602,677 612,683" fill="#8F959E"/>
+<text x="610" y="709.5" font-size="13" fill="#1F2329">200</text>
+<polyline points="600,718 1036,718" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="1036,712 1046,718 1036,724" fill="#8F959E"/>
+<text x="834" y="750.5" font-size="13" fill="#1F2329">规则更新，不再转发</text>
+<polyline points="824,759 850,759 850,777 838,777" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="838,771 828,777 838,783" fill="#8F959E"/>
+<text x="386" y="817.5" font-size="13" fill="#1F2329">SIGQUIT，此时已没有新连接</text>
+<polyline points="376,826 588,826" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="588,820 598,826 588,832" fill="#8F959E"/>
+<text x="40" y="880" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-01 实验输出；ngx_process_cycle.c（1.31.10）</text>
+</svg>

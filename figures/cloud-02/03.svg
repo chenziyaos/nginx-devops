@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">新 Pod 要等 CoreDNS 缓存过期，再等 nginx 下一次解析</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">扩容后新地址到达 nginx 的路径；红色一段是默认配置下最长的等待</text>
+<rect x="40" y="172" width="238" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">新 Pod ready</text>
+<text x="60" y="241.9" font-size="14" fill="#646A73">进入 headless Service 的</text>
+<text x="60" y="263.9" font-size="14" fill="#646A73">EndpointSlice</text>
+<rect x="334" y="172" width="238" height="118" rx="12" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="step"/>
+<text x="354" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">CoreDNS 缓存</text>
+<text x="354" y="241.9" font-size="14" fill="#646A73">cache 30：旧应答最多再用</text>
+<text x="354" y="263.9" font-size="14" fill="#646A73">30 秒</text>
+<rect x="628" y="172" width="238" height="118" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="648" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">nginx 重新解析</text>
+<text x="648" y="241.9" font-size="14" fill="#646A73">valid=1s：约每 2 秒一次</text>
+<rect x="922" y="172" width="238" height="118" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="942" y="212.3" font-size="18" fill="#1F2329" font-weight="bold">新 peer 收到请求</text>
+<text x="942" y="241.9" font-size="14" fill="#646A73">实验：35 秒内 5 个 Pod 都</text>
+<text x="942" y="263.9" font-size="14" fill="#646A73">出现</text>
+<polyline points="284,231 318,231" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="318,225 328,231 318,237" fill="#8F959E"/>
+<polyline points="578,231 612,231" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="612,225 622,231 612,237" fill="#8F959E"/>
+<polyline points="872,231 906,231" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="906,225 916,231 906,237" fill="#8F959E"/>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-02 实验输出；ngx_http_upstream_zone_module.c（1.31.10）</text>
+</svg>

@@ -1,8 +1,8 @@
-# Online edition of README.md, ops/ and dev/, published to GitHub Pages by .github/workflows/pages.yml.
+# Online edition of README.md, ops/, dev/ and cloud/, published to GitHub Pages by .github/workflows/pages.yml.
 # Local preview: pip install -r docs-site/requirements.txt && mkdocs serve
 site_name: nginx-devops
 site_url: https://zyaochen.github.io/nginx-devops/
-site_description: 基于 nginx 1.31.10 源码的中文教程：运维篇 13 章、开发篇 10 章，每章配本机可复现的实验。
+site_description: 基于 nginx 1.31.10 源码的中文教程：运维篇 13 章、开发篇 10 章、云原生篇，每章配可复现的实验。
 repo_url: https://github.com/zyaochen/nginx-devops
 repo_name: zyaochen/nginx-devops
 edit_uri: blob/master/
@@ -71,6 +71,7 @@ extra:
   nav_sections:
     ops: 运维篇
     dev: 开发篇
+    cloud: 云原生篇
   katex: false
   repo_branch: master
   repo_prefix: ""

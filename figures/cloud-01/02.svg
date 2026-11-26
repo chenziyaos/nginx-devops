@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">worker_processes auto 只数节点的在线 CPU</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">同一个镜像、同一份配置的三个 Pod；NCPU 是节点上在线的 CPU 个数</text>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="152.2" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="183.2" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="195.2" x2="1160" y2="195.2" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="237.2" x2="1159" y2="237.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="279.2" x2="1159" y2="279.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">Pod 的设置</text>
+<text x="519" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">nginx 看到的</text>
+<text x="985.1" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">worker 数</text>
+<text x="58" y="221.1" font-size="14" fill="#1F2329">CPU limit 1，worker_processes auto</text>
+<text x="519" y="221.1" font-size="14" fill="#1F2329">配额 100000/100000，在线 CPU 仍是 NCPU</text>
+<text x="985.1" y="221.1" font-size="14" fill="#1F2329">NCPU</text>
+<text x="58" y="263.1" font-size="14" fill="#1F2329">taskset -c 0，worker_processes auto</text>
+<text x="519" y="263.1" font-size="14" fill="#1F2329">亲和性只剩 0 号 CPU，在线 CPU 仍是 NCPU</text>
+<text x="985.1" y="263.1" font-size="14" fill="#1F2329">NCPU</text>
+<text x="58" y="305.1" font-size="14" fill="#1F2329">CPU limit 2，经 -g 传 worker_processes</text>
+<text x="519" y="305.1" font-size="14" fill="#1F2329">命令行里的 worker_processes 2</text>
+<text x="985.1" y="305.1" font-size="14" fill="#1F2329">2</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-01 实验输出；ngx_posix_init.c、nginx.c（1.31.10）</text>
+</svg>

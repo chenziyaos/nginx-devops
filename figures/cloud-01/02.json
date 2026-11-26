@@ -1,0 +1,12 @@
+{
+ "type": "table",
+ "title": "worker_processes auto 只数节点的在线 CPU",
+ "subtitle": "同一个镜像、同一份配置的三个 Pod；NCPU 是节点上在线的 CPU 个数",
+ "source": "来源：labs/cloud-01 实验输出；ngx_posix_init.c、nginx.c（1.31.10）",
+ "columns": ["Pod 的设置", "nginx 看到的", "worker 数"],
+ "rows": [
+  ["CPU limit 1，worker_processes auto", "配额 100000/100000，在线 CPU 仍是 NCPU", "NCPU"],
+  ["taskset -c 0，worker_processes auto", "亲和性只剩 0 号 CPU，在线 CPU 仍是 NCPU", "NCPU"],
+  ["CPU limit 2，经 -g 传 worker_processes", "命令行里的 worker_processes 2", "2"]
+ ]
+}

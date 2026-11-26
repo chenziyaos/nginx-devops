@@ -1,0 +1,13 @@
+{
+ "type": "table",
+ "title": "停止信号和两道上限决定在途请求怎么结束",
+ "subtitle": "5 秒的下载进行到 1 秒时停止 Pod；只有 nginx 自己收尾的两行在 access log 里留下记录",
+ "source": "来源：labs/cloud-01 实验输出",
+ "columns": ["怎么停", "下载", "access log", "谁收的尾"],
+ "rows": [
+  ["删 Pod，STOPSIGNAL 是 SIGQUIT", "完整收到 1048576 字节", "有，200", "nginx 做完再退出"],
+  ["kill -TERM 1", "被切断", "没有", "worker 直接退出"],
+  ["terminationGracePeriodSeconds 2", "删除后约 2 秒切断", "没有", "kubelet 发 SIGKILL"],
+  ["worker_shutdown_timeout 1s", "删除后约 1 秒切断", "有，200，字节不足", "nginx 关闭连接"]
+ ]
+}

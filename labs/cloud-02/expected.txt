@@ -1,0 +1,34 @@
+
+## a ClusterIP Service as one upstream server
+upstream block, keepalive by default: 300
+ok - every request rides the same kept-alive connection to one pod
+
+## a ClusterIP Service in proxy_pass
+pods that answered: 3
+each pod answered at least 50 of 300: yes
+ok - a new connection per request lets kube-proxy spread them
+
+## a headless Service with resolve
+upstream with zone and resolve: 100 100 100
+ok - nginx sees every pod and round robin is exact
+
+## scaling out to 5 pods
+CoreDNS Corefile: ttl 30
+CoreDNS Corefile: cache 30 {
+resolve: all 5 pods answered within 35 s of becoming ready: yes
+resolved at startup: pods answering: 3
+ClusterIP with keepalive: pods answering: 1
+ok - run-time resolution picks up the new pods; startup resolution and the kept connection do not
+
+## scaling in to 2 pods under load
+client: more than 400 answered 200, 0 failed
+requests that nginx retried on another pod: some
+[error] connect() failed (111: Connection refused) while connecting to upstream
+[warn] upstream server temporarily disabled while connecting to upstream
+35 s later: 150 150
+ok - no client errors while pods go away; afterwards round robin over the 2 left
+
+## a short name with resolve
+request: 502
+[error] backend-headless could not be resolved (3: Host not found)
+ok - the resolver does not apply search domains

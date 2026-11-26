@@ -1,0 +1,9 @@
+# Strategic merge patch for the Deployment "roll": sleep 5 s before the stop signal.
+spec:
+  template:
+    spec:
+      containers:
+        - name: nginx
+          lifecycle:
+            preStop:
+              sleep: {seconds: 5}

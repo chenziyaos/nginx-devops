@@ -1,5 +1,5 @@
 # nginx 1.31.10 for the cloud-native labs, built from the release tarball.
-# Paths, the nginx user, the log symlinks and STOPSIGNAL follow the official nginx image,
+# Paths, the nginx user (uid 101), the log symlinks and STOPSIGNAL follow the official image,
 # so what a lab shows about this image holds for that one too. The module list is the
 # one of tools/build.sh without --with-debug.
 #
@@ -62,8 +62,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates curl libpcre2-8-0 libssl3t64 procps zlib1g \
     && rm -rf /var/lib/apt/lists/* \
-    && groupadd --system nginx \
-    && useradd --system --gid nginx --no-create-home --home-dir /nonexistent \
+    && groupadd --system --gid 101 nginx \
+    && useradd --system --uid 101 --gid nginx --no-create-home --home-dir /nonexistent \
         --shell /usr/sbin/nologin nginx \
     && mkdir -p /var/cache/nginx /var/log/nginx \
     && ln -sf /dev/stdout /var/log/nginx/access.log \

@@ -1,0 +1,31 @@
+{
+ "type": "sequence",
+ "title": "QUIT 和摘流量各走一条链，preStop 把信号推到摘完之后",
+ "subtitle": "时间从上向下；上半段没有 preStop，下半段有 5 秒的 preStop sleep",
+ "source": "来源：labs/cloud-01 实验输出；ngx_process_cycle.c（1.31.10）",
+ "actors": [
+  "API server",
+  "kubelet",
+  {"name": "nginx", "sub": "被删的 Pod"},
+  "kube-proxy",
+  "client"
+ ],
+ "messages": [
+  {"from": "API server", "to": "kubelet", "text": "Pod 被删除"},
+  {"from": "API server", "to": "kube-proxy", "text": "endpoint 标为 terminating"},
+  {"from": "kubelet", "to": "nginx", "text": "SIGQUIT"},
+  {"from": "nginx", "to": "nginx", "text": "关闭监听 socket"},
+  {"from": "client", "to": "nginx", "text": "新连接（规则还没更新）"},
+  {"from": "nginx", "to": "client", "text": "拒绝（000）", "reply": true},
+  {"from": "API server", "to": "kubelet", "text": "Pod 被删除"},
+  {"from": "kubelet", "to": "kubelet", "text": "preStop sleep 5 秒"},
+  {"from": "client", "to": "nginx", "text": "新连接"},
+  {"from": "nginx", "to": "client", "text": "200", "reply": true},
+  {"from": "kube-proxy", "to": "kube-proxy", "text": "规则更新，不再转发"},
+  {"from": "kubelet", "to": "nginx", "text": "SIGQUIT，此时已没有新连接"}
+ ],
+ "sections": [
+  {"at": 0, "label": "没有 preStop"},
+  {"at": 6, "label": "preStop sleep 5 秒"}
+ ]
+}

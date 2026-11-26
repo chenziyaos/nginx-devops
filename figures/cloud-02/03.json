@@ -1,0 +1,34 @@
+{
+ "type": "flow",
+ "title": "新 Pod 要等 CoreDNS 缓存过期，再等 nginx 下一次解析",
+ "subtitle": "扩容后新地址到达 nginx 的路径；红色一段是默认配置下最长的等待",
+ "source": "来源：labs/cloud-02 实验输出；ngx_http_upstream_zone_module.c（1.31.10）",
+ "steps": [
+  {
+   "title": "新 Pod ready",
+   "lines": [
+    "进入 headless Service 的 EndpointSlice"
+   ]
+  },
+  {
+   "title": "CoreDNS 缓存",
+   "tone": "risk",
+   "lines": [
+    "cache 30：旧应答最多再用 30 秒"
+   ]
+  },
+  {
+   "title": "nginx 重新解析",
+   "lines": [
+    "valid=1s：约每 2 秒一次"
+   ]
+  },
+  {
+   "title": "新 peer 收到请求",
+   "tone": "good",
+   "lines": [
+    "实验：35 秒内 5 个 Pod 都出现"
+   ]
+  }
+ ]
+}

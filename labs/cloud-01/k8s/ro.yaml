@@ -1,0 +1,64 @@
+# nginx as uid 101 on a read-only root filesystem. ro1 has no writable directory,
+# ro2 gets an emptyDir for the temp paths, ro3 also one for the pid file.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ro1
+  labels: {app: ro}
+spec:
+  restartPolicy: Never
+  securityContext: {runAsUser: 101, runAsGroup: 101, runAsNonRoot: true}
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      securityContext: {readOnlyRootFilesystem: true, allowPrivilegeEscalation: false}
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ro2
+  labels: {app: ro}
+spec:
+  restartPolicy: Never
+  securityContext: {runAsUser: 101, runAsGroup: 101, runAsNonRoot: true}
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      securityContext: {readOnlyRootFilesystem: true, allowPrivilegeEscalation: false}
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+        - {name: cache, mountPath: /var/cache/nginx}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: cache
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ro3
+  labels: {app: ro}
+spec:
+  restartPolicy: Never
+  securityContext: {runAsUser: 101, runAsGroup: 101, runAsNonRoot: true}
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      securityContext: {readOnlyRootFilesystem: true, allowPrivilegeEscalation: false}
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+        - {name: cache, mountPath: /var/cache/nginx}
+        - {name: run, mountPath: /run}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: cache
+      emptyDir: {}
+    - name: run
+      emptyDir: {}

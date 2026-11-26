@@ -1,0 +1,39 @@
+{
+ "type": "table",
+ "title": "只有运行时解析 headless Service，nginx 才看得见每个 Pod",
+ "subtitle": "同一组 3 个后端 Pod、一个 worker、300 个顺序请求；绿色一行是本篇推荐的写法",
+ "source": "来源：labs/cloud-02 实验输出",
+ "columns": [
+  "写法",
+  "nginx 看到的地址",
+  "谁选 Pod",
+  "300 个请求的分布"
+ ],
+ "rows": [
+  [
+   "upstream 里写 ClusterIP Service",
+   "1 个（虚拟 IP）",
+   "kube-proxy，按连接",
+   "300 个落在 1 个 Pod"
+  ],
+  [
+   "proxy_pass 直接写 Service 名",
+   "1 个（虚拟 IP）",
+   "kube-proxy，每个请求新连接",
+   "3 个 Pod 都有，数量浮动"
+  ],
+  [
+   "headless Service，启动时解析",
+   "启动时的 3 个 Pod",
+   "nginx 轮询",
+   "扩容后仍是 3 个 Pod"
+  ],
+  [
+   "headless Service 加 resolve",
+   "运行时的每个 ready Pod",
+   "nginx 轮询",
+   "100 100 100"
+  ]
+ ],
+ "highlight_row": 3
+}

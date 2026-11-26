@@ -31,7 +31,8 @@ Chapters under ops/, dev/ and cloud/ must also follow the skeleton in spec: 一�
 5-9 numbered sections each with a **小结** line, 已知局限与待核实, 修订记录, at least one
 3 figures, 4 quoted lab outputs, at most 2 示意 blocks, a minimum length,
 lab configs kept as files, and expect checks in run.sh for at least half of its steps. Every x.y.z version in
-the prose must exist in changes.xml; --versions lists each mention with its sentence so a
+the prose must exist in changes.xml (written as vX.Y.Z, it is another project's version and
+skipped); --versions lists each mention with its sentence so a
 reviewer can check it against tools/since.py.
 Exit code 1 on any error.
 """
@@ -383,6 +384,8 @@ def version_mentions(prose):
     """(version, sentence) for every x.y.z version number written in the prose."""
     for m in re.finditer(r'(?<![\d.])(1\.\d{1,2}\.\d{1,2})(?![\d.])', prose):
         if prose[max(0, m.start() - 8):m.start()] == 'release-':
+            continue
+        if prose[m.start() - 1:m.start()] == 'v':  # another project's tag (v1.21.3), not nginx
             continue
         a = max(prose.rfind('。', 0, m.start()), prose.rfind('\n', 0, m.start())) + 1
         ends = [i for i in (prose.find('。', m.end()), prose.find('\n', m.end())) if i != -1]

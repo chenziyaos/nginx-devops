@@ -1,0 +1,39 @@
+{
+ "type": "flow",
+ "title": "resolve 让 zone 里的 peer 跟着 DNS 走",
+ "subtitle": "从左到右是一次重新解析；结果写进共享内存，所有 worker 都用同一份 peer",
+ "source": "来源：ngx_http_upstream.c、ngx_http_upstream_zone_module.c、ngx_resolver.c（1.31.10）",
+ "steps": [
+  {
+   "title": "配置阶段",
+   "lines": [
+    "带 resolve 的名字不解析（no_resolve）"
+   ]
+  },
+  {
+   "title": "定时器到期",
+   "lines": [
+    "zone 模块调用 resolver"
+   ]
+  },
+  {
+   "title": "CoreDNS 应答",
+   "tone": "main",
+   "lines": [
+    "headless 名字返回每个 ready Pod 的 A 记录"
+   ]
+  },
+  {
+   "title": "更新 peer",
+   "lines": [
+    "新地址加入，消失的地址删除"
+   ]
+  },
+  {
+   "title": "下一次解析",
+   "lines": [
+    "valid（或 TTL）之后再加 1 秒"
+   ]
+  }
+ ]
+}

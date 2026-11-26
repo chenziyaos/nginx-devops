@@ -1,0 +1,61 @@
+# Three ways to size the worker pool in a pod.
+# cpu: worker_processes auto under a limit of 1 CPU.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu
+  labels: {app: cpu}
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      resources:
+        requests: {cpu: 100m}
+        limits: {cpu: "1"}
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+---
+# pinned: the same, with nginx started on CPU 0 only
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pinned
+  labels: {app: pinned}
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      command: ["taskset", "-c", "0", "nginx", "-g", "daemon off;"]
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+---
+# tuned: the CPU limit passed to nginx through the downward API; Kubernetes expands
+# $(CPU_LIMIT) in the command, no shell involved. tuned.conf has no worker_processes.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tuned
+  labels: {app: tuned}
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      command: ["nginx", "-g", "daemon off; worker_processes $(CPU_LIMIT);"]
+      env:
+        - name: CPU_LIMIT
+          valueFrom:
+            resourceFieldRef: {resource: limits.cpu, divisor: "1"}
+      resources:
+        requests: {cpu: 100m}
+        limits: {cpu: "2"}
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: tuned.conf}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}

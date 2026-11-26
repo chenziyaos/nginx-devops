@@ -1,0 +1,21 @@
+{
+ "type": "sequence",
+ "title": "被删的 Pod 先拒绝连接，nginx 换一个 Pod 重试",
+ "subtitle": "缩容期间的一个请求；客户端只看到最后的 200",
+ "source": "来源：labs/cloud-02 实验输出；ngx_http_upstream.c（1.31.10）",
+ "actors": [
+  "client",
+  {"name": "front", "sub": "nginx"},
+  {"name": "Pod A", "sub": "正在退出"},
+  {"name": "Pod B", "sub": "留下的"}
+ ],
+ "messages": [
+  {"from": "client", "to": "front", "text": "GET /"},
+  {"from": "front", "to": "Pod A", "text": "连接（轮询选中）"},
+  {"from": "Pod A", "to": "front", "text": "Connection refused", "reply": true},
+  {"from": "front", "to": "front", "text": "摘掉 Pod A 10 秒（max_fails=1）"},
+  {"from": "front", "to": "Pod B", "text": "proxy_next_upstream：换下一个"},
+  {"from": "Pod B", "to": "front", "text": "200", "reply": true},
+  {"from": "front", "to": "client", "text": "200，$upstream_addr 记两个地址", "reply": true}
+ ]
+}

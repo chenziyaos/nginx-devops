@@ -1,10 +1,10 @@
 # nginx-devops
 
-一套基于 nginx 1.31.10 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）和开发篇（10 章）。每章的结论都配有一个可以在本机复现的实验，引用的源码片段逐行核对过 1.31.10 的源码。适合两类读者：一类要配置和排查线上 nginx，另一类要读 nginx 源码或者自己写模块。
+一套基于 nginx 1.31.10 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）、开发篇（10 章）和云原生篇（写作中，已有 2 章）。每章的结论都配有一个可以复现的实验（云原生篇的实验跑在本地 kind 集群里），引用的源码片段逐行核对过 1.31.10 的源码。适合三类读者：要配置和排查线上 nginx 的，要读 nginx 源码或者自己写模块的，要把 nginx 跑在 Kubernetes 里的。
 
 这里不是 nginx 官方文档的翻译，也不覆盖全部指令。每章挑一个主题，讲清楚 nginx 在源码里实际怎么做，以及默认值和容易误解的行为。2018 年的旧版教程保留在 tag [`legacy-2018`](https://github.com/zyaochen/nginx-devops/tree/legacy-2018)。
 
-在线阅读：<https://zyaochen.github.io/nginx-devops/>，带侧边目录和全文搜索。它由 `mkdocs.yml` 从 README.md、ops/ 和 dev/ 生成，推送到 master 后自动发布；本地预览：`pip install -r docs-site/requirements.txt && mkdocs serve`。
+在线阅读：<https://zyaochen.github.io/nginx-devops/>，带侧边目录和全文搜索。它由 `mkdocs.yml` 从 README.md、ops/、dev/ 和 cloud/ 生成，推送到 master 后自动发布；本地预览：`pip install -r docs-site/requirements.txt && mkdocs serve`。
 
 ## 快速开始
 
@@ -68,6 +68,13 @@ ok - without burst only the first request fits
 | [08](dev/08-limit-req.md) | limit_req 源码：每个 key 只记一个 excess 和一个时间戳 |
 | [09](dev/09-upstream.md) | upstream 机制与负载均衡：算法只负责选地址，连接缓存、粘性和重试是包在外面的几层函数指针 |
 | [10](dev/10-write-a-module.md) | 动手写模块：一个 HTTP 模块就是几张交给框架的表，框架在固定的时机回调它 |
+
+### 云原生篇（`cloud/`）
+
+| 章 | 主题与结论 |
+|---|---|
+| [01](cloud/01-containers.md) | 容器里的 nginx：worker 数、停止信号和下线时序都要自己对齐 |
+| [02](cloud/02-service-discovery.md) | 服务发现与动态上游：让 nginx 看见每个 Pod，用 headless Service 加 resolve |
 
 每章的开头是一句话结论、适用版本（含与 1.30.8 stable 的差异）和对应的实验目录；结尾是“已知局限与待核实”，列出只读了源码、没有用实验验证的说法。
 
@@ -167,7 +174,7 @@ tools/verify_labs.sh cloud-00      # 冒烟实验：镜像版本、Pod 里的进
 ## 仓库结构
 
 ```text
-ops/  dev/            章节
+ops/  dev/  cloud/     章节
 figures/<id>/         章节的图：NN.json（spec）和 NN.svg（生成结果）
 labs/<id>/            实验：run.sh、HYPOTHESES.md、conf/、expected.txt
 labs/lib.sh           实验公共函数（start、stop、expect、fire 等）

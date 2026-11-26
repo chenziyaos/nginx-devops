@@ -1,0 +1,62 @@
+
+## worker_processes auto under a CPU limit
+CFS quota and period (us): 100000 100000
+CPUs online in the pod: NCPU
+worker processes: NCPU
+ok - a limit of 1 CPU still gives one worker per CPU of the node
+
+## worker_processes auto under taskset
+Cpus_allowed_list of PID 1: 0
+worker processes: NCPU
+ok - the affinity mask is not counted either
+
+## worker_processes from the downward API
+nginx: master process nginx -g daemon off; worker_processes 2;
+worker processes: 2
+ok - limits.cpu 2 passed with -g gives two workers
+
+## deleting a pod sends the image's STOPSIGNAL
+[notice] signal 3 (SIGQUIT) received, shutting down
+[notice] gracefully shutting down
+"GET /big/f.bin HTTP/1.1" 200 1048576
+download: complete
+ok - SIGQUIT lets the download finish
+
+## SIGTERM instead
+[notice] signal 15 (SIGTERM) received from N, exiting
+[notice] exiting
+download: cut
+kubernetes_feature_enabled{name="ContainerStopSignals",stage="ALPHA"} 0
+ok - SIGTERM cuts it; a per-pod stop signal is an alpha feature, off by default
+
+## the grace period and worker_shutdown_timeout
+terminationGracePeriodSeconds 2: download cut about 2 s after the deletion
+worker_shutdown_timeout 1s: download cut about 1 s after the deletion
+access log of grace: none
+access log of wst: 200 partial
+ok - SIGKILL after the grace period cuts the download unlogged; worker_shutdown_timeout cuts it first and logs it
+
+## a terminating pod with and without preStop
+new request to bare (no preStop): 000
+new request to sleepy (preStop sleep 5): 200
+endpoint bare: ready=false serving=true terminating=true
+endpoint sleepy: ready=false serving=true terminating=true
+downloads in flight: bare complete, sleepy complete
+ok - without preStop the pod refuses new connections at once; with it, it still answers
+
+## a rolling restart under load
+requests: more than 400, connection refused: some
+with preStop sleep 5: requests: more than 400, connection refused: 0
+ok - without preStop the restart sends requests to closed sockets, with it none
+
+## non-root on a read-only root filesystem
+ro1: Failed
+  [emerg] mkdir() "/var/cache/nginx/client_temp" failed (30: Read-only file system)
+ro2: Failed
+  [emerg] open() "/run/nginx.pid" failed (30: Read-only file system)
+ro3: Running
+  nginx master process: 1
+  nginx worker process: NCPU
+  ip_unprivileged_port_start: 0
+  request on port 80: 200
+ok - uid 101 needs writable temp paths and pid directory, nothing else; port 80 works

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 579" width="1200" height="579">
+<rect x="0" y="0" width="1200" height="579" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">被删的 Pod 先拒绝连接，nginx 换一个 Pod 重试</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">缩容期间的一个请求；客户端只看到最后的 200</text>
+<line x1="180" y1="186" x2="180" y2="515" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">client</text>
+<line x1="460" y1="186" x2="460" y2="515" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">front</text>
+<text x="460" y="172" font-size="12" fill="#646A73" text-anchor="middle">nginx</text>
+<line x1="740" y1="186" x2="740" y2="515" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Pod A</text>
+<text x="740" y="172" font-size="12" fill="#646A73" text-anchor="middle">正在退出</text>
+<line x1="1020" y1="186" x2="1020" y2="515" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Pod B</text>
+<text x="1020" y="172" font-size="12" fill="#646A73" text-anchor="middle">留下的</text>
+<text x="190" y="220.6" font-size="13" fill="#1F2329">GET /</text>
+<polyline points="180,229 448,229" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,223 458,229 448,235" fill="#8F959E"/>
+<text x="470" y="261.6" font-size="13" fill="#1F2329">连接（轮询选中）</text>
+<polyline points="460,270 728,270" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,264 738,270 728,276" fill="#8F959E"/>
+<text x="730" y="302.6" font-size="13" fill="#1F2329" text-anchor="end">Connection refused</text>
+<polyline points="740,311 472,311" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="472,305 462,311 472,317" fill="#8F959E"/>
+<text x="470" y="343.6" font-size="13" fill="#1F2329">摘掉 Pod A 10 秒（max_fails=1）</text>
+<polyline points="460,352 486,352 486,370 474,370" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="474,364 464,370 474,376" fill="#8F959E"/>
+<text x="470" y="410.6" font-size="13" fill="#1F2329">proxy_next_upstream：换下一个</text>
+<polyline points="460,419 1008,419" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,413 1018,419 1008,425" fill="#8F959E"/>
+<text x="1010" y="451.6" font-size="13" fill="#1F2329" text-anchor="end">200</text>
+<polyline points="1020,460 472,460" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="472,454 462,460 472,466" fill="#8F959E"/>
+<text x="450" y="492.6" font-size="13" fill="#1F2329" text-anchor="end">200，$upstream_addr 记两个地址</text>
+<polyline points="460,501 192,501" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="192,495 182,501 192,507" fill="#8F959E"/>
+<text x="40" y="555" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-02 实验输出；ngx_http_upstream.c（1.31.10）</text>
+</svg>

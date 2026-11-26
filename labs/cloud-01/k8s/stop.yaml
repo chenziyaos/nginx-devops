@@ -1,0 +1,82 @@
+# Pods that are stopped while a 5 s download is in flight. Each has an emptyDir at
+# /srv/big for the file. restartPolicy Never: a stopped container stays stopped.
+# quit: deleted, the kubelet sends the image's STOPSIGNAL (SIGQUIT)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: quit
+  labels: {app: stop}
+spec:
+  restartPolicy: Never
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+        - {name: big, mountPath: /srv/big}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: big
+      emptyDir: {}
+---
+# term: sent SIGTERM by hand, what a stop signal of SIGTERM would do
+apiVersion: v1
+kind: Pod
+metadata:
+  name: term
+  labels: {app: stop}
+spec:
+  restartPolicy: Never
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+        - {name: big, mountPath: /srv/big}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: big
+      emptyDir: {}
+---
+# grace: deleted with a grace period of 2 s, shorter than the download
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grace
+  labels: {app: stop}
+spec:
+  restartPolicy: Never
+  terminationGracePeriodSeconds: 2
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+        - {name: big, mountPath: /srv/big}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: big
+      emptyDir: {}
+---
+# wst: the default grace period of 30 s, worker_shutdown_timeout 1s in the config
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wst
+  labels: {app: stop}
+spec:
+  restartPolicy: Never
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: wst.conf}
+        - {name: big, mountPath: /srv/big}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: big
+      emptyDir: {}

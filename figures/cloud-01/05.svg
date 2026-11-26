@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">只读根文件系统上 nginx 要两个可写目录</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">三个 Pod 都以 uid 101 运行，可写目录一次加一个；日志是指向 stdout、stderr 的符号链接，不用写盘</text>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="152.2" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="183.2" width="1118" height="12" fill="#F5F6F7"/>
+<line x1="40" y1="195.2" x2="1160" y2="195.2" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="237.2" x2="1159" y2="237.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="279.2" x2="1159" y2="279.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="58" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">Pod</text>
+<text x="271.2" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">挂了 emptyDir 的目录</text>
+<text x="644.4" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">结果</text>
+<text x="58" y="221.1" font-size="14" fill="#1F2329">ro1</text>
+<text x="271.2" y="221.1" font-size="14" fill="#1F2329">无</text>
+<text x="644.4" y="221.1" font-size="14" fill="#1F2329">mkdir /var/cache/nginx/client_temp 失败</text>
+<text x="58" y="263.1" font-size="14" fill="#1F2329">ro2</text>
+<text x="271.2" y="263.1" font-size="14" fill="#1F2329">/var/cache/nginx</text>
+<text x="644.4" y="263.1" font-size="14" fill="#1F2329">open /run/nginx.pid 失败</text>
+<text x="58" y="305.1" font-size="14" fill="#1F2329">ro3</text>
+<text x="271.2" y="305.1" font-size="14" fill="#1F2329">/var/cache/nginx、/run</text>
+<text x="644.4" y="305.1" font-size="14" fill="#1F2329">运行，80 端口返回 200</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-01 实验输出；ngx_file.c、nginx.c（1.31.10）</text>
+</svg>

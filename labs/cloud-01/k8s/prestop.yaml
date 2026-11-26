@@ -1,0 +1,51 @@
+# Two endpoints of the Service "ep", stopped while a download is in flight:
+# bare without a preStop hook, sleepy with a 5 s preStop sleep.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ep
+spec:
+  selector: {app: ep}
+  ports:
+    - port: 80
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bare
+  labels: {app: ep}
+spec:
+  restartPolicy: Never
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+        - {name: big, mountPath: /srv/big}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: big
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sleepy
+  labels: {app: ep}
+spec:
+  restartPolicy: Never
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      lifecycle:
+        preStop:
+          sleep: {seconds: 5}
+      volumeMounts:
+        - {name: conf, mountPath: /etc/nginx/nginx.conf, subPath: nginx.conf}
+        - {name: big, mountPath: /srv/big}
+  volumes:
+    - name: conf
+      configMap: {name: lab-conf}
+    - name: big
+      emptyDir: {}

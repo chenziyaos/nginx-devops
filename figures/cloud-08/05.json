@@ -1,0 +1,93 @@
+{
+ "type": "graph",
+ "title": "同一份 HTTPRoute，换一个 GatewayClass 就换了数据面",
+ "subtitle": "Gateway API 的路由对象与实现无关；控制器把它翻译成各自数据面的配置",
+ "source": "来源：Gateway API 实现列表（2026-11-27 查看）；云原生篇 03",
+ "stages": [
+  {
+   "name": "路由",
+   "nodes": [
+    {
+     "id": "r",
+     "title": "HTTPRoute",
+     "sub": "类型化的路由对象",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "GatewayClass 选的控制器",
+   "nodes": [
+    {
+     "id": "ngf",
+     "title": "NGINX Gateway Fabric",
+     "tone": "good"
+    },
+    {
+     "id": "eg",
+     "title": "Envoy Gateway"
+    },
+    {
+     "id": "istio",
+     "title": "Istio"
+    },
+    {
+     "id": "tr",
+     "title": "Traefik"
+    }
+   ]
+  },
+  {
+   "name": "数据面",
+   "nodes": [
+    {
+     "id": "nx",
+     "title": "nginx",
+     "tone": "good"
+    },
+    {
+     "id": "env",
+     "title": "Envoy"
+    },
+    {
+     "id": "trd",
+     "title": "Traefik"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "r",
+   "to": "ngf"
+  },
+  {
+   "from": "r",
+   "to": "eg"
+  },
+  {
+   "from": "r",
+   "to": "istio"
+  },
+  {
+   "from": "r",
+   "to": "tr"
+  },
+  {
+   "from": "ngf",
+   "to": "nx"
+  },
+  {
+   "from": "eg",
+   "to": "env"
+  },
+  {
+   "from": "istio",
+   "to": "env"
+  },
+  {
+   "from": "tr",
+   "to": "trd"
+  }
+ ]
+}

@@ -1,0 +1,40 @@
+{
+ "type": "milestones",
+ "title": "nginx 发布修复之后，三个分支在 2 到 6 天内跟进",
+ "subtitle": "CVE-2026-123007 这一批修复在各项目里的发布日期；绿色是 nginx，橙色是分支",
+ "source": "来源：nginx changes.xml；Angie、OpenResty、freenginx 发布页（2026-11-27 查看）",
+ "items": [
+  {
+   "when": "2026-11-18",
+   "title": "nginx 1.31.9 / 1.30.7",
+   "lines": [
+    "修 10 条安全问题"
+   ],
+   "tone": "good"
+  },
+  {
+   "when": "2026-11-20",
+   "title": "Angie v1.12.5",
+   "lines": [
+    "隔 2 天"
+   ],
+   "tone": "contrast"
+  },
+  {
+   "when": "2026-11-23",
+   "title": "OpenResty v1.31.9.1",
+   "lines": [
+    "隔 5 天"
+   ],
+   "tone": "contrast"
+  },
+  {
+   "when": "2026-11-24",
+   "title": "freenginx v1.31.6",
+   "lines": [
+    "隔 6 天"
+   ],
+   "tone": "contrast"
+  }
+ ]
+}

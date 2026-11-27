@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">nginx 发布修复之后，三个分支在 2 到 6 天内跟进</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">CVE-2026-123007 这一批修复在各项目里的发布日期；绿色是 nginx，橙色是分支</text>
+<line x1="40" y1="291" x2="1160" y2="291" stroke="#C9CDD4" stroke-width="2"/>
+<line x1="180" y1="283" x2="180" y2="263" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="54.8" y="162" width="250.5" height="101" rx="12" fill="#FFFFFF" stroke="#8EE085" stroke-width="1" data-role="milestone"/>
+<circle cx="180" cy="291" r="7" fill="#34C724" stroke="#FFFFFF" stroke-width="2"/>
+<text x="70.8" y="190.6" font-size="13" fill="#2EA121" font-weight="bold">2026-11-18</text>
+<text x="70.8" y="218.1" font-size="16" fill="#1F2329" font-weight="bold">nginx 1.31.9 / 1.30.7</text>
+<text x="70.8" y="239.6" font-size="13" fill="#646A73">修 10 条安全问题</text>
+<line x1="460" y1="283" x2="460" y2="263" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="334.8" y="162" width="250.5" height="101" rx="12" fill="#FFFFFF" stroke="#FFBA6B" stroke-width="1" data-role="milestone"/>
+<circle cx="460" cy="291" r="7" fill="#FF8800" stroke="#FFFFFF" stroke-width="2"/>
+<text x="350.8" y="190.6" font-size="13" fill="#D46B08" font-weight="bold">2026-11-20</text>
+<text x="350.8" y="218.1" font-size="16" fill="#1F2329" font-weight="bold">Angie v1.12.5</text>
+<text x="350.8" y="239.6" font-size="13" fill="#646A73">隔 2 天</text>
+<line x1="740" y1="283" x2="740" y2="263" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="614.8" y="162" width="250.5" height="101" rx="12" fill="#FFFFFF" stroke="#FFBA6B" stroke-width="1" data-role="milestone"/>
+<circle cx="740" cy="291" r="7" fill="#FF8800" stroke="#FFFFFF" stroke-width="2"/>
+<text x="630.8" y="190.6" font-size="13" fill="#D46B08" font-weight="bold">2026-11-23</text>
+<text x="630.8" y="218.1" font-size="16" fill="#1F2329" font-weight="bold">OpenResty v1.31.9.1</text>
+<text x="630.8" y="239.6" font-size="13" fill="#646A73">隔 5 天</text>
+<line x1="1020" y1="283" x2="1020" y2="263" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="894.8" y="162" width="250.5" height="101" rx="12" fill="#FFFFFF" stroke="#FFBA6B" stroke-width="1" data-role="milestone"/>
+<circle cx="1020" cy="291" r="7" fill="#FF8800" stroke="#FFFFFF" stroke-width="2"/>
+<text x="910.8" y="190.6" font-size="13" fill="#D46B08" font-weight="bold">2026-11-24</text>
+<text x="910.8" y="218.1" font-size="16" fill="#1F2329" font-weight="bold">freenginx v1.31.6</text>
+<text x="910.8" y="239.6" font-size="13" fill="#646A73">隔 6 天</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：nginx changes.xml；Angie、OpenResty、freenginx 发布页（2026-11-27 查看）</text>
+</svg>

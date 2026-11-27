@@ -1,0 +1,84 @@
+{
+ "type": "graph",
+ "title": "四个方向的压力，nginx 在四个地方回应",
+ "subtitle": "左边是压力，右边是 nginx 代码里看得到的回应；箭头表示回应主要针对哪一项压力",
+ "source": "来源：本文 §1 到 §9",
+ "stages": [
+  {
+   "name": "压力",
+   "nodes": [
+    {
+     "id": "rust",
+     "title": "Rust 代理",
+     "sub": "Pingora 替换了 nginx",
+     "tone": "risk"
+    },
+    {
+     "id": "sec",
+     "title": "安全修复",
+     "sub": "2026 年 37 条",
+     "tone": "risk"
+    },
+    {
+     "id": "k8s",
+     "title": "Kubernetes 入口",
+     "sub": "ingress-nginx 停更",
+     "tone": "risk"
+    },
+    {
+     "id": "fork",
+     "title": "分支",
+     "sub": "Angie、OpenResty、freenginx",
+     "tone": "contrast"
+    }
+   ]
+  },
+  {
+   "name": "回应",
+   "nodes": [
+    {
+     "id": "ka",
+     "title": "默认长连接",
+     "sub": "1.29.7，upstream 块",
+     "tone": "good"
+    },
+    {
+     "id": "strict",
+     "title": "解析收紧",
+     "sub": "1.29.4、1.31.9",
+     "tone": "good"
+    },
+    {
+     "id": "api",
+     "title": "API 与扩展",
+     "sub": "control API、njs、Rust 模块",
+     "tone": "good"
+    },
+    {
+     "id": "oss",
+     "title": "商业功能开源",
+     "sub": "resolve、sticky、least_time",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "rust",
+   "to": "ka"
+  },
+  {
+   "from": "sec",
+   "to": "strict"
+  },
+  {
+   "from": "k8s",
+   "to": "api"
+  },
+  {
+   "from": "fork",
+   "to": "oss"
+  }
+ ]
+}

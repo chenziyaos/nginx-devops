@@ -1,0 +1,58 @@
+# One nginx per version, all with the ConfigMap lab-conf: v126 and v130 are the official
+# images of the 1.26 and 1.30 stable branches, v131 the lab image built from 1.31.10.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: v126
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.26.3
+      command: ["nginx", "-c", "/etc/nginx/lab/nginx.conf", "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/lab
+  volumes:
+    - name: conf
+      configMap:
+        name: lab-conf
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: v130
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.30.8
+      command: ["nginx", "-c", "/etc/nginx/lab/nginx.conf", "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/lab
+  volumes:
+    - name: conf
+      configMap:
+        name: lab-conf
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: v131
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      command: ["nginx", "-c", "/etc/nginx/lab/nginx.conf", "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/lab
+  volumes:
+    - name: conf
+      configMap:
+        name: lab-conf

@@ -1,0 +1,67 @@
+{
+ "type": "compare",
+ "title": "Pingora 已替换 nginx，River 还没有稳定版",
+ "subtitle": "三者的进程模型、连接池和状态；Pingora 的数字是 Cloudflare 自己的测量",
+ "source": "来源：Cloudflare 博客 2022-09-14；River README 与发布页；nginx 1.31.10 源码",
+ "cards": [
+  {
+   "title": "nginx",
+   "subtitle": "C，多进程",
+   "rows": [
+    [
+     "连接池",
+     "每个 worker 一份"
+    ],
+    [
+     "形态",
+     "成品服务器"
+    ],
+    [
+     "状态",
+     "1.31.10 主线"
+    ]
+   ]
+  },
+  {
+   "title": "Pingora",
+   "subtitle": "Rust，多线程",
+   "tone": "good",
+   "primary": true,
+   "verdict": "Cloudflare 已上线",
+   "rows": [
+    [
+     "连接池",
+     "所有线程共用"
+    ],
+    [
+     "形态",
+     "库，要自己写代理"
+    ],
+    [
+     "状态",
+     "复用率 87.1% → 99.92%"
+    ]
+   ]
+  },
+  {
+   "title": "River",
+   "subtitle": "Rust，基于 Pingora",
+   "tone": "contrast",
+   "verdict": "不承诺稳定",
+   "rows": [
+    [
+     "连接池",
+     "同 Pingora"
+    ],
+    [
+     "形态",
+     "成品反向代理"
+    ],
+    [
+     "状态",
+     "v0.5.0，2024-08-30"
+    ]
+   ]
+  }
+ ]
+}

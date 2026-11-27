@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 606" width="1200" height="606">
+<rect x="0" y="0" width="1200" height="606" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">装上 nginx-otel，后端的父 span 从客户端换成 nginx</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上向下；T 是 trace id，C 是客户端的 span id，N 是 nginx 生成的 span id；上半段是不装模块的 edge，下半段是装了 nginx-otel 的 traced</text>
+<line x1="180" y1="186" x2="180" y2="542" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">客户端</text>
+<line x1="460" y1="186" x2="460" y2="542" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx</text>
+<text x="460" y="172" font-size="12" fill="#646A73" text-anchor="middle">edge / traced</text>
+<line x1="740" y1="186" x2="740" y2="542" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">后端 app</text>
+<line x1="1020" y1="186" x2="1020" y2="542" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Collector</text>
+<rect x="40" y="204" width="112.5" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="96.2" y="220.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">edge：不装模块</text>
+<line x1="160.5" y1="216" x2="1160" y2="216" stroke="#EFF0F1" stroke-width="1"/>
+<text x="190" y="254.6" font-size="13" fill="#1F2329">traceparent 00-T-C-01</text>
+<polyline points="180,263 448,263" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,257 458,263 448,269" fill="#8F959E"/>
+<text x="470" y="295.6" font-size="13" fill="#1F2329">原样转发 00-T-C-01</text>
+<polyline points="460,304 728,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,298 738,304 728,310" fill="#8F959E"/>
+<rect x="40" y="320" width="137.2" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="108.6" y="336.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">traced：nginx-otel</text>
+<line x1="185.2" y1="332" x2="1160" y2="332" stroke="#EFF0F1" stroke-width="1"/>
+<text x="190" y="370.6" font-size="13" fill="#1F2329">traceparent 00-T-C-01</text>
+<polyline points="180,379 448,379" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,373 458,379 448,385" fill="#8F959E"/>
+<text x="470" y="411.6" font-size="13" fill="#1F2329">沿用 T，父 span 记为 C，生成 N</text>
+<polyline points="460,420 486,420 486,438 474,438" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="474,432 464,438 474,444" fill="#8F959E"/>
+<text x="470" y="478.6" font-size="13" fill="#1F2329">改写为 00-T-N-01</text>
+<polyline points="460,487 728,487" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,481 738,487 728,493" fill="#8F959E"/>
+<text x="470" y="519.5" font-size="13" fill="#1F2329">span N，父 C，类型 Server</text>
+<polyline points="460,528 1008,528" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,522 1018,528 1008,534" fill="#8F959E"/>
+<text x="40" y="582" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-06 实验输出；nginx-otel v0.1.2 src/http_module.cpp</text>
+</svg>

@@ -1,0 +1,15 @@
+{
+ "type": "table",
+ "title": "三条路的差别不在写法，在换版本和出错的时候",
+ "subtitle": "同一个需求“User-Agent 以 curl 开头就返回 403”的三种实现；高亮一行是选型时最该看的差别",
+ "source": "来源：labs/cloud-07 实验输出；njs 1.0.2、ngx-rust v0.5.0、nginx 1.31.10 源码",
+ "columns": ["", "njs（QuickJS-NG）", "Rust（ngx-rust）", "C"],
+ "rows": [
+  ["产物", "脚本 + js 模块", ".so", ".so"],
+  ["对 curl 的回答", "403", "403", "403"],
+  ["换新版本", "改脚本，reload", "发新镜像，重启", "发新镜像，重启"],
+  ["运行时出错", "这个请求 500", "可能整个 worker", "可能整个 worker"],
+  ["指令写错", "不涉及新指令", "示例当成 off", "[emerg]，起不来"]
+ ],
+ "highlight_row": 2
+}

@@ -1,0 +1,13 @@
+{
+ "type": "table",
+ "title": "strip 之后 njs 模块最大，C 模块只有 14 KB",
+ "subtitle": "三个模块编出来的大小、strip 之后的大小和实现的行数；高亮一行是生产镜像里实际要关心的大小",
+ "source": "来源：labs/cloud-07 实验输出",
+ "columns": ["", "njs（QuickJS-NG）", "Rust（ngx-rust）", "C"],
+ "rows": [
+  ["编出来", "6468 KB", "12299 KB", "71 KB"],
+  ["strip 之后", "2465 KB", "1227 KB", "14 KB"],
+  ["实现的行数", "11", "141", "138"]
+ ],
+ "highlight_row": 1
+}

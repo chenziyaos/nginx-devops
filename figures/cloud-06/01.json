@@ -1,0 +1,95 @@
+{
+ "type": "graph",
+ "title": "指标、日志、追踪在 Pod 里各经过一个中间人",
+ "subtitle": "从左到右是数据从 nginx 出发到被人看到的路径；每条线中间那一站都会改变数据：exporter 把自己的抓取算进请求数，containerd 切长行，nginx-otel 改写 traceparent",
+ "source": "来源：labs/cloud-06 实验输出；nginx-prometheus-exporter v1.5.3、nginx-otel v0.1.2 源码",
+ "stages": [
+  {
+   "name": "nginx 产出",
+   "nodes": [
+    {
+     "id": "stub",
+     "title": "stub_status",
+     "sub": "127.0.0.1:8080"
+    },
+    {
+     "id": "log",
+     "title": "access log",
+     "sub": "escape=json 写 stdout"
+    },
+    {
+     "id": "otel",
+     "title": "nginx-otel",
+     "sub": "span 经 OTLP 发给 Collector",
+     "tone": "main"
+    }
+   ]
+  },
+  {
+   "name": "中间人",
+   "nodes": [
+    {
+     "id": "exp",
+     "title": "exporter",
+     "sub": "sidecar，抓一次读一次"
+    },
+    {
+     "id": "ctrd",
+     "title": "containerd",
+     "sub": "超过 16384 字节切成 P + F"
+    },
+    {
+     "id": "hdr",
+     "title": "traceparent",
+     "sub": "父 span 换成 nginx"
+    }
+   ]
+  },
+  {
+   "name": "看到它",
+   "nodes": [
+    {
+     "id": "prom",
+     "title": "Prometheus",
+     "sub": "3 个计数器、4 个 gauge、nginx_up"
+    },
+    {
+     "id": "kl",
+     "title": "kubectl logs",
+     "sub": "按 P/F 拼回一行"
+    },
+    {
+     "id": "app",
+     "title": "后端",
+     "sub": "span 挂在 nginx 下面"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "stub",
+   "to": "exp"
+  },
+  {
+   "from": "exp",
+   "to": "prom"
+  },
+  {
+   "from": "log",
+   "to": "ctrd"
+  },
+  {
+   "from": "ctrd",
+   "to": "kl"
+  },
+  {
+   "from": "otel",
+   "to": "hdr"
+  },
+  {
+   "from": "hdr",
+   "to": "app"
+  }
+ ]
+}

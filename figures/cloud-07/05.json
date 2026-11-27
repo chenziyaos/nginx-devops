@@ -1,0 +1,87 @@
+{
+ "type": "graph",
+ "title": "改什么、怎么生效：三种扩展的发布路径",
+ "subtitle": "从左到右是一次变更走到线上的路径；绿色是实验里生效的路径，红色是实验里没有生效的路径",
+ "source": "来源：labs/cloud-07 实验输出",
+ "stages": [
+  {
+   "name": "改了什么",
+   "nodes": [
+    {
+     "id": "js",
+     "title": "njs 脚本",
+     "sub": "ConfigMap 里的 nocurl.js"
+    },
+    {
+     "id": "so",
+     "title": "Rust / C 模块",
+     "sub": "新的 .so"
+    }
+   ]
+  },
+  {
+   "name": "怎么发",
+   "nodes": [
+    {
+     "id": "rl",
+     "title": "reload",
+     "sub": "同一个 master"
+    },
+    {
+     "id": "img",
+     "title": "重启 nginx",
+     "sub": "生产上即发新镜像"
+    }
+   ]
+  },
+  {
+   "name": "结果",
+   "nodes": [
+    {
+     "id": "ok1",
+     "title": "脚本：生效",
+     "sub": "js_import 重新编译",
+     "tone": "good"
+    },
+    {
+     "id": "old",
+     "title": "模块：旧代码",
+     "sub": "同名或改名都一样",
+     "tone": "risk"
+    },
+    {
+     "id": "ok2",
+     "title": "模块：生效",
+     "sub": "新 master 从头加载",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "js",
+   "to": "rl"
+  },
+  {
+   "from": "so",
+   "to": "rl"
+  },
+  {
+   "from": "so",
+   "to": "img"
+  },
+  {
+   "from": "rl",
+   "to": "ok1"
+  },
+  {
+   "from": "rl",
+   "to": "old"
+  },
+  {
+   "from": "img",
+   "to": "ok2"
+  }
+ ]
+}

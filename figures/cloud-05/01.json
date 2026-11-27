@@ -1,0 +1,97 @@
+{
+ "type": "graph",
+ "title": "证书到达 nginx 的三条路，续期后只有普通路径需要 reload",
+ "subtitle": "左边是谁申请证书，中间是证书放在哪里，右边是 nginx 怎么读到它；虚线表示经过 Secret 再由 NGF 写入；红色是续期后要 reload 的环节，绿色是下一次握手就生效的环节",
+ "source": "来源：labs/cloud-05 实验输出；nginx-acme v0.4.2、NGF v2.9.1、nginx 1.31.10 源码",
+ "stages": [
+  {
+   "name": "谁申请",
+   "nodes": [
+    {
+     "id": "acme",
+     "title": "nginx-acme",
+     "sub": "在 nginx 的 0 号 worker 里"
+    },
+    {
+     "id": "cm",
+     "title": "cert-manager",
+     "sub": "集群里单独的控制器"
+    }
+   ]
+  },
+  {
+   "name": "证书在哪",
+   "nodes": [
+    {
+     "id": "shm",
+     "title": "共享内存",
+     "sub": "data: 前缀的 PEM"
+    },
+    {
+     "id": "secret",
+     "title": "Secret web-tls",
+     "sub": "kubelet 写进 Pod 的卷"
+    },
+    {
+     "id": "ngfile",
+     "title": "数据面里的文件",
+     "sub": "NGF 经 agent 写入，不 reload"
+    }
+   ]
+  },
+  {
+   "name": "nginx 怎么读",
+   "nodes": [
+    {
+     "id": "var",
+     "title": "$acme_certificate",
+     "sub": "每次握手求值",
+     "tone": "good"
+    },
+    {
+     "id": "plain",
+     "title": "普通路径",
+     "sub": "只在启动和 reload 时读",
+     "tone": "risk"
+    },
+    {
+     "id": "vpath",
+     "title": "路径里带变量",
+     "sub": "每次握手按文件判断",
+     "tone": "good"
+    }
+   ]
+  }
+ ],
+ "edges": [
+  {
+   "from": "acme",
+   "to": "shm"
+  },
+  {
+   "from": "shm",
+   "to": "var"
+  },
+  {
+   "from": "cm",
+   "to": "secret"
+  },
+  {
+   "from": "cm",
+   "to": "ngfile",
+   "dashed": true
+  },
+  {
+   "from": "secret",
+   "to": "plain"
+  },
+  {
+   "from": "secret",
+   "to": "vpath"
+  },
+  {
+   "from": "ngfile",
+   "to": "vpath"
+  }
+ ]
+}

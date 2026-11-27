@@ -29,3 +29,7 @@ image() {
 }
 
 image nginx-devops/nginx:1.31.10 "$ROOT/labs/cloud-images/nginx"
+# FROM the image above, so it comes second
+image nginx-devops/nginx-acme:1.31.10 "$ROOT/labs/cloud-images/nginx-acme"
+image nginx-devops/nginx-otel:1.31.10 "$ROOT/labs/cloud-images/nginx-otel"
+image nginx-devops/nginx-ext:1.31.10 "$ROOT/labs/cloud-images/nginx-ext"

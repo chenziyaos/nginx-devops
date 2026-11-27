@@ -1,0 +1,52 @@
+
+## three modules in one image
+module                      as built   stripped
+ngx_http_curl_module.so       12299 KB    1227 KB
+ngx_http_js_module.so          6468 KB    2465 KB
+ngx_http_nocurl_module.so        71 KB      14 KB
+nocurl-451.so                    71 KB      14 KB
+lines: nocurl.js 11, curl.rs 141, ngx_http_nocurl_module.c 138
+ok - the njs module was built with QuickJS-NG, and all three load
+
+## the same answers from all three
+/js: curl/8.14.1 -> 403, Mozilla/5.0 -> 200, Wget/1.25 -> 200
+/rust: curl/8.14.1 -> 403, Mozilla/5.0 -> 200, Wget/1.25 -> 200
+/c: curl/8.14.1 -> 403, Mozilla/5.0 -> 200, Wget/1.25 -> 200
+ok - 403 for curl, the backend's 200 for the others, in each
+
+## a changed script takes effect at the next reload
+nocurl.js in the pod now refuses Wget too; before the reload /js -> 200
+after the reload: /js -> 403, /c -> 200
+ok - js_import compiles the file when the config is loaded, not per request
+
+## a new .so under the same path: the reload keeps the old code
+ngx_http_nocurl_module.so is the 451 build now: yes
+after the reload: new worker yes, /c -> 403
+mapped by the master: ngx_http_curl_module.so;ngx_http_js_module.so;ngx_http_nocurl_module.so (deleted);
+ok - dlopen() of a file name the master has open returns the copy it has
+
+## another file name: loaded, and still the old code
+load_module /usr/lib/nginx/modules/nocurl-451.so, after the reload: /c -> 403
+mapped by the master: ngx_http_curl_module.so;ngx_http_js_module.so;ngx_http_nocurl_module.so (deleted);nocurl-451.so;
+ok - the new file is mapped, but its ngx_http_nocurl_module binds to the one loaded first
+
+## a restart runs the new code
+restarted container: /c -> 451, /js Wget -> 403
+mapped by the master: ngx_http_curl_module.so;ngx_http_js_module.so;nocurl-451.so;
+ok - a new master loads every module from scratch
+
+## an exception in njs ends the request with 500
+/buggy -> 500
+[error] js call exception: TypeError: not a function
+same worker afterwards: yes, /js -> 403
+ok - the call fails, the access handler returns 500, the worker goes on
+
+## how each module parses its directive
+== typo-rust.conf: curl yes;
+the configuration file /tmp/typo-rust.conf syntax is ok
+configuration file /tmp/typo-rust.conf test is successful
+== typo-c.conf: nocurl yes;
+[emerg] invalid value "yes" in "nocurl" directive, it must be "on" or "off" in /tmp/typo-c.conf:14
+configuration file /tmp/typo-c.conf test failed
+typo-rust.conf running: curl/8.14.1 -> 200
+ok - the Rust example takes any other value as off; ngx_conf_set_flag_slot rejects it

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="25" fill="#1F2329" font-weight="bold" data-role="title">同一个 Secret 换了证书，普通路径要等 reload，带变量的路径下一次握手就换</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">Pod tls 挂载 Secret web-tls；S3、S4 是实验里按出现顺序给序列号的编号；高亮一行是文件和 443 不一致的时刻</text>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="152.2" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="183.2" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="41" y="237.2" width="1118" height="42" fill="#F0FBEF"/>
+<line x1="40" y1="195.2" x2="1160" y2="195.2" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="237.2" x2="1159" y2="237.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="279.2" x2="1159" y2="279.2" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="237.2" x2="1159" y2="237.2" stroke="#8EE085" stroke-width="1"/>
+<line x1="41" y1="279.2" x2="1159" y2="279.2" stroke="#8EE085" stroke-width="1"/>
+<rect x="40" y="151.2" width="1120" height="170" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">时刻</text>
+<text x="354.2" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">Secret</text>
+<text x="507.2" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">Pod 里的文件</text>
+<text x="702.8" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">443（普通路径）</text>
+<text x="926.7" y="178.2" font-size="14" fill="#1F2329" font-weight="bold">8443（路径带变量）</text>
+<text x="58" y="221.1" font-size="14" fill="#1F2329">续期前</text>
+<text x="354.2" y="221.1" font-size="14" fill="#1F2329">S3</text>
+<text x="507.2" y="221.1" font-size="14" fill="#1F2329">S3</text>
+<text x="702.8" y="221.1" font-size="14" fill="#1F2329">S3</text>
+<text x="926.7" y="221.1" font-size="14" fill="#1F2329">S3</text>
+<text x="58" y="263.1" font-size="14" fill="#2EA121" font-weight="bold">续期后，kubelet 已同步卷</text>
+<text x="354.2" y="263.1" font-size="14" fill="#2EA121" font-weight="bold">S4</text>
+<text x="507.2" y="263.1" font-size="14" fill="#2EA121" font-weight="bold">S4</text>
+<text x="702.8" y="263.1" font-size="14" fill="#2EA121" font-weight="bold">S3</text>
+<text x="926.7" y="263.1" font-size="14" fill="#2EA121" font-weight="bold">S4</text>
+<text x="58" y="305.1" font-size="14" fill="#1F2329">nginx -s reload 之后</text>
+<text x="354.2" y="305.1" font-size="14" fill="#1F2329">S4</text>
+<text x="507.2" y="305.1" font-size="14" fill="#1F2329">S4</text>
+<text x="702.8" y="305.1" font-size="14" fill="#1F2329">S4</text>
+<text x="926.7" y="305.1" font-size="14" fill="#1F2329">S4</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-05 实验输出</text>
+</svg>

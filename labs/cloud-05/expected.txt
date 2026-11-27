@@ -1,0 +1,54 @@
+
+## an image with the module
+configure arguments of the module image and the base image: same
+ngx_http_acme_module.so
+load_module /usr/lib/nginx/modules/ngx_http_acme_module.so;
+acme-a: 0 emerg lines, 1 worker started
+ok - nginx loads the module built against its own configure arguments
+
+## a certificate over HTTP-01
+pebble's requests answered by acme-a: 3, for 1 token
+"GET /.well-known/acme-challenge/<token> 200
+[info] certificate issued, renewal scheduled at <time>, acme issuer: "pebble", order: "web.lab-cloud-05.svc.cluster.local-592cb5d89f283fb8"
+acme-a serves S1, issuer: Pebble Intermediate CA, NotAfter - NotBefore: 119 s
+ok - pebble asks three times and acme-a answers each; the certificate lives 120 s minus one
+
+## a renewal without a reload
+workers of acme-a before: 1
+acme-a serves S2 now
+[info] certificate issued, renewal scheduled at <time>
+[info] certificate issued, renewal scheduled at <time>
+same worker processes: yes, SIGHUP received: 0
+ok - the module replaces the certificate in shared memory; no process restarts
+
+## a second replica's challenge goes to the first
+[warn] urn:ietf:params:acme:error:unauthorized: Non-200 status code from HTTP: http://web.lab-cloud-05.svc.cluster.local:80/.well-known/acme-challenge/<token> returned 404 while updating certificate
+requests for that token in the log of acme-a: 3 x 404, of acme-b: 0
+curl to acme-b over TLS: exit 35
+[error] cannot load certificate "/etc/nginx/conf/": PEM_read_bio_X509_AUX() failed (SSL: error:0480006C:PEM routines::no start line:Expecting: TRUSTED CERTIFICATE) while SSL handshaking
+ok - pebble's three requests for acme-b's token reach acme-a and get 404; acme-b has no certificate
+
+## cert-manager orders through the Gateway
+Certificate web-tls: Ready=True, revision 1
+requests for the challenge in the log of gw-nginx, answered 200:
+  LetsEncrypt-Pebble-VA: 3 x 200
+  cert-manager-challenges: 5 x 200
+HTTPRoutes left: httproute.gateway.networking.k8s.io/app 
+Secret web-tls: type kubernetes.io/tls, keys tls.crt tls.key 
+Secret holds S3, the Gateway serves S3
+ok - cert-manager checks five times itself, pebble three times; the HTTPS listener serves the Secret
+
+## a renewal changes the Secret, not what nginx serves
+tls serves on 443 (plain path) S3, on 8443 (variable path) S3
+Secret holds S4, revision 2, private key replaced: yes
+file in the pod: S4, 443: S3, 8443: S4
+ok - the plain path keeps the certificate it loaded; the variable path reads the new file
+after nginx -s reload, 443: S4
+ok - a reload loads the new file
+
+## the Gateway picks it up without a reload
+gw-nginx serves S4, SIGHUPs since the renewal: 0
+ssl_certificate $dynamic_cert_prefix/etc/nginx/secrets/ssl_keypair_lab-cloud-05_web-tls.pem;
+ssl_certificate_cache max=2;
+ssl_certificate_key $dynamic_cert_prefix/etc/nginx/secrets/ssl_keypair_lab-cloud-05_web-tls.pem;
+ok - NGF only rewrites the file; the variable in the path makes nginx read it again

@@ -1,0 +1,59 @@
+# edge: nginx with the control API on a unix socket, and nginx-prometheus-exporter as a
+# sidecar reading stub_status over the pod's loopback. app: the backend.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: edge
+  labels:
+    app: edge
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      command: ["nginx", "-c", "/etc/nginx/conf/edge.conf", "-l", "unix:/run/ctl/nginx.sock",
+                "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/conf
+        - name: ctl
+          mountPath: /run/ctl
+    - name: exporter
+      image: nginx/nginx-prometheus-exporter:1.5.3
+      args: ["--nginx.scrape-uri=http://127.0.0.1:8080/stub_status"]
+      ports:
+        - containerPort: 9113
+  volumes:
+    - name: conf
+      configMap:
+        name: edge-conf
+    - name: ctl
+      emptyDir: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx:1.31.10
+      command: ["nginx", "-c", "/etc/nginx/conf/app.conf", "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/conf
+  volumes:
+    - name: conf
+      configMap:
+        name: app-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+spec:
+  selector:
+    app: app
+  ports:
+    - port: 80

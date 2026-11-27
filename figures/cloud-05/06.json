@@ -1,0 +1,39 @@
+{
+ "type": "table",
+ "title": "四种拿证书的写法在续期、多副本和 reload 上的差别",
+ "subtitle": "续期一列是实验里新证书出现的方式；高亮一行是续期后需要有人触发 reload 的写法",
+ "source": "来源：labs/cloud-05 实验输出",
+ "columns": [
+  "方式",
+  "续期后 nginx 怎么用上",
+  "要 reload 吗",
+  "多副本"
+ ],
+ "rows": [
+  [
+   "nginx-acme（每个 nginx 自己申请）",
+   "共享内存就地替换，下一次握手",
+   "不用",
+   "挑战落到别的副本就 404"
+  ],
+  [
+   "cert-manager + 普通路径",
+   "kubelet 换文件，reload 后",
+   "要",
+   "Secret 一份，各副本各自 reload"
+  ],
+  [
+   "cert-manager + 路径带变量",
+   "kubelet 换文件，下一次握手",
+   "不用",
+   "Secret 一份，各副本自动用上"
+  ],
+  [
+   "cert-manager + NGF 2.9",
+   "agent 换文件，缓存过期后的握手",
+   "不用",
+   "NGF 给每个数据面写文件"
+  ]
+ ],
+ "highlight_row": 1
+}

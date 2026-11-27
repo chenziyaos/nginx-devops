@@ -11,7 +11,8 @@ Rules (each fenced block must declare where it comes from on its first line):
                                                  Body lines must appear in that range, in order, with the same indentation;
                                                  "/* ... */" lines mark elisions.
             // modules/<dir>/<file>.c:10-30      the repo's own module source, same rule.
-            // labs/<id>/<file>.c:10-30          a lab's own C program, same rule.
+            // labs/<id>/<file>.c:10-30          a lab's own C program, same rule
+                                                 (also ```js for a lab's own script).
             // 示意                              pseudo code, not checked.
   ```nginx  # lab: labs/ops-05/conf/nginx.conf   lines must appear in that file, in order;
                                                  "# ..." lines mark elisions.
@@ -26,7 +27,7 @@ Rules (each fenced block must declare where it comes from on its first line):
                                                  that header is not checked.
 
   ```go     // nginx-gateway-fabric v2.9.1: internal/x.go:10-20   a project pinned in tools/ext.py
-                                                 (also ```c, ```js, ```rust): checked like nginx
+                                                 (also ```c, ```cpp, ```js, ```rust): checked like nginx
                                                  excerpts against .ext-src (tools/ext.py fetch).
 
 Links to https://github.com/nginx/nginx/blob/<ref>/<path>#Ln[-Lm] must use the pinned ref,
@@ -173,12 +174,17 @@ def check_block(lang, body, errors, stats):
         return 'fenced block without a language; use text, bash, c or nginx'
     if lang == 'mermaid':
         return 'mermaid block; draw it as figures/<id>/NN.json and build it with tools/build_figures.py'
-    if lang in ('c', 'go', 'js', 'rust'):
+    if lang in ('c', 'cpp', 'go', 'js', 'rust'):
         m = EXT_HDR.match(first)
         if m:
             stats['c'] += 1
             return check_ext_excerpt(rest, m.groups(), lambda x: x.strip() in ('/* ... */', '// ...'))
-    if lang in ('go', 'js', 'rust'):
+    if lang == 'js':
+        m = SRC_HDR.match(first)
+        if m and m.group(1).startswith('labs/'):
+            stats['c'] += 1
+            return check_excerpt(rest, m.groups(), lambda x: x.strip() == '// ...')
+    if lang in ('cpp', 'go', 'js', 'rust'):
         if SKETCH.match(first):
             stats['sketch'] += 1
             return None

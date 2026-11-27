@@ -55,7 +55,7 @@ def main():
         print('```' + ext.LANG[os.path.splitext(rel)[1]])
         print(f'// {name} {ext.EXT[name][1]}: {rel}:{a}-{b}')
     else:
-        print('```c')
+        print('```' + ext.LANG.get(os.path.splitext(rel)[1], 'c'))
         print(f'// {rel}:{a}-{b}')
     print('\n'.join(lines[a - 1:b]))
     print('```')

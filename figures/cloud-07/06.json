@@ -1,0 +1,13 @@
+{
+ "type": "table",
+ "title": "同样写成 yes，Rust 示例照常启动，C 模块启动失败",
+ "subtitle": "两份只差一个指令的配置；高亮一行是 nginx -t 的结论",
+ "source": "来源：labs/cloud-07 实验输出；ngx-rust v0.5.0 examples/curl.rs",
+ "columns": ["", "curl yes;（Rust 示例）", "nocurl yes;（C）"],
+ "rows": [
+  ["解析函数", "自己写：只认 on 和 off，其余当 off", "ngx_conf_set_flag_slot"],
+  ["nginx -t", "test is successful", "[emerg] invalid value \"yes\""],
+  ["运行起来 curl 请求", "200，放行", "起不来"]
+ ],
+ "highlight_row": 1
+}

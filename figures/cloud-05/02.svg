@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">nginx-acme 在 0 号 worker 里续期，所有 worker 下一次握手就用上</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">实验里证书有效期 119 秒，序列号从 S1 换成 S2，worker 进程没有变，没有 SIGHUP</text>
+<rect x="40" y="152" width="179.2" height="168" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="190.1" font-size="16" fill="#1F2329" font-weight="bold">0 号 worker</text>
+<text x="60" y="215.1" font-size="16" fill="#1F2329" font-weight="bold">定时检查</text>
+<text x="60" y="243.9" font-size="14" fill="#646A73">两次检查至少隔</text>
+<text x="60" y="265.9" font-size="14" fill="#646A73">30 秒</text>
+<rect x="275.2" y="152" width="179.2" height="168" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="295.2" y="192.3" font-size="18" fill="#1F2329" font-weight="bold">下单、应答、</text>
+<text x="295.2" y="220.3" font-size="18" fill="#1F2329" font-weight="bold">取证书</text>
+<text x="295.2" y="249.9" font-size="14" fill="#646A73">和首次申请相同</text>
+<text x="295.2" y="271.9" font-size="14" fill="#646A73">授权可复用时不走</text>
+<text x="295.2" y="293.9" font-size="14" fill="#646A73">挑战</text>
+<rect x="510.4" y="152" width="179.2" height="168" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="530.4" y="192.3" font-size="18" fill="#1F2329" font-weight="bold">共享内存就地</text>
+<text x="530.4" y="220.3" font-size="18" fill="#1F2329" font-weight="bold">替换</text>
+<text x="530.4" y="249.9" font-size="14" fill="#646A73">证书链和私钥</text>
+<text x="530.4" y="271.9" font-size="14" fill="#646A73">加 data: 前缀</text>
+<rect x="745.6" y="152" width="179.2" height="168" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="765.6" y="192.3" font-size="18" fill="#1F2329" font-weight="bold">下一次握手</text>
+<text x="765.6" y="221.9" font-size="14" fill="#646A73">任意 worker 求</text>
+<text x="765.6" y="243.9" font-size="14" fill="#646A73">$acme_certificate</text>
+<rect x="980.8" y="152" width="179.2" height="168" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="1000.8" y="192.3" font-size="18" fill="#1F2329" font-weight="bold">缓存换键</text>
+<text x="1000.8" y="221.9" font-size="14" fill="#646A73">内容就是键</text>
+<text x="1000.8" y="243.9" font-size="14" fill="#646A73">旧条目等着被挤出</text>
+<polyline points="225.2,236 259.2,236" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="259.2,230 269.2,236 259.2,242" fill="#8F959E"/>
+<polyline points="460.4,236 494.4,236" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="494.4,230 504.4,236 494.4,242" fill="#8F959E"/>
+<polyline points="695.6,236 729.6,236" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="729.6,230 739.6,236 729.6,242" fill="#8F959E"/>
+<polyline points="930.8,236 964.8,236" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="964.8,230 974.8,236 964.8,242" fill="#8F959E"/>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-05 实验输出；nginx-acme v0.4.2 src/lib.rs、src/state/certificate.rs；nginx 1.31.10 ngx_event_openssl_cache.c</text>
+</svg>

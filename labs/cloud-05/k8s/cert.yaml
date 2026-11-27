@@ -1,0 +1,32 @@
+# cert-manager orders web-tls from pebble. The HTTP-01 solver answers through an HTTPRoute
+# on the http listener of the Gateway gw, the name being the data plane Service gw-nginx.
+# CA_BUNDLE is replaced by run.sh with the CA of pebble's serving certificate.
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: pebble
+spec:
+  acme:
+    server: https://pebble.lab-cloud-05.svc.cluster.local:14000/dir
+    caBundle: CA_BUNDLE
+    privateKeySecretRef:
+      name: pebble-account
+    solvers:
+      - http01:
+          gatewayHTTPRoute:
+            parentRefs:
+              - kind: Gateway
+                name: gw
+                sectionName: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: web-tls
+spec:
+  secretName: web-tls
+  dnsNames:
+    - gw-nginx.lab-cloud-05.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: pebble

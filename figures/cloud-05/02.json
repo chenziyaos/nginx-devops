@@ -1,0 +1,13 @@
+{
+ "type": "flow",
+ "title": "nginx-acme 在 0 号 worker 里续期，所有 worker 下一次握手就用上",
+ "subtitle": "实验里证书有效期 119 秒，序列号从 S1 换成 S2，worker 进程没有变，没有 SIGHUP",
+ "source": "来源：labs/cloud-05 实验输出；nginx-acme v0.4.2 src/lib.rs、src/state/certificate.rs；nginx 1.31.10 ngx_event_openssl_cache.c",
+ "steps": [
+  {"title": "0 号 worker 定时检查", "lines": ["两次检查至少隔 30 秒"]},
+  {"title": "下单、应答、取证书", "lines": ["和首次申请相同", "授权可复用时不走挑战"]},
+  {"title": "共享内存就地替换", "tone": "good", "lines": ["证书链和私钥", "加 data: 前缀"]},
+  {"title": "下一次握手", "tone": "good", "lines": ["任意 worker 求", "$acme_certificate"]},
+  {"title": "缓存换键", "lines": ["内容就是键", "旧条目等着被挤出"]}
+ ]
+}

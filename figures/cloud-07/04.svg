@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 559" width="1200" height="559">
+<rect x="0" y="0" width="1200" height="559" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">reload 时新旧 cycle 重叠，新模块的符号落到旧模块上</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上向下，都发生在 master 里；旧文件的 dlclose 排在新 cycle 建好之后，所以同名文件拿到的是旧的一份，新文件名的符号也解析到旧的一份</text>
+<line x1="180" y1="186" x2="180" y2="495" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">master</text>
+<text x="180" y="172" font-size="12" fill="#646A73" text-anchor="middle">reload</text>
+<line x1="460" y1="186" x2="460" y2="495" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">旧 .so</text>
+<text x="460" y="172" font-size="12" fill="#646A73" text-anchor="middle">403，先加载</text>
+<line x1="740" y1="186" x2="740" y2="495" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nocurl-451.so</text>
+<text x="740" y="172" font-size="12" fill="#646A73" text-anchor="middle">451</text>
+<line x1="1020" y1="186" x2="1020" y2="495" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">新 worker</text>
+<rect x="40" y="204" width="91.1" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="85.6" y="220.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">§4 同名文件</text>
+<line x1="139.1" y1="216" x2="1160" y2="216" stroke="#EFF0F1" stroke-width="1"/>
+<text x="190" y="254.6" font-size="13" fill="#1F2329">dlopen 同一路径：返回已加载的那份</text>
+<polyline points="180,263 448,263" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,257 458,263 448,269" fill="#8F959E"/>
+<rect x="40" y="279" width="91.1" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="85.6" y="295.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">§5 新文件名</text>
+<line x1="139.1" y1="291" x2="1160" y2="291" stroke="#EFF0F1" stroke-width="1"/>
+<text x="190" y="329.6" font-size="13" fill="#1F2329">dlopen 新文件名：映射进来</text>
+<polyline points="180,338 728,338" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="728,332 738,338 728,344" fill="#8F959E"/>
+<text x="730" y="370.6" font-size="13" fill="#1F2329" text-anchor="end">ngx_http_nocurl_module 解析到这里</text>
+<polyline points="740,379 472,379" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="472,373 462,379 472,385" fill="#8F959E"/>
+<text x="190" y="411.6" font-size="13" fill="#1F2329">旧 cycle 销毁，dlclose；仍被引用，不</text>
+<text x="190" y="431.6" font-size="13" fill="#1F2329">卸载</text>
+<polyline points="180,440 448,440" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="448,434 458,440 448,446" fill="#8F959E"/>
+<text x="190" y="472.6" font-size="13" fill="#1F2329">fork，回答仍是 403</text>
+<polyline points="180,481 1008,481" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,475 1018,481 1008,487" fill="#8F959E"/>
+<text x="40" y="535" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-07 实验输出；nginx 1.31.10 src/core/nginx.c、src/core/ngx_cycle.c</text>
+</svg>

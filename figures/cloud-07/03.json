@@ -1,0 +1,23 @@
+{
+ "type": "graph",
+ "title": "三种实现都在 access 阶段做同一个判断",
+ "subtitle": "从左到右是一个请求经过的处理；拒绝时请求在 access 阶段结束，放行时才走到 proxy_pass",
+ "source": "来源：labs/cloud-07 实验输出；njs 1.0.2 nginx/ngx_http_js_module.c",
+ "stages": [
+  {"name": "请求", "nodes": [{"id": "req", "title": "请求进来", "sub": "/js、/rust、/c"}]},
+  {"name": "access 阶段", "nodes": [
+   {"id": "js", "title": "js_access", "sub": "nocurl.check"},
+   {"id": "rs", "title": "curl on", "sub": "Rust 示例"},
+   {"id": "c", "title": "nocurl on", "sub": "C 模块"}
+  ]},
+  {"name": "结果", "nodes": [
+   {"id": "deny", "title": "403", "sub": "以 curl 开头，请求结束", "tone": "risk"},
+   {"id": "pass", "title": "proxy_pass", "sub": "其他 User-Agent，后端回答 200", "tone": "good"}
+  ]}
+ ],
+ "edges": [
+  {"from": "req", "to": "js"}, {"from": "req", "to": "rs"}, {"from": "req", "to": "c"},
+  {"from": "js", "to": "deny"}, {"from": "rs", "to": "deny"}, {"from": "c", "to": "deny"},
+  {"from": "js", "to": "pass"}, {"from": "rs", "to": "pass"}, {"from": "c", "to": "pass"}
+ ]
+}

@@ -1,0 +1,51 @@
+# traced: nginx with nginx-otel in front of the same app; collector: where its spans go.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: traced
+  labels:
+    app: traced
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx-otel:1.31.10
+      command: ["nginx", "-c", "/etc/nginx/conf/traced.conf", "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/conf
+  volumes:
+    - name: conf
+      configMap:
+        name: traced-conf
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: collector
+  labels:
+    app: collector
+spec:
+  containers:
+    - name: collector
+      image: otel/opentelemetry-collector:0.166.0
+      args: ["--config=/etc/otelcol/collector.yaml"]
+      ports:
+        - containerPort: 4317
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/otelcol
+  volumes:
+    - name: conf
+      configMap:
+        name: collector-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: collector
+spec:
+  selector:
+    app: collector
+  ports:
+    - name: otlp-grpc
+      port: 4317

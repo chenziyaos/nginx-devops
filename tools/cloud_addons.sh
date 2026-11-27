@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install what the Gateway API labs (cloud-03 and later) need on top of tools/cloud_up.sh:
-# the Gateway API CRDs, NGINX Gateway Fabric, and the ingress2gateway binary.
+# the Gateway API CRDs, NGINX Gateway Fabric, cert-manager, and the ingress2gateway binary.
 #
 #   tools/cloud_addons.sh            # idempotent: helm upgrade --install, kubectl apply
 #
@@ -11,6 +11,7 @@ set -Eeuo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 GATEWAY_API=v1.7.0
 NGF=2.9.1
+CERT_MANAGER=v1.21.3
 I2G=v1.2.0
 I2G_SHA256=9aaef850521a6b217bc358fc2267429629990dfe624ede601178c73f32ccad6d   # Linux x86_64
 
@@ -28,6 +29,16 @@ helm upgrade --install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric --ver
     --set nginx.service.type=ClusterIP \
     --wait --timeout 5m > /dev/null
 echo "NGINX Gateway Fabric $NGF installed in namespace nginx-gateway"
+
+# gatewayAPI.enabled lets the HTTP-01 solver answer through an HTTPRoute (cloud-05).
+helm upgrade --install cert-manager oci://quay.io/jetstack/charts/cert-manager --version "$CERT_MANAGER" \
+    --namespace cert-manager --create-namespace \
+    --set crds.enabled=true \
+    --set config.apiVersion=controller.config.cert-manager.io/v1alpha1 \
+    --set config.kind=ControllerConfiguration \
+    --set config.gatewayAPI.enabled=true \
+    --wait --timeout 5m > /dev/null
+echo "cert-manager $CERT_MANAGER installed in namespace cert-manager"
 
 bin="$ROOT/.cloud-tools/bin"
 mkdir -p "$bin"

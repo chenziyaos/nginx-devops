@@ -1,0 +1,76 @@
+# Two replicas of the same nginx-acme config. The Service "web", the name both order a
+# certificate for, selects only acme-a: pebble's HTTP-01 request for acme-b's order goes to
+# acme-a, as it does with probability (n-1)/n in a Deployment of n replicas.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: acme-a
+  labels:
+    app: acme
+    serve: "yes"
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx-acme:1.31.10
+      command: ["nginx", "-c", "/etc/nginx/conf/nginx.conf", "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/conf
+        - name: pebble-ca
+          mountPath: /etc/pebble-ca
+  volumes:
+    - name: conf
+      configMap:
+        name: acme-conf
+        items:
+          - key: acme.conf
+            path: nginx.conf
+    - name: pebble-ca
+      secret:
+        secretName: pebble-tls
+        items:
+          - key: ca.crt
+            path: ca.crt
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: acme-b
+  labels:
+    app: acme
+spec:
+  containers:
+    - name: nginx
+      image: nginx-devops/nginx-acme:1.31.10
+      command: ["nginx", "-c", "/etc/nginx/conf/nginx.conf", "-g", "daemon off;"]
+      volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/conf
+        - name: pebble-ca
+          mountPath: /etc/pebble-ca
+  volumes:
+    - name: conf
+      configMap:
+        name: acme-conf
+        items:
+          - key: acme.conf
+            path: nginx.conf
+    - name: pebble-ca
+      secret:
+        secretName: pebble-tls
+        items:
+          - key: ca.crt
+            path: ca.crt
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector:
+    serve: "yes"
+  ports:
+    - name: http
+      port: 80
+    - name: https
+      port: 443

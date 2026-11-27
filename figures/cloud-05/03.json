@@ -1,0 +1,28 @@
+{
+ "type": "sequence",
+ "title": "多副本时 pebble 的验证请求经 Service 落到了没有这个 token 的副本",
+ "subtitle": "时间从上向下；两个副本配置相同，Service web 只选中 acme-a，所以 acme-b 的挑战一定落错",
+ "source": "来源：labs/cloud-05 实验输出；nginx-acme v0.4.2 src/acme/solvers/http.rs；pebble v2.10.3 va/va.go",
+ "actors": [
+  {"name": "acme-a", "sub": "Service 后面"},
+  {"name": "acme-b", "sub": "同样的配置"},
+  "Service web",
+  "pebble"
+ ],
+ "messages": [
+  {"from": "acme-a", "to": "pebble", "text": "下单，token A 存进 acme-a 的共享内存"},
+  {"from": "acme-b", "to": "pebble", "text": "下单，token B 存进 acme-b 的共享内存"},
+  {"from": "pebble", "to": "Service web", "text": "GET token A，3 次"},
+  {"from": "Service web", "to": "acme-a", "text": "转发"},
+  {"from": "acme-a", "to": "pebble", "text": "200，证书签发", "reply": true},
+  {"from": "pebble", "to": "Service web", "text": "GET token B，3 次"},
+  {"from": "Service web", "to": "acme-a", "text": "转发"},
+  {"from": "acme-a", "to": "pebble", "text": "404，acme-a 没有 token B", "reply": true},
+  {"from": "acme-b", "to": "acme-b", "text": "订单失败，60 秒后重试；HTTPS 握手失败"}
+ ],
+ "sections": [
+  {"at": 0, "label": "各自下单"},
+  {"at": 2, "label": "验证 acme-a"},
+  {"at": 5, "label": "验证 acme-b"}
+ ]
+}

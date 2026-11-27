@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">reload 沿用同一块共享内存，容器重启换一块新的</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">stub_status 的 7 个计数器和 accept 锁在同一块共享内存里，由 master 分配；高亮一行是计数器归零的时刻</text>
+<rect x="40" y="168" width="1120" height="128" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="169" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="200" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="41" y="254" width="1118" height="41" rx="11" fill="#F0FBEF"/>
+<rect x="41" y="254" width="11" height="11" fill="#F0FBEF"/>
+<rect x="1148" y="254" width="11" height="11" fill="#F0FBEF"/>
+<line x1="40" y1="212" x2="1160" y2="212" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="254" x2="1159" y2="254" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="254" x2="1159" y2="254" stroke="#8EE085" stroke-width="1"/>
+<rect x="40" y="168" width="1120" height="128" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="195" font-size="14" fill="#1F2329" font-weight="bold">操作</text>
+<text x="254.2" y="195" font-size="14" fill="#1F2329" font-weight="bold">master</text>
+<text x="491.2" y="195" font-size="14" fill="#1F2329" font-weight="bold">共享内存</text>
+<text x="870.9" y="195" font-size="14" fill="#1F2329" font-weight="bold">nginx_http_requests_total</text>
+<text x="58" y="237.9" font-size="14" fill="#1F2329">nginx -s reload</text>
+<text x="254.2" y="237.9" font-size="14" fill="#1F2329">同一个，换新 worker</text>
+<text x="491.2" y="237.9" font-size="14" fill="#1F2329">ngx_accept_mutex_ptr 已有值，沿用</text>
+<text x="870.9" y="237.9" font-size="14" fill="#1F2329">比 reload 前高</text>
+<text x="58" y="279.9" font-size="14" fill="#2EA121" font-weight="bold">容器重启</text>
+<text x="254.2" y="279.9" font-size="14" fill="#2EA121" font-weight="bold">新进程</text>
+<text x="491.2" y="279.9" font-size="14" fill="#2EA121" font-weight="bold">重新分配</text>
+<text x="870.9" y="279.9" font-size="14" fill="#2EA121" font-weight="bold">从 0 开始，实验读到 2</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-06 实验输出；nginx 1.31.10 src/event/ngx_event.c</text>
+</svg>

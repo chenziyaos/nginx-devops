@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 500.2" width="1200" height="500.2">
+<rect x="0" y="0" width="1200" height="500.2" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">证书到达 nginx 的三条路，续期后只有普通路径需要 reload</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">左边是谁申请证书，中间是证书放在哪里，右边是 nginx 怎么读到它；虚线表示经过 Secret 再由 NGF 写入；红色是续期后要 reload 的环节，绿色是下一次握手就生效的</text>
+<text x="40" y="114" font-size="14" fill="#646A73" data-role="subtitle">环节</text>
+<text x="180" y="165" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">谁申请</text>
+<text x="600" y="165" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">证书在哪</text>
+<text x="1020" y="165" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">nginx 怎么读</text>
+<polyline points="294,212.5 476,212.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,206.5 486,212.5 476,218.5" fill="#8F959E"/>
+<polyline points="294,361.2 387,361.2 387,318.8 476,318.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,312.8 486,318.8 476,324.8" fill="#8F959E"/>
+<polyline points="294,361.2 387,361.2 387,403.8 476,403.8" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="476,397.8 486,403.8 476,409.8" fill="#8F959E"/>
+<polyline points="714,212.5 896,212.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,206.5 906,212.5 896,218.5" fill="#8F959E"/>
+<polyline points="714,318.8 837.5,318.8 837.5,297.5 896,297.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,291.5 906,297.5 896,303.5" fill="#8F959E"/>
+<polyline points="714,318.8 837.5,318.8 837.5,382.5 896,382.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,376.5 906,382.5 896,388.5" fill="#8F959E"/>
+<polyline points="714,403.8 776.5,403.8 776.5,382.5 896,382.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,376.5 906,382.5 896,388.5" fill="#8F959E"/>
+<rect x="70" y="180" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="207.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx-acme</text>
+<text x="180" y="227.7" font-size="12" fill="#646A73" text-anchor="middle">在 nginx 的 0 号 worker 里</text>
+<rect x="70" y="328.8" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="180" y="356.6" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">cert-manager</text>
+<text x="180" y="376.4" font-size="12" fill="#646A73" text-anchor="middle">集群里单独的控制器</text>
+<rect x="490" y="180" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="207.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">共享内存</text>
+<text x="600" y="227.7" font-size="12" fill="#646A73" text-anchor="middle">data: 前缀的 PEM</text>
+<rect x="490" y="286.2" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="314.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Secret web-tls</text>
+<text x="600" y="333.9" font-size="12" fill="#646A73" text-anchor="middle">kubelet 写进 Pod 的卷</text>
+<rect x="490" y="371.2" width="220" height="65" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="399.1" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">数据面里的文件</text>
+<text x="600" y="418.9" font-size="12" fill="#646A73" text-anchor="middle">NGF 经 agent 写入，不 reload</text>
+<rect x="910" y="180" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="207.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">$acme_certificate</text>
+<text x="1020" y="227.7" font-size="12" fill="#646A73" text-anchor="middle">每次握手求值</text>
+<rect x="910" y="265" width="220" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="292.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">普通路径</text>
+<text x="1020" y="312.7" font-size="12" fill="#646A73" text-anchor="middle">只在启动和 reload 时读</text>
+<rect x="910" y="350" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="377.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">路径里带变量</text>
+<text x="1020" y="397.7" font-size="12" fill="#646A73" text-anchor="middle">每次握手按文件判断</text>
+<text x="40" y="476.2" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-05 实验输出；nginx-acme v0.4.2、NGF v2.9.1、nginx 1.31.10 源码</text>
+</svg>

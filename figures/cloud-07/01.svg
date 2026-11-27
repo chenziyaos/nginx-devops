@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 446" width="1200" height="446">
+<rect x="0" y="0" width="1200" height="446" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">三条路的差别不在写法，在换版本和出错的时候</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">同一个需求“User-Agent 以 curl 开头就返回 403”的三种实现；高亮一行是选型时最该看的差别</text>
+<rect x="40" y="128" width="1120" height="254" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1" data-role="table"/>
+<rect x="41" y="129" width="1118" height="43" rx="11" fill="#F5F6F7"/>
+<rect x="41" y="160" width="1118" height="12" fill="#F5F6F7"/>
+<rect x="41" y="256" width="1118" height="42" fill="#F0FBEF"/>
+<line x1="40" y1="172" x2="1160" y2="172" stroke="#DEE0E3" stroke-width="1"/>
+<line x1="41" y1="214" x2="1159" y2="214" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1159" y2="256" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="298" x2="1159" y2="298" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="340" x2="1159" y2="340" stroke="#EFF0F1" stroke-width="1"/>
+<line x1="41" y1="256" x2="1159" y2="256" stroke="#8EE085" stroke-width="1"/>
+<line x1="41" y1="298" x2="1159" y2="298" stroke="#8EE085" stroke-width="1"/>
+<rect x="40" y="128" width="1120" height="254" rx="12" fill="none" stroke="#DEE0E3" stroke-width="1"/>
+<text x="58" y="155" font-size="14" fill="#1F2329" font-weight="bold"></text>
+<text x="307.5" y="155" font-size="14" fill="#1F2329" font-weight="bold">njs（QuickJS-NG）</text>
+<text x="609.7" y="155" font-size="14" fill="#1F2329" font-weight="bold">Rust（ngx-rust）</text>
+<text x="902" y="155" font-size="14" fill="#1F2329" font-weight="bold">C</text>
+<text x="58" y="197.9" font-size="14" fill="#1F2329">产物</text>
+<text x="307.5" y="197.9" font-size="14" fill="#1F2329">脚本 + js 模块</text>
+<text x="609.7" y="197.9" font-size="14" fill="#1F2329">.so</text>
+<text x="902" y="197.9" font-size="14" fill="#1F2329">.so</text>
+<text x="58" y="239.9" font-size="14" fill="#1F2329">对 curl 的回答</text>
+<text x="307.5" y="239.9" font-size="14" fill="#1F2329">403</text>
+<text x="609.7" y="239.9" font-size="14" fill="#1F2329">403</text>
+<text x="902" y="239.9" font-size="14" fill="#1F2329">403</text>
+<text x="58" y="281.9" font-size="14" fill="#2EA121" font-weight="bold">换新版本</text>
+<text x="307.5" y="281.9" font-size="14" fill="#2EA121" font-weight="bold">改脚本，reload</text>
+<text x="609.7" y="281.9" font-size="14" fill="#2EA121" font-weight="bold">发新镜像，重启</text>
+<text x="902" y="281.9" font-size="14" fill="#2EA121" font-weight="bold">发新镜像，重启</text>
+<text x="58" y="323.9" font-size="14" fill="#1F2329">运行时出错</text>
+<text x="307.5" y="323.9" font-size="14" fill="#1F2329">这个请求 500</text>
+<text x="609.7" y="323.9" font-size="14" fill="#1F2329">可能整个 worker</text>
+<text x="902" y="323.9" font-size="14" fill="#1F2329">可能整个 worker</text>
+<text x="58" y="365.9" font-size="14" fill="#1F2329">指令写错</text>
+<text x="307.5" y="365.9" font-size="14" fill="#1F2329">不涉及新指令</text>
+<text x="609.7" y="365.9" font-size="14" fill="#1F2329">示例当成 off</text>
+<text x="902" y="365.9" font-size="14" fill="#1F2329">[emerg]，起不来</text>
+<text x="40" y="422" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-07 实验输出；njs 1.0.2、ngx-rust v0.5.0、nginx 1.31.10 源码</text>
+</svg>

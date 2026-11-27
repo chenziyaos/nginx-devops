@@ -1,0 +1,12 @@
+{
+ "type": "table",
+ "title": "reload 沿用同一块共享内存，容器重启换一块新的",
+ "subtitle": "stub_status 的 7 个计数器和 accept 锁在同一块共享内存里，由 master 分配；高亮一行是计数器归零的时刻",
+ "source": "来源：labs/cloud-06 实验输出；nginx 1.31.10 src/event/ngx_event.c",
+ "columns": ["操作", "master", "共享内存", "nginx_http_requests_total"],
+ "rows": [
+  ["nginx -s reload", "同一个，换新 worker", "ngx_accept_mutex_ptr 已有值，沿用", "比 reload 前高"],
+  ["容器重启", "新进程", "重新分配", "从 0 开始，实验读到 2"]
+ ],
+ "highlight_row": 1
+}

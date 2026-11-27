@@ -1,0 +1,38 @@
+{
+ "type": "flow",
+ "title": "containerd 按 16 KiB 切行，kubectl logs 再按 P/F 拼回",
+ "subtitle": "一个 User-Agent 为 20000 字节的请求写出的那一行日志，从左到右经过的各站",
+ "source": "来源：labs/cloud-06 实验输出",
+ "steps": [
+  {
+   "title": "nginx 写一行",
+   "lines": [
+    "escape=json",
+    "完整的一行 JSON"
+   ]
+  },
+  {
+   "title": "containerd 切开",
+   "tone": "risk",
+   "lines": [
+    "每条记录最多",
+    "16384 字节"
+   ]
+  },
+  {
+   "title": "节点上两条记录",
+   "lines": [
+    "stdout P 16384",
+    "stdout F 3789"
+   ]
+  },
+  {
+   "title": "kubelet 拼回",
+   "tone": "good",
+   "lines": [
+    "kubectl logs 1 行",
+    "20174 字节，合法 JSON"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,63 @@
+
+## the metrics the exporter makes from stub_status
+# TYPE nginx_connections_accepted counter
+# TYPE nginx_connections_active gauge
+# TYPE nginx_connections_handled counter
+# TYPE nginx_connections_reading gauge
+# TYPE nginx_connections_waiting gauge
+# TYPE nginx_connections_writing gauge
+# TYPE nginx_http_requests_total counter
+# TYPE nginx_up gauge
+nginx_up 1
+ok - seven stub_status numbers become three counters and four gauges, plus nginx_up
+
+## every scrape is a request too
+nginx_http_requests_total went up by 11 for 10 requests
+ok - the exporter's GET /stub_status is counted with the others
+
+## a reload keeps the counters, a restart starts them from zero
+after nginx -s reload: higher than before
+after the nginx container restarted: 2 (the two scrapes since the restart)
+ok - the counters live in shared memory the master maps once; a new master starts at 0
+
+## JSON lines on stdout, and the runtime's 16 KiB records
+containerd on the node: max_container_log_line_size = 16384
+records of the short line: stdout F 185;
+records of the long line: stdout P 16384;stdout F 3789;
+kubectl logs, the long line: 1 line, 20174 bytes, valid JSON: yes
+ok - a line over 16384 bytes is stored as a partial record plus the rest; kubectl logs joins them
+
+## a request id across two hops
+edge made a 32-hex-digit id, the app logged the same one
+with X-Request-ID from the client: edge from-client-42, app from-client-42
+ok - the edge's id reaches the app; an id from the client is kept
+
+## a traceparent passes through untouched
+client sent: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+edge logged: 00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+app got:     00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01
+ok - without a tracing module nginx forwards the header as it came; no span for nginx
+
+## with nginx-otel: a span for nginx, and nginx as the app's parent
+traced logged: trace_id 4bf92f3577b34da6a3ce929d0e0e4736, parent_id 00f067aa0ba902b7, span_id <16 hex digits>
+app got:       00-4bf92f3577b34da6a3ce929d0e0e4736-<span_id of traced>-01
+the collector, service.name: Str(edge):
+    Trace ID       : 4bf92f3577b34da6a3ce929d0e0e4736
+    Parent ID      : 00f067aa0ba902b7
+    ID             : <span_id of traced>
+    Name           : /
+    Kind           : Server
+    -> http.method: Str(GET)
+    -> http.route: Str(/)
+    -> http.status_code: Int(200)
+ok - the trace id is kept, the client's span becomes nginx's parent, nginx's span the app's
+
+## with nginx-otel and no traceparent: nginx starts the trace
+traced logged: trace_id <new, 32 hex digits>, parent_id ""
+app got:       00-<trace_id of traced>-<span_id of traced>-01
+ok - a request without a context gets a new trace id; the app is its first child
+
+## after a reload, the old worker stays until its download ends
+processes after the reload: worker process exiting=false, worker process exiting=true
+once the download finished: 1 worker, 0 exiting
+ok - GET /1/control/processes shows the old worker as exiting while it still serves

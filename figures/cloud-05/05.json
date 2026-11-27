@@ -1,0 +1,13 @@
+{
+ "type": "table",
+ "title": "同一个 Secret 换了证书，普通路径要等 reload，带变量的路径下一次握手就换",
+ "subtitle": "Pod tls 挂载 Secret web-tls；S3、S4 是实验里按出现顺序给序列号的编号；高亮一行是文件和 443 不一致的时刻",
+ "source": "来源：labs/cloud-05 实验输出",
+ "columns": ["时刻", "Secret", "Pod 里的文件", "443（普通路径）", "8443（路径带变量）"],
+ "rows": [
+  ["续期前", "S3", "S3", "S3", "S3"],
+  ["续期后，kubelet 已同步卷", "S4", "S4", "S3", "S4"],
+  ["nginx -s reload 之后", "S4", "S4", "S4", "S4"]
+ ],
+ "highlight_row": 1
+}

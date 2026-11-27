@@ -21,6 +21,13 @@ EXT = {
     'nginx-gateway-fabric': ('nginx/nginx-gateway-fabric', 'v2.9.1'),
     'ingress2gateway': ('kubernetes-sigs/ingress2gateway', 'v1.2.0'),
     'kubernetes': ('kubernetes/kubernetes', 'v1.37.0'),
+    'nginx-acme': ('nginx/nginx-acme', 'v0.4.2'),
+    'pebble': ('letsencrypt/pebble', 'v2.10.3'),
+    'cert-manager': ('cert-manager/cert-manager', 'v1.21.3'),
+    'nginx-prometheus-exporter': ('nginx/nginx-prometheus-exporter', 'v1.5.3'),
+    'nginx-otel': ('nginxinc/nginx-otel', 'v0.1.2'),
+    'njs': ('nginx/njs', '1.0.2'),
+    'ngx-rust': ('nginx/ngx-rust', 'v0.5.0'),
 }
 
 # big repositories are checked out sparsely: only these directories
@@ -29,7 +36,7 @@ SPARSE = {
 }
 
 # fence language by file extension
-LANG = {'.go': 'go', '.js': 'js', '.rs': 'rust', '.c': 'c', '.h': 'c'}
+LANG = {'.go': 'go', '.js': 'js', '.rs': 'rust', '.c': 'c', '.h': 'c', '.cpp': 'cpp', '.hpp': 'cpp'}
 
 
 def path(name):

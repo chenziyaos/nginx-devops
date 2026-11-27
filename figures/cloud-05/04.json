@@ -1,0 +1,13 @@
+{
+ "type": "flow",
+ "title": "cert-manager 先自检 5 次，再让 CA 验证，签完把证书写进 Secret",
+ "subtitle": "HTTP-01 经过 Gateway gw 的 http 监听器；临时路由在签发后删除",
+ "source": "来源：labs/cloud-05 实验输出；cert-manager v1.21.3 pkg/issuer/acme/http/http.go",
+ "steps": [
+  {"title": "Certificate", "lines": ["名字是 gw-nginx 的", "Service 域名"]},
+  {"title": "临时 HTTPRoute", "lines": ["挂到 http 监听器", "转给应答 Pod"]},
+  {"title": "自检", "lines": ["连续通过 5 次", "每次隔 2 秒"]},
+  {"title": "pebble 验证", "lines": ["3 个并发请求", "都要 200"]},
+  {"title": "Secret web-tls", "tone": "good", "lines": ["tls.crt、tls.key", "删除临时路由"]}
+ ]
+}

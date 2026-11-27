@@ -1,0 +1,23 @@
+{
+ "type": "sequence",
+ "title": "reload 时新旧 cycle 重叠，新模块的符号落到旧模块上",
+ "subtitle": "时间从上向下，都发生在 master 里；旧文件的 dlclose 排在新 cycle 建好之后，所以同名文件拿到的是旧的一份，新文件名的符号也解析到旧的一份",
+ "source": "来源：labs/cloud-07 实验输出；nginx 1.31.10 src/core/nginx.c、src/core/ngx_cycle.c",
+ "actors": [
+  {"name": "master", "sub": "reload"},
+  {"name": "旧 .so", "sub": "403，先加载"},
+  {"name": "nocurl-451.so", "sub": "451"},
+  {"name": "新 worker"}
+ ],
+ "messages": [
+  {"from": "master", "to": "旧 .so", "text": "dlopen 同一路径：返回已加载的那份"},
+  {"from": "master", "to": "nocurl-451.so", "text": "dlopen 新文件名：映射进来"},
+  {"from": "nocurl-451.so", "to": "旧 .so", "text": "ngx_http_nocurl_module 解析到这里"},
+  {"from": "master", "to": "旧 .so", "text": "旧 cycle 销毁，dlclose；仍被引用，不卸载"},
+  {"from": "master", "to": "新 worker", "text": "fork，回答仍是 403"}
+ ],
+ "sections": [
+  {"at": 0, "label": "§4 同名文件"},
+  {"at": 1, "label": "§5 新文件名"}
+ ]
+}

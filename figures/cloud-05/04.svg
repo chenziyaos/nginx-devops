@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">cert-manager 先自检 5 次，再让 CA 验证，签完把证书写进 Secret</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">HTTP-01 经过 Gateway gw 的 http 监听器；临时路由在签发后删除</text>
+<rect x="40" y="160.8" width="179.2" height="146" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="60" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">Certificate</text>
+<text x="60" y="230.7" font-size="14" fill="#646A73">名字是 gw-nginx 的</text>
+<text x="60" y="252.7" font-size="14" fill="#646A73">Service 域名</text>
+<rect x="275.2" y="160.8" width="179.2" height="146" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="295.2" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">临时</text>
+<text x="295.2" y="229.1" font-size="18" fill="#1F2329" font-weight="bold">HTTPRoute</text>
+<text x="295.2" y="258.7" font-size="14" fill="#646A73">挂到 http 监听器</text>
+<text x="295.2" y="280.7" font-size="14" fill="#646A73">转给应答 Pod</text>
+<rect x="510.4" y="160.8" width="179.2" height="146" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="530.4" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">自检</text>
+<text x="530.4" y="230.7" font-size="14" fill="#646A73">连续通过 5 次</text>
+<text x="530.4" y="252.7" font-size="14" fill="#646A73">每次隔 2 秒</text>
+<rect x="745.6" y="160.8" width="179.2" height="146" rx="12" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="step"/>
+<text x="765.6" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">pebble 验证</text>
+<text x="765.6" y="230.7" font-size="14" fill="#646A73">3 个并发请求</text>
+<text x="765.6" y="252.7" font-size="14" fill="#646A73">都要 200</text>
+<rect x="980.8" y="160.8" width="179.2" height="146" rx="12" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="step"/>
+<text x="1000.8" y="201.1" font-size="18" fill="#1F2329" font-weight="bold">Secret</text>
+<text x="1000.8" y="229.1" font-size="18" fill="#1F2329" font-weight="bold">web-tls</text>
+<text x="1000.8" y="258.7" font-size="14" fill="#646A73">tls.crt、tls.key</text>
+<text x="1000.8" y="280.7" font-size="14" fill="#646A73">删除临时路由</text>
+<polyline points="225.2,233.8 259.2,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="259.2,227.8 269.2,233.8 259.2,239.8" fill="#8F959E"/>
+<polyline points="460.4,233.8 494.4,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="494.4,227.8 504.4,233.8 494.4,239.8" fill="#8F959E"/>
+<polyline points="695.6,233.8 729.6,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="729.6,227.8 739.6,233.8 729.6,239.8" fill="#8F959E"/>
+<polyline points="930.8,233.8 964.8,233.8" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="964.8,227.8 974.8,233.8 964.8,239.8" fill="#8F959E"/>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-05 实验输出；cert-manager v1.21.3 pkg/issuer/acme/http/http.go</text>
+</svg>

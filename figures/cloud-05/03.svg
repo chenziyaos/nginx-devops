@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 783" width="1200" height="783">
+<rect x="0" y="0" width="1200" height="783" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">多副本时 pebble 的验证请求经 Service 落到了没有这个 token 的副本</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">时间从上向下；两个副本配置相同，Service web 只选中 acme-a，所以 acme-b 的挑战一定落错</text>
+<line x1="180" y1="186" x2="180" y2="719" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="80" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="180" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">acme-a</text>
+<text x="180" y="172" font-size="12" fill="#646A73" text-anchor="middle">Service 后面</text>
+<line x1="460" y1="186" x2="460" y2="719" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="360" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="460" y="153" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">acme-b</text>
+<text x="460" y="172" font-size="12" fill="#646A73" text-anchor="middle">同样的配置</text>
+<line x1="740" y1="186" x2="740" y2="719" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="640" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="740" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Service web</text>
+<line x1="1020" y1="186" x2="1020" y2="719" stroke="#C9CDD4" stroke-width="1.5" stroke-dasharray="6 4"/>
+<rect x="920" y="128" width="200" height="58" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="actor"/>
+<text x="1020" y="162" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">pebble</text>
+<rect x="40" y="204" width="72.9" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="76.4" y="220.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">各自下单</text>
+<line x1="120.9" y1="216" x2="1160" y2="216" stroke="#EFF0F1" stroke-width="1"/>
+<text x="190" y="254.6" font-size="13" fill="#1F2329">下单，token A 存进 acme-a 的共享内存</text>
+<polyline points="180,263 1008,263" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,257 1018,263 1008,269" fill="#8F959E"/>
+<text x="470" y="295.6" font-size="13" fill="#1F2329">下单，token B 存进 acme-b 的共享内存</text>
+<polyline points="460,304 1008,304" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="1008,298 1018,304 1008,310" fill="#8F959E"/>
+<rect x="40" y="320" width="97.2" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="88.6" y="336.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">验证 acme-a</text>
+<line x1="145.2" y1="332" x2="1160" y2="332" stroke="#EFF0F1" stroke-width="1"/>
+<text x="1010" y="370.6" font-size="13" fill="#1F2329" text-anchor="end">GET token A，3 次</text>
+<polyline points="1020,379 752,379" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="752,373 742,379 752,385" fill="#8F959E"/>
+<text x="730" y="411.6" font-size="13" fill="#1F2329" text-anchor="end">转发</text>
+<polyline points="740,420 192,420" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="192,414 182,420 192,426" fill="#8F959E"/>
+<text x="190" y="452.6" font-size="13" fill="#1F2329">200，证书签发</text>
+<polyline points="180,461 1008,461" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="1008,455 1018,461 1008,467" fill="#8F959E"/>
+<rect x="40" y="477" width="97.2" height="24" rx="12" fill="#F5F6F7" stroke="#DEE0E3" stroke-width="1" data-role="pill"/>
+<text x="88.6" y="493.2" font-size="12" fill="#646A73" text-anchor="middle" data-role="pill">验证 acme-b</text>
+<line x1="145.2" y1="489" x2="1160" y2="489" stroke="#EFF0F1" stroke-width="1"/>
+<text x="1010" y="527.5" font-size="13" fill="#1F2329" text-anchor="end">GET token B，3 次</text>
+<polyline points="1020,536 752,536" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="752,530 742,536 752,542" fill="#8F959E"/>
+<text x="730" y="568.5" font-size="13" fill="#1F2329" text-anchor="end">转发</text>
+<polyline points="740,577 192,577" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="192,571 182,577 192,583" fill="#8F959E"/>
+<text x="190" y="609.5" font-size="13" fill="#1F2329">404，acme-a 没有 token B</text>
+<polyline points="180,618 1008,618" fill="none" stroke="#8F959E" stroke-width="2" stroke-dasharray="6 4"/>
+<polygon points="1008,612 1018,618 1008,624" fill="#8F959E"/>
+<text x="470" y="650.5" font-size="13" fill="#1F2329">订单失败，60 秒后重试；HTTPS 握手</text>
+<text x="470" y="670.5" font-size="13" fill="#1F2329">失败</text>
+<polyline points="460,679 486,679 486,697 474,697" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="474,691 464,697 474,703" fill="#8F959E"/>
+<text x="40" y="759" font-size="12" fill="#646A73" data-role="source">来源：labs/cloud-05 实验输出；nginx-acme v0.4.2 src/acme/solvers/http.rs；pebble v2.10.3 va/va.go</text>
+</svg>

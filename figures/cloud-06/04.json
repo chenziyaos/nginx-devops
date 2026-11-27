@@ -1,0 +1,24 @@
+{
+ "type": "sequence",
+ "title": "装上 nginx-otel，后端的父 span 从客户端换成 nginx",
+ "subtitle": "时间从上向下；T 是 trace id，C 是客户端的 span id，N 是 nginx 生成的 span id；上半段是不装模块的 edge，下半段是装了 nginx-otel 的 traced",
+ "source": "来源：labs/cloud-06 实验输出；nginx-otel v0.1.2 src/http_module.cpp",
+ "actors": [
+  "客户端",
+  {"name": "nginx", "sub": "edge / traced"},
+  "后端 app",
+  "Collector"
+ ],
+ "messages": [
+  {"from": "客户端", "to": "nginx", "text": "traceparent 00-T-C-01"},
+  {"from": "nginx", "to": "后端 app", "text": "原样转发 00-T-C-01"},
+  {"from": "客户端", "to": "nginx", "text": "traceparent 00-T-C-01"},
+  {"from": "nginx", "to": "nginx", "text": "沿用 T，父 span 记为 C，生成 N"},
+  {"from": "nginx", "to": "后端 app", "text": "改写为 00-T-N-01"},
+  {"from": "nginx", "to": "Collector", "text": "span N，父 C，类型 Server"}
+ ],
+ "sections": [
+  {"at": 0, "label": "edge：不装模块"},
+  {"at": 2, "label": "traced：nginx-otel"}
+ ]
+}

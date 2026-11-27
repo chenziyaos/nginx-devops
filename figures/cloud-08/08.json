@@ -1,0 +1,33 @@
+{
+ "type": "table",
+ "title": "默认长连接只给 upstream 块：1 条对 10 条",
+ "subtitle": "各发 10 个请求，后端看到的连接数；实验只有 1 个 worker",
+ "source": "来源：labs/cloud-08 实验输出",
+ "columns": [
+  "写法",
+  "1.26",
+  "1.30.8",
+  "1.31.10"
+ ],
+ "rows": [
+  [
+   "upstream 块（/explicit）",
+   "10 条",
+   {
+    "text": "1 条",
+    "tone": "good"
+   },
+   {
+    "text": "1 条",
+    "tone": "good"
+   }
+  ],
+  [
+   "proxy_pass 里写地址（/implicit）",
+   "10 条",
+   "10 条",
+   "10 条"
+  ]
+ ],
+ "highlight_row": 0
+}

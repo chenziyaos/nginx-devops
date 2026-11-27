@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 420" width="1200" height="420">
+<rect x="0" y="0" width="1200" height="420" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">Pingora 已替换 nginx，River 还没有稳定版</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">三者的进程模型、连接池和状态；Pingora 的数字是 Cloudflare 自己的测量</text>
+<rect x="40" y="129.2" width="357.3" height="225" rx="12" fill="#FFFFFF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<text x="60" y="169.7" font-size="20" fill="#646A73" font-weight="bold" data-role="card-title">nginx</text>
+<text x="60" y="192.8" font-size="13" fill="#646A73">C，多进程</text>
+<line x1="60" y1="214.2" x2="377.3" y2="214.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="248.2" font-size="14" fill="#646A73">连接池</text>
+<text x="377.3" y="248.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">每个 worker 一份</text>
+<line x1="60" y1="262.2" x2="377.3" y2="262.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="286.2" font-size="14" fill="#646A73">形态</text>
+<text x="377.3" y="286.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">成品服务器</text>
+<line x1="60" y1="300.2" x2="377.3" y2="300.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="60" y="324.2" font-size="14" fill="#646A73">状态</text>
+<text x="377.3" y="324.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">1.31.10 主线</text>
+<rect x="421.3" y="129.2" width="357.3" height="225" rx="12" fill="#F0FBEF" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="433.3" y="128.2" width="333.3" height="3" rx="1.5" fill="#34C724" data-role="colorline"/>
+<rect x="632" y="149.2" width="126.6" height="24" rx="12" fill="#E4FAE1" stroke="#8EE085" stroke-width="1" data-role="pill"/>
+<text x="695.3" y="165.4" font-size="12" fill="#2EA121" text-anchor="middle" data-role="pill">Cloudflare 已上线</text>
+<text x="441.3" y="169.7" font-size="20" fill="#2EA121" font-weight="bold" data-role="card-title">Pingora</text>
+<text x="441.3" y="192.8" font-size="13" fill="#646A73">Rust，多线程</text>
+<line x1="441.3" y1="214.2" x2="758.7" y2="214.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="441.3" y="248.2" font-size="14" fill="#646A73">连接池</text>
+<text x="758.7" y="248.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">所有线程共用</text>
+<line x1="441.3" y1="262.2" x2="758.7" y2="262.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="441.3" y="286.2" font-size="14" fill="#646A73">形态</text>
+<text x="758.7" y="286.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">库，要自己写代理</text>
+<line x1="441.3" y1="300.2" x2="758.7" y2="300.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="441.3" y="324.2" font-size="14" fill="#646A73">状态</text>
+<text x="758.7" y="324.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">复用率 87.1% → 99.92%</text>
+<rect x="802.7" y="129.2" width="357.3" height="225" rx="12" fill="#FFF5EB" stroke="#C9CDD4" stroke-width="1.5" data-role="card"/>
+<rect x="1054.4" y="149.2" width="85.6" height="24" rx="12" fill="#FFF1E0" stroke="#FFBA6B" stroke-width="1" data-role="pill"/>
+<text x="1097.2" y="165.4" font-size="12" fill="#D46B08" text-anchor="middle" data-role="pill">不承诺稳定</text>
+<text x="822.7" y="169.7" font-size="20" fill="#D46B08" font-weight="bold" data-role="card-title">River</text>
+<text x="822.7" y="192.8" font-size="13" fill="#646A73">Rust，基于 Pingora</text>
+<line x1="822.7" y1="214.2" x2="1140" y2="214.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="822.7" y="248.2" font-size="14" fill="#646A73">连接池</text>
+<text x="1140" y="248.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">同 Pingora</text>
+<line x1="822.7" y1="262.2" x2="1140" y2="262.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="822.7" y="286.2" font-size="14" fill="#646A73">形态</text>
+<text x="1140" y="286.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">成品反向代理</text>
+<line x1="822.7" y1="300.2" x2="1140" y2="300.2" stroke="#EFF0F1" stroke-width="1"/>
+<text x="822.7" y="324.2" font-size="14" fill="#646A73">状态</text>
+<text x="1140" y="324.2" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="end">v0.5.0，2024-08-30</text>
+<text x="40" y="396" font-size="12" fill="#646A73" data-role="source">来源：Cloudflare 博客 2022-09-14；River README 与发布页；nginx 1.31.10 源码</text>
+</svg>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 542" width="1200" height="542">
+<rect x="0" y="0" width="1200" height="542" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">四个方向的压力，nginx 在四个地方回应</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">左边是压力，右边是 nginx 代码里看得到的回应；箭头表示回应主要针对哪一项压力</text>
+<text x="390" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">压力</text>
+<text x="810" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">回应</text>
+<polyline points="504,190.5 686,190.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,184.5 696,190.5 686,196.5" fill="#8F959E"/>
+<polyline points="504,275.5 686,275.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,269.5 696,275.5 686,281.5" fill="#8F959E"/>
+<polyline points="504,360.5 686,360.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,354.5 696,360.5 686,366.5" fill="#8F959E"/>
+<polyline points="504,445.5 686,445.5" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="686,439.5 696,445.5 686,451.5" fill="#8F959E"/>
+<rect x="280" y="158" width="220" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="390" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Rust 代理</text>
+<text x="390" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">Pingora 替换了 nginx</text>
+<rect x="280" y="243" width="220" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="390" y="270.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">安全修复</text>
+<text x="390" y="290.7" font-size="12" fill="#646A73" text-anchor="middle">2026 年 37 条</text>
+<rect x="280" y="328" width="220" height="65" rx="8" fill="#FEF1F1" stroke="#F98E8B" stroke-width="1.5" data-role="node"/>
+<text x="390" y="355.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Kubernetes 入口</text>
+<text x="390" y="375.7" font-size="12" fill="#646A73" text-anchor="middle">ingress-nginx 停更</text>
+<rect x="280" y="413" width="220" height="65" rx="8" fill="#FFF5EB" stroke="#FFBA6B" stroke-width="1.5" data-role="node"/>
+<text x="390" y="440.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">分支</text>
+<text x="390" y="460.7" font-size="12" fill="#646A73" text-anchor="middle">Angie、OpenResty、freenginx</text>
+<rect x="700" y="158" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="810" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">默认长连接</text>
+<text x="810" y="205.7" font-size="12" fill="#646A73" text-anchor="middle">1.29.7，upstream 块</text>
+<rect x="700" y="243" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="810" y="270.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">解析收紧</text>
+<text x="810" y="290.7" font-size="12" fill="#646A73" text-anchor="middle">1.29.4、1.31.9</text>
+<rect x="700" y="328" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="810" y="355.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">API 与扩展</text>
+<text x="810" y="375.7" font-size="12" fill="#646A73" text-anchor="middle">control API、njs、Rust 模块</text>
+<rect x="700" y="413" width="220" height="65" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="810" y="440.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">商业功能开源</text>
+<text x="810" y="460.7" font-size="12" fill="#646A73" text-anchor="middle">resolve、sticky、least_time</text>
+<text x="40" y="518" font-size="12" fill="#646A73" data-role="source">来源：本文 §1 到 §9</text>
+</svg>

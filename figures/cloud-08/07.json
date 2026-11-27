@@ -1,0 +1,63 @@
+{
+ "type": "table",
+ "title": "三条曾经的商业功能，各从哪个版本进了开源版",
+ "subtitle": "每条指令写进一个探测配置，用 nginx -t 在三个版本里检查",
+ "source": "来源：labs/cloud-08 实验输出；nginx.org upstream 模块文档",
+ "columns": [
+  "指令",
+  "进开源版",
+  "1.26",
+  "1.30.8",
+  "1.31.10"
+ ],
+ "rows": [
+  [
+   "server … resolve",
+   "1.27.3",
+   {
+    "text": "不认识",
+    "tone": "risk"
+   },
+   {
+    "text": "接受",
+    "tone": "good"
+   },
+   {
+    "text": "接受",
+    "tone": "good"
+   }
+  ],
+  [
+   "sticky",
+   "1.29.6",
+   {
+    "text": "不认识",
+    "tone": "risk"
+   },
+   {
+    "text": "接受",
+    "tone": "good"
+   },
+   {
+    "text": "接受",
+    "tone": "good"
+   }
+  ],
+  [
+   "least_time",
+   "1.31.0",
+   {
+    "text": "不认识",
+    "tone": "risk"
+   },
+   {
+    "text": "不认识",
+    "tone": "risk"
+   },
+   {
+    "text": "接受",
+    "tone": "good"
+   }
+  ]
+ ]
+}

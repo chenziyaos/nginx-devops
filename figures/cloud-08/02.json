@@ -1,0 +1,45 @@
+{
+ "type": "table",
+ "title": "按网站数 Cloudflare 领先，按机器数 nginx 领先",
+ "subtitle": "同一时期两家调查的几种口径；高亮一行是 nginx 排第一的口径",
+ "source": "来源：W3Techs 2026-11-27；Netcraft 2026 年 9 月调查",
+ "columns": [
+  "口径",
+  "nginx",
+  "Cloudflare",
+  "第一"
+ ],
+ "rows": [
+  [
+   "W3Techs：能识别出服务器的网站",
+   "29.6%",
+   "35.1%",
+   "Cloudflare"
+  ],
+  [
+   "Netcraft：全部站点",
+   "15.33%",
+   "18.10%",
+   "Cloudflare"
+  ],
+  [
+   "Netcraft：活跃站点",
+   "15.93%",
+   "25.57%",
+   "Cloudflare"
+  ],
+  [
+   "Netcraft：最繁忙的一百万个站点",
+   "19.65%",
+   "29.10%",
+   "Cloudflare"
+  ],
+  [
+   "Netcraft：对外服务的计算机",
+   "44.00%",
+   "—",
+   "nginx"
+  ]
+ ],
+ "highlight_row": 4
+}

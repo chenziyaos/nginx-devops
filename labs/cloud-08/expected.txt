@@ -1,0 +1,31 @@
+
+## three versions, one config
+v126: nginx/1.26.3
+v130: nginx/1.30.8
+v131: nginx/1.31.10
+ok - the same config loads in all three
+
+## directives that used to be commercial
+                         1.26.3                             1.30.8                             1.31.10
+resolve                  invalid parameter "resolve"        accepted                           accepted
+sticky                   unknown directive "sticky"         accepted                           accepted
+least_time               unknown directive "least_time"     unknown directive "least_time"     accepted
+ok - resolve (1.27.3) and sticky (1.29.6) are in 1.30, least_time (1.31.0) only in 1.31
+
+## keepalive to backends is on by default, for an upstream block
+v126: upstream block: 10 requests, 10 connections; address in proxy_pass: 10 requests, 10 connections
+v130: upstream block: 10 requests, 1 connection; address in proxy_pass: 10 requests, 10 connections
+v131: upstream block: 10 requests, 1 connection; address in proxy_pass: 10 requests, 10 connections
+ok - 1.29.7 made keepalive the default for upstream blocks only
+
+## a chunk size line ended by a bare LF
+v126: HTTP/1.1 200 OK
+v130: HTTP/1.1 400 Bad Request
+v131: HTTP/1.1 400 Bad Request
+ok - rejected since 1.29.4, so in 1.30 as well
+
+## a header line without a colon
+v126: HTTP/1.1 200 OK
+v130: HTTP/1.1 200 OK
+v131: HTTP/1.1 400 Bad Request
+ok - rejected since 1.31.9; the 1.30 branch still takes it as a header with an empty value

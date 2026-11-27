@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;Microsoft YaHei&quot;, &quot;Noto Sans CJK SC&quot;, &quot;Source Han Sans SC&quot;, Helvetica, Arial, sans-serif" viewBox="0 0 1200 554" width="1200" height="554">
+<rect x="0" y="0" width="1200" height="554" rx="16" fill="#FAFBFD" stroke="#DEE0E3" stroke-width="1" data-role="frame"/>
+<text x="40" y="58" font-size="28" fill="#1F2329" font-weight="bold" data-role="title">同一份 HTTPRoute，换一个 GatewayClass 就换了数据面</text>
+<text x="40" y="92" font-size="14" fill="#646A73" data-role="subtitle">Gateway API 的路由对象与实现无关；控制器把它翻译成各自数据面的配置</text>
+<text x="180" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">路由</text>
+<text x="600" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">GatewayClass 选的控制器</text>
+<text x="1020" y="143" font-size="13" fill="#646A73" font-weight="bold" text-anchor="middle">数据面</text>
+<polyline points="294,324 387,324 387,192 476,192" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,186 486,192 476,198" fill="#8F959E"/>
+<polyline points="294,324 387,324 387,280 476,280" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,274 486,280 476,286" fill="#8F959E"/>
+<polyline points="294,324 387,324 387,368 476,368" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,362 486,368 476,374" fill="#8F959E"/>
+<polyline points="294,324 387,324 387,456 476,456" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="476,450 486,456 476,462" fill="#8F959E"/>
+<polyline points="714,192 896,192" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,186 906,192 896,198" fill="#8F959E"/>
+<polyline points="714,280 807,280 807,324 896,324" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,318 906,324 896,330" fill="#8F959E"/>
+<polyline points="714,368 807,368 807,324 896,324" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,318 906,324 896,330" fill="#8F959E"/>
+<polyline points="714,456 896,456" fill="none" stroke="#8F959E" stroke-width="2"/>
+<polygon points="896,450 906,456 896,462" fill="#8F959E"/>
+<rect x="70" y="290" width="220" height="68" rx="8" fill="#F0F4FF" stroke="#82A7FC" stroke-width="1.5" data-role="node"/>
+<text x="180" y="319.4" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">HTTPRoute</text>
+<text x="180" y="339.2" font-size="12" fill="#646A73" text-anchor="middle">类型化的路由对象</text>
+<rect x="490" y="158" width="220" height="68" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="600" y="185.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">NGINX Gateway</text>
+<text x="600" y="207.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Fabric</text>
+<rect x="490" y="246" width="220" height="68" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="284.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Envoy Gateway</text>
+<rect x="490" y="334" width="220" height="68" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="372.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Istio</text>
+<rect x="490" y="422" width="220" height="68" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="600" y="460.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Traefik</text>
+<rect x="910" y="158" width="220" height="68" rx="8" fill="#F0FBEF" stroke="#8EE085" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="196.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">nginx</text>
+<rect x="910" y="290" width="220" height="68" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="328.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Envoy</text>
+<rect x="910" y="422" width="220" height="68" rx="8" fill="#FFFFFF" stroke="#DEE0E3" stroke-width="1.5" data-role="node"/>
+<text x="1020" y="460.9" font-size="14" fill="#1F2329" font-weight="bold" text-anchor="middle">Traefik</text>
+<text x="40" y="530" font-size="12" fill="#646A73" data-role="source">来源：Gateway API 实现列表（2026-11-27 查看）；云原生篇 03</text>
+</svg>

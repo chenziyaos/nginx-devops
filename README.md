@@ -1,6 +1,6 @@
 # nginx-devops
 
-一套基于 nginx 1.31.10 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）、开发篇（10 章）和云原生篇（7 章）。每章的结论都配有一个可以复现的实验（云原生篇的实验跑在本地 kind 集群里），引用的源码片段逐行核对过 1.31.10 的源码。适合三类读者：要配置和排查线上 nginx 的，要读 nginx 源码或者自己写模块的，要把 nginx 跑在 Kubernetes 里的。
+一套基于 nginx 1.31.10 源码的中文教程，用来弄清 nginx 的配置在源码里实际怎么生效，分为运维篇（13 章）、开发篇（10 章）和云原生篇（8 章）。每章的结论都配有一个可以复现的实验（云原生篇的实验跑在本地 kind 集群里），引用的源码片段逐行核对过 1.31.10 的源码。适合三类读者：要配置和排查线上 nginx 的，要读 nginx 源码或者自己写模块的，要把 nginx 跑在 Kubernetes 里的。
 
 这里不是 nginx 官方文档的翻译，也不覆盖全部指令。每章挑一个主题，讲清楚 nginx 在源码里实际怎么做，以及默认值和容易误解的行为。2018 年的旧版教程保留在 tag [`legacy-2018`](https://github.com/zyaochen/nginx-devops/tree/legacy-2018)。
 
@@ -80,6 +80,7 @@ ok - without burst only the first request fits
 | [05](cloud/05-certificates.md) | 证书自动化：换证书可以不 reload，但 nginx-acme 的 HTTP-01 只有发起它的那个副本答得上 |
 | [06](cloud/06-observability.md) | 可观测：指标的计数器跟着 master 走，一次请求靠 request id 和 traceparent 串起来 |
 | [07](cloud/07-extensions.md) | 扩展网关的三条路：njs 的脚本 reload 就换，Rust 和 C 模块换版本要重启 nginx |
+| [08](cloud/08-landscape.md) | nginx 的竞品与压力：Rust 代理、安全修复和 Kubernetes 入口三面施压，开源版在补商业功能、收紧解析 |
 
 每章的开头是一句话结论、适用版本（含与 1.30.8 stable 的差异）和对应的实验目录；结尾是“已知局限与待核实”，列出只读了源码、没有用实验验证的说法。
 
@@ -106,6 +107,8 @@ sed -n '/^## smooth weighted/,/^ok/p' labs/dev-09/expected.txt
 $ python3 tools/since.py keepalive_min_timeout
 1.27.4 (2025-02-05) feature: the "keepalive_min_timeout" directive.
 ```
+
+加 `--stats <日期>` 统计这一天以后各分支每种类型的条目数，云原生篇 08 的安全条目数就是这样数的。
 
 **按行号摘录源码。** `tools/excerpt.py` 输出带文件名和行号的代码块，章节里的源码片段都是这样生成的：
 
@@ -157,7 +160,7 @@ tools/verify_labs.sh cloud-00      # 冒烟实验：镜像版本、Pod 里的进
 tools/cloud_addons.sh              # 云原生篇 03 起需要：Gateway API v1.7.0 CRD、NGINX Gateway Fabric v2.9.1、ingress2gateway v1.2.0、cert-manager v1.21.3
 ```
 
-- 实验镜像 `nginx-devops/nginx:1.31.10` 由 `labs/cloud-images/nginx/Dockerfile` 从 nginx.org 的源码包构建（校验 sha256），模块与 `tools/build.sh` 相同，路径、运行用户、日志软链接和 `STOPSIGNAL SIGQUIT` 照搬官方镜像。另外三个镜像在它的基础上按同样的 configure 参数加编动态模块：`nginx-acme`（云原生篇 05，Rust）、`nginx-otel`（云原生篇 06，C++，构建时从 GitHub 拉 gRPC 和 opentelemetry-cpp）、`nginx-ext`（云原生篇 07，njs 加 QuickJS-NG、ngx-rust 的 curl 示例和一个 C 模块），构建机要能访问 GitHub 和 crates.io。`tools/cloud_images.sh` 只重建镜像并 `kind load` 到各节点；环境变量里的 `http_proxy` 等代理设置会传给 `docker build`。
+- 实验镜像 `nginx-devops/nginx:1.31.10` 由 `labs/cloud-images/nginx/Dockerfile` 从 nginx.org 的源码包构建（校验 sha256），模块与 `tools/build.sh` 相同，路径、运行用户、日志软链接和 `STOPSIGNAL SIGQUIT` 照搬官方镜像。另外三个镜像在它的基础上按同样的 configure 参数加编动态模块：`nginx-acme`（云原生篇 05，Rust）、`nginx-otel`（云原生篇 06，C++，构建时从 GitHub 拉 gRPC 和 opentelemetry-cpp）、`nginx-ext`（云原生篇 07，njs 加 QuickJS-NG、ngx-rust 的 curl 示例和一个 C 模块），构建机要能访问 GitHub 和 crates.io。云原生篇 08 另外直接拉 Docker Hub 上的官方镜像 `nginx:1.26.3` 和 `nginx:1.30.8` 做版本对比。`tools/cloud_images.sh` 只重建镜像并 `kind load` 到各节点；环境变量里的 `http_proxy` 等代理设置会传给 `docker build`。
 - `tools/cloud_addons.sh` 可重复执行（`helm upgrade --install`、`kubectl apply`）；ingress2gateway 装在仓库下的 `.cloud-tools/bin`（不进 git），`labs/cloud-lib.sh` 会把它加进 PATH。
 - 每个实验独占命名空间 `lab-cloud-NN`，开始时删掉重建，退出时删除。`labs/cloud-lib.sh` 只在 kubectl 当前 context 以 `kind-` 开头时运行，否则以退出码 77 结束，`verify_labs.sh` 记为 SKIP，不算通过。
 - 云原生篇的实验在 Debian 9（Linux 4.19，cgroup v1）、docker 29.10.1、kind v0.33.0 上跑过。cgroup v1 主机上 kind 的节点镜像默认拒绝启动，`labs/cloud-images/kind.yaml` 里的补丁关掉了这项检查，并让 kubelet 和 containerd 都用 cgroupfs 驱动；cgroup v2 主机用同一份配置也能运行，但没有在那样的机器上验证过。
